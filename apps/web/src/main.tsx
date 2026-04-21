@@ -10,9 +10,12 @@ import {
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Button } from "@leetgrind/ui";
+import { LocalApiStatus } from "./local-api-status";
 import "./styles.css";
+import { createTrpcClient, trpc } from "./trpc";
 
 const queryClient = new QueryClient();
+const trpcClient = createTrpcClient();
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -26,6 +29,7 @@ const rootRoute = createRootRoute({
             <Link to="/" className="rounded px-3 py-2 hover:bg-zinc-900">
               Dashboard
             </Link>
+            <LocalApiStatus />
           </nav>
         </div>
       </header>
@@ -73,9 +77,10 @@ declare module "@tanstack/react-router" {
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </trpc.Provider>
   </React.StrictMode>
 );
-

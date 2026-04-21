@@ -1,6 +1,6 @@
 # Phase 02: User Profile, Goals, And Onboarding
 
-Status: planned.
+Status: next.
 
 ## Goal
 
@@ -154,4 +154,3 @@ Manual:
 - Profile, goals, skills, and resume text persist locally.
 - Dashboard route can read onboarding state.
 - Data model supports multiple concurrent goals.
-

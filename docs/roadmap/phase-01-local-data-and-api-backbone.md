@@ -1,6 +1,6 @@
 # Phase 01: Local Data And API Backbone
 
-Status: next.
+Status: done.
 
 ## Goal
 
@@ -161,4 +161,3 @@ Manual:
 - tRPC API exposes basic profile/goals/skills/document operations.
 - Typecheck and build pass.
 - Roadmap and GRACE artifacts reflect any schema-level decisions.
-

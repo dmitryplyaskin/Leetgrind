@@ -17,6 +17,7 @@
     "clean": "rimraf dist .turbo"
   },
   "dependencies": {
+    "@leetgrind/db": "workspace:*",
     "@leetgrind/shared": "workspace:*",
     "@trpc/server": "^11.16.0",
     "cors": "^2.8.6",

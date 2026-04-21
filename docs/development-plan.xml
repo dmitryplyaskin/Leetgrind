@@ -173,7 +173,7 @@
       <module>M-SHARED</module>
     </phase>
 
-    <phase id="PH-001" status="next" roadmap="docs/roadmap/phase-01-local-data-and-api-backbone.md">
+    <phase id="PH-001" status="done" roadmap="docs/roadmap/phase-01-local-data-and-api-backbone.md">
       <name>Local Data And API Backbone</name>
       <goal>Implement local persistence, repositories, application context, and typed API backbone.</goal>
       <module>M-DOMAIN</module>
@@ -182,7 +182,7 @@
       <module>M-SERVER-API</module>
     </phase>
 
-    <phase id="PH-002" status="planned" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
+    <phase id="PH-002" status="next" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
       <name>User Profile, Goals, And Onboarding</name>
       <goal>Let the user define profile, goals, initial skills, languages, and resume context.</goal>
       <module>M-WEB</module>

@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm -r --filter \"./packages/**\" build && pnpm --filter @leetgrind/server build && pnpm -r --filter \"./packages/**\" typecheck && pnpm -r --filter \"./apps/**\" typecheck",
     "clean": "pnpm -r clean"
   },
   "devDependencies": {

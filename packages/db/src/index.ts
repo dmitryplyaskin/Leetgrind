@@ -1,3 +1,9 @@
-export * from "./schema";
-export * from "./pglite";
-
+export * from "./schema.js";
+export * from "./pglite.js";
+export * from "./repositories/attempts-repository.js";
+export * from "./repositories/documents-repository.js";
+export * from "./repositories/evidence-repository.js";
+export * from "./repositories/goals-repository.js";
+export * from "./repositories/recommendations-repository.js";
+export * from "./repositories/skills-repository.js";
+export * from "./repositories/user-profile-repository.js";

@@ -1,28 +1,22 @@
 import cors from "cors";
 import express from "express";
 import type { Express } from "express";
-import { initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import superjson from "superjson";
-import { z } from "zod";
+import type { AppContext, CreateAppContextOptions } from "./context.js";
+import { createAppContext } from "./context.js";
+import { appRouter, type AppRouter } from "./router.js";
 
-const t = initTRPC.create({
-  transformer: superjson
-});
+export type { AppRouter };
+export { appRouter, createAppContext };
 
-export const appRouter = t.router({
-  health: t.procedure.query(() => ({
-    ok: true,
-    service: "leetgrind-server",
-    time: new Date()
-  })),
-  echo: t.procedure.input(z.object({ message: z.string() })).mutation(({ input }) => input)
-});
+export interface CreateAppOptions {
+  context?: AppContext | Promise<AppContext>;
+  contextOptions?: CreateAppContextOptions;
+}
 
-export type AppRouter = typeof appRouter;
-
-export function createApp(): Express {
+export async function createApp(options: CreateAppOptions = {}): Promise<Express> {
   const app = express();
+  const context = await Promise.resolve(options.context ?? createAppContext(options.contextOptions));
 
   app.use(cors());
   app.use(express.json());
@@ -34,7 +28,8 @@ export function createApp(): Express {
   app.use(
     "/trpc",
     trpcExpress.createExpressMiddleware({
-      router: appRouter
+      router: appRouter,
+      createContext: async () => context
     })
   );
 
@@ -43,8 +38,9 @@ export function createApp(): Express {
 
 if (process.env.NODE_ENV !== "test") {
   const port = Number(process.env.PORT ?? 3000);
+  const app = await createApp();
 
-  createApp().listen(port, "127.0.0.1", () => {
+  app.listen(port, "127.0.0.1", () => {
     console.log(`Leetgrind server listening on http://127.0.0.1:${port}`);
   });
 }

@@ -155,7 +155,7 @@
       <result>Project now has agent-facing contracts, module graph, verification plan, and execution packet templates.</result>
     </packet>
 
-    <packet id="OP-002" status="next" template="TPL-FEATURE">
+    <packet id="OP-002" status="completed" template="TPL-FEATURE">
       <name>Local data and API backbone</name>
       <target-modules>
         <module>M-SERVER-API</module>
@@ -171,9 +171,12 @@
         <command>pnpm typecheck</command>
         <command>pnpm build</command>
       </verification>
+      <result>
+        Local PGLite schema, Drizzle migration, repositories, server app context, tRPC routers, and minimal web health status wiring were implemented.
+      </result>
     </packet>
 
-    <packet id="OP-003" status="planned" template="TPL-FEATURE">
+    <packet id="OP-003" status="next" template="TPL-FEATURE">
       <name>User profile, goals, and onboarding</name>
       <target-modules>
         <module>M-WEB</module>
