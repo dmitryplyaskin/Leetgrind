@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grace-operational-packets project="leetgrind" version="0.1" updated="2026-04-21">
+  <metadata>
+    <title>Leetgrind Operational Packets</title>
+    <purpose>Define governed execution mode for autonomous and multi-agent work.</purpose>
+  </metadata>
+
+  <defaults>
+    <assumptions>
+      <assumption id="A-001">The product remains local-first unless the user explicitly changes direction.</assumption>
+      <assumption id="A-002">pnpm is the package manager.</assumption>
+      <assumption id="A-003">The workspace uses TypeScript strict mode.</assumption>
+      <assumption id="A-004">AI providers are optional runtime integrations and must be replaceable.</assumption>
+    </assumptions>
+    <retry-budget>
+      <rule id="RB-001">Retry a failing verification command at most once after a targeted fix.</rule>
+      <rule id="RB-002">Do not keep changing unrelated files to make a broad build pass.</rule>
+      <rule id="RB-003">Escalate to the user if the failure requires product or architecture direction.</rule>
+    </retry-budget>
+    <stop-conditions>
+      <condition id="STOP-001">The task contradicts Product Vision or requirements.</condition>
+      <condition id="STOP-002">The implementation would break local-first assumptions.</condition>
+      <condition id="STOP-003">A package dependency cycle is required to proceed.</condition>
+      <condition id="STOP-004">User code execution cannot be sandboxed or bounded.</condition>
+      <condition id="STOP-005">Provider credentials, auth flow, or legal boundary is unavailable or unclear.</condition>
+      <condition id="STOP-006">GRACE artifacts disagree on a decision that materially affects implementation.</condition>
+    </stop-conditions>
+    <checkpoint-fields>
+      <field name="packet-id"/>
+      <field name="target-modules"/>
+      <field name="owned-files"/>
+      <field name="planned-edits"/>
+      <field name="verification-commands"/>
+      <field name="risks"/>
+      <field name="handoff-notes"/>
+    </checkpoint-fields>
+  </defaults>
+
+  <packet-templates>
+    <packet-template id="TPL-FEATURE">
+      <name>Feature Implementation Packet</name>
+      <required-inputs>
+        <input>Feature goal</input>
+        <input>Target requirements</input>
+        <input>Target modules</input>
+        <input>Expected user-visible behavior</input>
+        <input>Verification commands</input>
+      </required-inputs>
+      <required-steps>
+        <step>Read AGENTS.md and relevant GRACE artifacts.</step>
+        <step>Resolve module boundaries from knowledge-graph.xml.</step>
+        <step>Update requirements or development-plan if the feature changes scope.</step>
+        <step>Implement only within owned files unless a documented dependency requires expansion.</step>
+        <step>Run module-specific verification and global verification as required.</step>
+        <step>Report changed files, verification evidence, and residual risks.</step>
+      </required-steps>
+    </packet-template>
+
+    <packet-template id="TPL-REFACTOR">
+      <name>Refactor Packet</name>
+      <required-inputs>
+        <input>Refactor purpose</input>
+        <input>Preserved behavior</input>
+        <input>Affected module contracts</input>
+        <input>Verification evidence</input>
+      </required-inputs>
+      <required-steps>
+        <step>Prove the refactor is scoped and necessary.</step>
+        <step>Update graph or contracts if boundaries move.</step>
+        <step>Keep public behavior unchanged unless explicitly requested.</step>
+        <step>Run typecheck and build.</step>
+      </required-steps>
+    </packet-template>
+
+    <packet-template id="TPL-MULTIAGENT">
+      <name>Multi-Agent Execution Packet</name>
+      <required-inputs>
+        <input>Controller objective</input>
+        <input>Worker list</input>
+        <input>Disjoint write scopes</input>
+        <input>Synchronization points</input>
+        <input>Integration order</input>
+      </required-inputs>
+      <required-steps>
+        <step>Assign each worker a module and owned file set.</step>
+        <step>Prevent workers from editing shared contracts in parallel unless one worker owns the contract update.</step>
+        <step>Collect worker outputs and changed paths.</step>
+        <step>Review integration conflicts.</step>
+        <step>Run global verification after integration.</step>
+      </required-steps>
+    </packet-template>
+
+    <packet-template id="TPL-FIX">
+      <name>Bug Fix Packet</name>
+      <required-inputs>
+        <input>Observed failure</input>
+        <input>Expected behavior</input>
+        <input>Suspected module</input>
+        <input>Reproduction or command</input>
+      </required-inputs>
+      <required-steps>
+        <step>Locate module through knowledge graph.</step>
+        <step>Inspect narrow code path.</step>
+        <step>Fix root cause without broad rewrite.</step>
+        <step>Add or update verification when the bug could recur.</step>
+      </required-steps>
+    </packet-template>
+  </packet-templates>
+
+  <active-packets>
+    <packet id="OP-000" status="completed" template="TPL-FEATURE">
+      <name>Base workspace bootstrap</name>
+      <target-modules>
+        <module>M-WEB</module>
+        <module>M-SERVER-API</module>
+        <module>M-DOMAIN</module>
+        <module>M-DB</module>
+        <module>M-AI</module>
+        <module>M-AGENTS</module>
+        <module>M-RAG</module>
+        <module>M-CODE-RUNNER</module>
+        <module>M-SCHEDULING</module>
+        <module>M-UI</module>
+        <module>M-SHARED</module>
+      </target-modules>
+      <verification>
+        <command>pnpm build</command>
+        <command>pnpm typecheck</command>
+      </verification>
+      <result>Workspace, dependencies, baseline packages, web app, and local server were initialized.</result>
+    </packet>
+
+    <packet id="OP-001" status="completed" template="TPL-FEATURE">
+      <name>GRACE methodology bootstrap</name>
+      <target-modules>
+        <module>DOC-REQ</module>
+        <module>DOC-TECH</module>
+        <module>DOC-PLAN</module>
+        <module>DOC-VERIFY</module>
+        <module>DOC-OPS</module>
+      </target-modules>
+      <owned-files>
+        <file>AGENTS.md</file>
+        <file>docs/requirements.xml</file>
+        <file>docs/technology.xml</file>
+        <file>docs/development-plan.xml</file>
+        <file>docs/knowledge-graph.xml</file>
+        <file>docs/verification-plan.xml</file>
+        <file>docs/operational-packets.xml</file>
+      </owned-files>
+      <verification>
+        <command>XML parse check</command>
+        <command>pnpm typecheck</command>
+      </verification>
+      <result>Project now has agent-facing contracts, module graph, verification plan, and execution packet templates.</result>
+    </packet>
+
+    <packet id="OP-002" status="next" template="TPL-FEATURE">
+      <name>Onboarding and persisted goals skeleton</name>
+      <target-modules>
+        <module>M-WEB</module>
+        <module>M-SERVER-API</module>
+        <module>M-DOMAIN</module>
+        <module>M-DB</module>
+      </target-modules>
+      <expected-output>
+        User can enter initial goal and skills, data is persisted locally, and dashboard can read it.
+      </expected-output>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+  </active-packets>
+</grace-operational-packets>
+

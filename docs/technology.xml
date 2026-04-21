@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grace-technology project="leetgrind" version="0.1" updated="2026-04-21">
+  <metadata>
+    <title>Leetgrind Technology Contract</title>
+    <runtime>Node.js 22 or newer</runtime>
+    <package-manager>pnpm 10</package-manager>
+    <language>TypeScript</language>
+  </metadata>
+
+  <workspace>
+    <layout>pnpm workspace monorepo</layout>
+    <apps>
+      <app id="APP-WEB" path="apps/web" purpose="React frontend"/>
+      <app id="APP-SERVER" path="apps/server" purpose="Local Express and tRPC server"/>
+    </apps>
+    <packages>
+      <package id="PKG-DOMAIN" path="packages/domain"/>
+      <package id="PKG-DB" path="packages/db"/>
+      <package id="PKG-AI" path="packages/ai"/>
+      <package id="PKG-AGENTS" path="packages/agents"/>
+      <package id="PKG-RAG" path="packages/rag"/>
+      <package id="PKG-CODE-RUNNER" path="packages/code-runner"/>
+      <package id="PKG-SCHEDULING" path="packages/scheduling"/>
+      <package id="PKG-UI" path="packages/ui"/>
+      <package id="PKG-SHARED" path="packages/shared"/>
+    </packages>
+  </workspace>
+
+  <approved-stack>
+    <frontend>
+      <library name="React" role="UI framework"/>
+      <library name="Vite" role="frontend build tool"/>
+      <library name="TanStack Router" role="typed routing"/>
+      <library name="TanStack Query" role="server state"/>
+      <library name="React Hook Form" role="forms"/>
+      <library name="Zod" role="schema validation"/>
+      <library name="Tailwind CSS" role="styling"/>
+      <library name="Radix UI" role="accessible primitives"/>
+      <library name="CodeMirror 6" role="coding editor"/>
+      <library name="Cytoscape.js" role="knowledge graph visualization"/>
+      <library name="Zustand" role="small UI-only state"/>
+    </frontend>
+    <backend>
+      <library name="Express" role="local server"/>
+      <library name="tRPC" role="typed local API"/>
+      <library name="PGLite" role="local PostgreSQL-compatible database"/>
+      <library name="Drizzle ORM" role="schema and typed queries"/>
+      <library name="pgvector via PGLite vector extension" role="embedding storage"/>
+    </backend>
+    <ai>
+      <library name="AI SDK" role="provider-agnostic text and structured generation"/>
+      <library name="OpenAI SDK" role="OpenAI API integration"/>
+      <library name="OpenRouter AI SDK provider" role="OpenRouter integration"/>
+      <library name="OpenAI Agents SDK" role="future OpenAI-native agent workflows"/>
+    </ai>
+    <code-execution>
+      <library name="Pyodide" role="Python execution in worker-compatible runtime"/>
+      <library name="WebContainer API" role="future richer Node.js coding tasks"/>
+    </code-execution>
+  </approved-stack>
+
+  <commands>
+    <command id="CMD-BUILD" cwd="." value="pnpm build" required-for="runtime-or-package-boundary-changes"/>
+    <command id="CMD-TYPECHECK" cwd="." value="pnpm typecheck" required-for="all-code-changes"/>
+    <command id="CMD-DEV" cwd="." value="pnpm dev" required-for="local-manual-development"/>
+    <command id="CMD-CLEAN" cwd="." value="pnpm clean" required-for="resetting-build-output"/>
+    <command id="CMD-DRIZZLE-GENERATE" cwd="." value="pnpm --filter @leetgrind/db drizzle:generate" required-for="schema-migration-generation"/>
+  </commands>
+
+  <dependency-rules>
+    <rule id="DEP-001">packages/domain must not depend on UI, Express, Drizzle, PGLite, AI SDK, OpenAI, OpenRouter, or Codex-specific code.</rule>
+    <rule id="DEP-002">apps/web and packages/ui must not directly call provider SDKs or database repositories.</rule>
+    <rule id="DEP-003">packages/db may depend on domain types, PGLite, Drizzle, and shared utilities.</rule>
+    <rule id="DEP-004">packages/agents may depend on domain and ai abstractions, but provider-specific code should remain in packages/ai unless a documented exception exists.</rule>
+    <rule id="DEP-005">packages/rag may coordinate embeddings through packages/ai but must keep retrieval source metadata explicit.</rule>
+    <rule id="DEP-006">apps/server coordinates use cases and adapters but should avoid holding core business rules directly.</rule>
+    <rule id="DEP-007">New runtime dependencies require a reason in docs/technology.xml when they become architectural choices.</rule>
+  </dependency-rules>
+
+  <coding-standards>
+    <standard id="CODE-001">Use TypeScript strict mode.</standard>
+    <standard id="CODE-002">Use Zod for external inputs, AI structured outputs, and form validation boundaries.</standard>
+    <standard id="CODE-003">Prefer typed public interfaces over ad hoc object shapes across package boundaries.</standard>
+    <standard id="CODE-004">Avoid broad refactors unless required by the execution packet.</standard>
+    <standard id="CODE-005">Use deterministic tests and runtime checks before qualitative AI review for coding practice.</standard>
+    <standard id="CODE-006">Keep comments sparse and useful.</standard>
+  </coding-standards>
+
+  <forbidden-patterns>
+    <pattern id="FORBID-001">Single messages table as the source of all product memory.</pattern>
+    <pattern id="FORBID-002">Direct provider SDK calls from React components.</pattern>
+    <pattern id="FORBID-003">Direct database access from React components.</pattern>
+    <pattern id="FORBID-004">Unsafe eval or unrestricted child process execution for user code.</pattern>
+    <pattern id="FORBID-005">Provider-specific assumptions leaking into domain entities.</pattern>
+    <pattern id="FORBID-006">Architecture changes without updating GRACE artifacts.</pattern>
+  </forbidden-patterns>
+</grace-technology>
+

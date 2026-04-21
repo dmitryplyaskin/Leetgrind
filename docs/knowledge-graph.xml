@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grace-knowledge-graph project="leetgrind" version="0.1" updated="2026-04-21">
+  <metadata>
+    <title>Leetgrind Module Knowledge Graph</title>
+    <purpose>Provide stable module navigation and dependency direction for agents.</purpose>
+  </metadata>
+
+  <nodes>
+    <node id="M-WEB" path="apps/web" kind="app" label="Web App"/>
+    <node id="M-SERVER-API" path="apps/server" kind="app" label="Local API Server"/>
+    <node id="M-DOMAIN" path="packages/domain" kind="package" label="Domain Model"/>
+    <node id="M-DB" path="packages/db" kind="package" label="Local Persistence"/>
+    <node id="M-AI" path="packages/ai" kind="package" label="AI Provider Layer"/>
+    <node id="M-AGENTS" path="packages/agents" kind="package" label="Agent Workflows"/>
+    <node id="M-RAG" path="packages/rag" kind="package" label="Retrieval And Memory"/>
+    <node id="M-CODE-RUNNER" path="packages/code-runner" kind="package" label="Code Runner"/>
+    <node id="M-SCHEDULING" path="packages/scheduling" kind="package" label="Spaced Repetition"/>
+    <node id="M-UI" path="packages/ui" kind="package" label="Shared UI"/>
+    <node id="M-SHARED" path="packages/shared" kind="package" label="Shared Contracts"/>
+    <node id="DOC-REQ" path="docs/requirements.xml" kind="artifact" label="Requirements"/>
+    <node id="DOC-TECH" path="docs/technology.xml" kind="artifact" label="Technology"/>
+    <node id="DOC-PLAN" path="docs/development-plan.xml" kind="artifact" label="Development Plan"/>
+    <node id="DOC-VERIFY" path="docs/verification-plan.xml" kind="artifact" label="Verification Plan"/>
+    <node id="DOC-OPS" path="docs/operational-packets.xml" kind="artifact" label="Operational Packets"/>
+    <node id="DOC-ARCH" path="docs/architecture.md" kind="artifact" label="Human Architecture Draft"/>
+  </nodes>
+
+  <edges>
+    <edge from="M-WEB" to="M-UI" relation="uses"/>
+    <edge from="M-WEB" to="M-SHARED" relation="uses"/>
+    <edge from="M-WEB" to="M-SERVER-API" relation="calls-through-api"/>
+
+    <edge from="M-SERVER-API" to="M-DOMAIN" relation="coordinates"/>
+    <edge from="M-SERVER-API" to="M-DB" relation="coordinates"/>
+    <edge from="M-SERVER-API" to="M-AI" relation="coordinates"/>
+    <edge from="M-SERVER-API" to="M-AGENTS" relation="coordinates"/>
+    <edge from="M-SERVER-API" to="M-RAG" relation="coordinates"/>
+    <edge from="M-SERVER-API" to="M-CODE-RUNNER" relation="coordinates"/>
+    <edge from="M-SERVER-API" to="M-SCHEDULING" relation="coordinates"/>
+    <edge from="M-SERVER-API" to="M-SHARED" relation="uses"/>
+
+    <edge from="M-DB" to="M-DOMAIN" relation="maps-to"/>
+    <edge from="M-DB" to="M-SHARED" relation="uses"/>
+    <edge from="M-DOMAIN" to="M-SHARED" relation="uses"/>
+    <edge from="M-AI" to="M-SHARED" relation="uses"/>
+    <edge from="M-AGENTS" to="M-DOMAIN" relation="uses"/>
+    <edge from="M-AGENTS" to="M-AI" relation="uses"/>
+    <edge from="M-AGENTS" to="M-RAG" relation="retrieves-context-from"/>
+    <edge from="M-RAG" to="M-AI" relation="uses-embedding-provider"/>
+    <edge from="M-RAG" to="M-DB" relation="stores-and-queries"/>
+    <edge from="M-UI" to="M-SHARED" relation="uses"/>
+
+    <edge from="DOC-REQ" to="DOC-PLAN" relation="drives"/>
+    <edge from="DOC-TECH" to="DOC-PLAN" relation="constrains"/>
+    <edge from="DOC-PLAN" to="DOC-VERIFY" relation="requires-verification"/>
+    <edge from="DOC-PLAN" to="DOC-OPS" relation="generates-execution-packets"/>
+    <edge from="DOC-PLAN" to="DOC-ARCH" relation="summarized-by"/>
+  </edges>
+
+  <surfaces>
+    <surface id="SURFACE-API" modules="M-WEB M-SERVER-API" risk="medium">
+      Typed client/server boundary. Changes require typecheck and usually build.
+    </surface>
+    <surface id="SURFACE-PERSISTENCE" modules="M-DOMAIN M-DB M-RAG M-SCHEDULING" risk="high">
+      Persistent user state and evidence. Changes require schema review and migration planning.
+    </surface>
+    <surface id="SURFACE-AI" modules="M-AI M-AGENTS M-RAG" risk="high">
+      Provider calls, structured outputs, retrieval context, and agent traces.
+    </surface>
+    <surface id="SURFACE-CODE-EXECUTION" modules="M-CODE-RUNNER M-WEB M-SERVER-API" risk="high">
+      User code execution and sandboxing. Changes require explicit safety review.
+    </surface>
+    <surface id="SURFACE-LEARNING" modules="M-DOMAIN M-AGENTS M-SCHEDULING M-RAG" risk="medium">
+      Progress, evidence, review scheduling, and recommendations.
+    </surface>
+  </surfaces>
+</grace-knowledge-graph>
+

@@ -4,6 +4,8 @@ Last updated: 2026-04-21
 
 This document describes the initial architecture direction for Leetgrind. It is based on the current product vision and should be treated as a practical starting point, not as a frozen specification.
 
+Leetgrind now uses a GRACE-inspired workflow for agentic development. The machine-readable execution contracts live in `docs/requirements.xml`, `docs/technology.xml`, `docs/development-plan.xml`, `docs/knowledge-graph.xml`, `docs/verification-plan.xml`, and `docs/operational-packets.xml`. This document is the human-readable architectural companion.
+
 Leetgrind is a local-first web application for programming interview preparation, AI-assisted learning, coding practice, mock interviews, progress tracking, and personal skill development.
 
 ## Core Principles
@@ -455,4 +457,3 @@ Avoid these in the first implementation:
 - depending on one agent framework as the core architecture;
 - running arbitrary user code without sandboxing and limits;
 - optimizing for multi-user server deployment before the local-first product works.
-

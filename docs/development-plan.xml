@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grace-development-plan project="leetgrind" version="0.1" updated="2026-04-21">
+  <metadata>
+    <title>Leetgrind Development Plan</title>
+    <status>initial-grace-bootstrap</status>
+    <planning-principle>Define module contracts before implementation spreads.</planning-principle>
+  </metadata>
+
+  <modules>
+    <module id="M-WEB" path="apps/web" owner="frontend">
+      <name>Web App</name>
+      <purpose>Render the local user experience, routes, dashboards, forms, graph, editor, and streaming UI.</purpose>
+      <public-contract>
+        <provides>React application shell and screens.</provides>
+        <provides>Typed API calls through client adapters.</provides>
+        <provides>UI composition using packages/ui components.</provides>
+        <must-not>Directly access PGLite, Drizzle repositories, OpenAI, OpenRouter, or Codex-specific code.</must-not>
+      </public-contract>
+      <depends-on>M-UI</depends-on>
+      <depends-on>M-SHARED</depends-on>
+      <depends-on>M-SERVER-API</depends-on>
+      <verification>V-M-WEB</verification>
+    </module>
+
+    <module id="M-SERVER-API" path="apps/server" owner="backend">
+      <name>Local API Server</name>
+      <purpose>Expose local Express and tRPC API, coordinate use cases, stream long-running operations.</purpose>
+      <public-contract>
+        <provides>Health endpoint.</provides>
+        <provides>tRPC router and application service endpoints.</provides>
+        <provides>Runtime composition for database, AI providers, agents, RAG, and code runner.</provides>
+        <must-not>Become the place where all domain rules are hidden.</must-not>
+      </public-contract>
+      <depends-on>M-DOMAIN</depends-on>
+      <depends-on>M-DB</depends-on>
+      <depends-on>M-AI</depends-on>
+      <depends-on>M-AGENTS</depends-on>
+      <depends-on>M-RAG</depends-on>
+      <depends-on>M-CODE-RUNNER</depends-on>
+      <depends-on>M-SCHEDULING</depends-on>
+      <depends-on>M-SHARED</depends-on>
+      <verification>V-M-SERVER-API</verification>
+    </module>
+
+    <module id="M-DOMAIN" path="packages/domain" owner="domain">
+      <name>Domain Model</name>
+      <purpose>Define pure product concepts and rules independent from frameworks and provider SDKs.</purpose>
+      <public-contract>
+        <provides>Goal, Skill, SkillEdge, Attempt, Evidence, Evaluation, ReviewSchedule, Recommendation contracts.</provides>
+        <provides>Domain state transitions and pure rules as the product matures.</provides>
+        <must-not>Import React, Express, Drizzle, PGLite, AI provider SDKs, or UI packages.</must-not>
+      </public-contract>
+      <depends-on>M-SHARED</depends-on>
+      <verification>V-M-DOMAIN</verification>
+    </module>
+
+    <module id="M-DB" path="packages/db" owner="persistence">
+      <name>Local Persistence</name>
+      <purpose>Own PGLite client creation, Drizzle schema, migrations, repositories, and vector storage.</purpose>
+      <public-contract>
+        <provides>Database schema and typed persistence APIs.</provides>
+        <provides>Embedding storage through pgvector-compatible vector fields.</provides>
+        <provides>Repository functions that map rows to domain-safe shapes.</provides>
+        <must-not>Contain UI logic or provider-specific prompt logic.</must-not>
+      </public-contract>
+      <depends-on>M-DOMAIN</depends-on>
+      <depends-on>M-SHARED</depends-on>
+      <verification>V-M-DB</verification>
+    </module>
+
+    <module id="M-AI" path="packages/ai" owner="ai-platform">
+      <name>AI Provider Layer</name>
+      <purpose>Hide OpenRouter, OpenAI API key, Codex subscription auth, and future local providers behind stable contracts.</purpose>
+      <public-contract>
+        <provides>AiProvider interface.</provides>
+        <provides>Model metadata and request/result contracts.</provides>
+        <provides>Provider adapters as they are implemented.</provides>
+        <must-not>Encode product-specific mentoring logic.</must-not>
+      </public-contract>
+      <depends-on>M-SHARED</depends-on>
+      <verification>V-M-AI</verification>
+    </module>
+
+    <module id="M-AGENTS" path="packages/agents" owner="agent-workflows">
+      <name>Agent Workflows</name>
+      <purpose>Implement mentor, interviewer, reviewer, planner, and recommender workflows using domain and AI abstractions.</purpose>
+      <public-contract>
+        <provides>Typed workflow inputs and structured outputs.</provides>
+        <provides>Agent run context contracts.</provides>
+        <provides>Traceable evaluation and recommendation workflows.</provides>
+        <must-not>Call provider-specific SDKs directly unless the exception is documented.</must-not>
+      </public-contract>
+      <depends-on>M-DOMAIN</depends-on>
+      <depends-on>M-AI</depends-on>
+      <depends-on>M-RAG</depends-on>
+      <verification>V-M-AGENTS</verification>
+    </module>
+
+    <module id="M-RAG" path="packages/rag" owner="retrieval">
+      <name>Retrieval And Memory</name>
+      <purpose>Own ingestion, chunking, embedding coordination, retrieval policy, and citation metadata.</purpose>
+      <public-contract>
+        <provides>Document chunking and retrieval contracts.</provides>
+        <provides>Content RAG and memory RAG boundaries.</provides>
+        <provides>Traceable context item outputs for agents.</provides>
+        <must-not>Store all memory as opaque chat history.</must-not>
+      </public-contract>
+      <depends-on>M-AI</depends-on>
+      <depends-on>M-DB</depends-on>
+      <verification>V-M-RAG</verification>
+    </module>
+
+    <module id="M-CODE-RUNNER" path="packages/code-runner" owner="code-execution">
+      <name>Code Runner</name>
+      <purpose>Run user solutions through language adapters, deterministic tests, and normalized result contracts.</purpose>
+      <public-contract>
+        <provides>SupportedLanguage, CodeRunRequest, CodeRunResult, and CodeRunner contracts.</provides>
+        <provides>Future adapters for JavaScript, TypeScript, Python, WebContainers, and Tauri-side execution.</provides>
+        <must-not>Run arbitrary code without sandboxing, timeout, and output capture.</must-not>
+      </public-contract>
+      <verification>V-M-CODE-RUNNER</verification>
+    </module>
+
+    <module id="M-SCHEDULING" path="packages/scheduling" owner="learning-systems">
+      <name>Spaced Repetition</name>
+      <purpose>Schedule skill and learning-item reviews using SM-2-inspired rules.</purpose>
+      <public-contract>
+        <provides>ReviewState and scheduling functions.</provides>
+        <provides>Deterministic review planning that can be tested without AI.</provides>
+        <must-not>Depend on React, database adapters, or provider SDKs.</must-not>
+      </public-contract>
+      <verification>V-M-SCHEDULING</verification>
+    </module>
+
+    <module id="M-UI" path="packages/ui" owner="frontend-platform">
+      <name>Shared UI</name>
+      <purpose>Provide reusable React UI primitives and app-specific components.</purpose>
+      <public-contract>
+        <provides>Button and future UI primitives.</provides>
+        <provides>Styling utility helpers.</provides>
+        <must-not>Contain product workflow state, persistence access, or AI provider calls.</must-not>
+      </public-contract>
+      <depends-on>M-SHARED</depends-on>
+      <verification>V-M-UI</verification>
+    </module>
+
+    <module id="M-SHARED" path="packages/shared" owner="platform">
+      <name>Shared Contracts</name>
+      <purpose>Provide cross-package schemas, small utilities, and shared result contracts.</purpose>
+      <public-contract>
+        <provides>Shared Zod schemas and generic result types.</provides>
+        <must-not>Become a dumping ground for domain, UI, or provider-specific logic.</must-not>
+      </public-contract>
+      <verification>V-M-SHARED</verification>
+    </module>
+  </modules>
+
+  <phases>
+    <phase id="PH-000" status="done">
+      <name>Base workspace bootstrap</name>
+      <goal>Create monorepo, apps, packages, baseline dependencies, and successful build.</goal>
+      <module>M-WEB</module>
+      <module>M-SERVER-API</module>
+      <module>M-DOMAIN</module>
+      <module>M-DB</module>
+      <module>M-AI</module>
+      <module>M-AGENTS</module>
+      <module>M-RAG</module>
+      <module>M-CODE-RUNNER</module>
+      <module>M-SCHEDULING</module>
+      <module>M-UI</module>
+      <module>M-SHARED</module>
+    </phase>
+    <phase id="PH-001" status="next">
+      <name>Product skeleton</name>
+      <goal>Implement onboarding, goal capture, initial skill graph, and dashboard using persisted local data.</goal>
+    </phase>
+    <phase id="PH-002" status="planned">
+      <name>AI provider MVP</name>
+      <goal>Implement one simple API-key provider through packages/ai and wire it to server-side use cases.</goal>
+    </phase>
+    <phase id="PH-003" status="planned">
+      <name>Assessment and evidence loop</name>
+      <goal>Create assessment flow, AI evaluation, evidence extraction, and progress updates.</goal>
+    </phase>
+    <phase id="PH-004" status="planned">
+      <name>RAG and memory</name>
+      <goal>Ingest user documents and attempts into retrievable local context with embeddings.</goal>
+    </phase>
+    <phase id="PH-005" status="planned">
+      <name>Coding practice MVP</name>
+      <goal>Add editor, deterministic execution, test results, and AI qualitative review.</goal>
+    </phase>
+    <phase id="PH-006" status="planned">
+      <name>Interviews and recommendations</name>
+      <goal>Add mock interview workflows, SM-2 recommendations, and goal readiness reports.</goal>
+    </phase>
+  </phases>
+</grace-development-plan>
+

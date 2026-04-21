@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grace-requirements project="leetgrind" version="0.1" updated="2026-04-21">
+  <metadata>
+    <title>Leetgrind Product Requirements</title>
+    <methodology>GRACE-inspired Graph-RAG Anchored Code Engineering</methodology>
+    <source-files>
+      <file path="../Product Vision.md" role="primary-product-vision"/>
+      <file path="architecture.md" role="human-readable-architecture-draft"/>
+      <file path="codex-subscription-auth.md" role="ai-provider-boundary"/>
+    </source-files>
+  </metadata>
+
+  <product-intent>
+    <summary>
+      Leetgrind is a local-first web application for programming interview preparation,
+      AI-assisted learning, adaptive mentoring, coding practice, mock interviews,
+      spaced repetition, and knowledge graph based progress tracking.
+    </summary>
+    <primary-user>
+      A single local user preparing for programming interviews and improving technical skills.
+    </primary-user>
+    <strategic-goal>
+      Become a high-quality personal AI mentor for interview preparation and long-term skill growth.
+    </strategic-goal>
+  </product-intent>
+
+  <scope>
+    <in-scope>
+      <item id="SCOPE-001">Local-first single-user application.</item>
+      <item id="SCOPE-002">AI provider abstraction with OpenRouter, OpenAI API key, Codex subscription auth, and future local providers.</item>
+      <item id="SCOPE-003">RAG over local learning material, user history, resume, attempts, and evaluations.</item>
+      <item id="SCOPE-004">Adaptive onboarding from user skills, goals, and resume input.</item>
+      <item id="SCOPE-005">Progress dashboard with strengths, weaknesses, and goal-specific readiness.</item>
+      <item id="SCOPE-006">Knowledge assessments with AI evaluation and evidence extraction.</item>
+      <item id="SCOPE-007">Lesson generation and recommendations.</item>
+      <item id="SCOPE-008">Coding practice with editor, deterministic tests, and AI review.</item>
+      <item id="SCOPE-009">Spaced repetition and review recommendations.</item>
+      <item id="SCOPE-010">Mock interviews by difficulty and goal.</item>
+      <item id="SCOPE-011">User knowledge graph visualization.</item>
+      <item id="SCOPE-012">Future Tauri desktop shell compatibility.</item>
+    </in-scope>
+    <out-of-scope-for-mvp>
+      <item id="OOS-001">Multi-tenant SaaS backend.</item>
+      <item id="OOS-002">Remote sync across devices.</item>
+      <item id="OOS-003">Marketplace for shared courses or public user profiles.</item>
+      <item id="OOS-004">Running arbitrary native code without sandboxing, timeouts, and resource limits.</item>
+      <item id="OOS-005">Making Codex subscription auth the only AI path.</item>
+    </out-of-scope-for-mvp>
+  </scope>
+
+  <personas>
+    <persona id="P-LOCAL-LEARNER">
+      <name>Local learner</name>
+      <description>Uses Leetgrind alone on a personal machine to prepare for technical interviews.</description>
+      <needs>
+        <need>Track skill progress and weaknesses.</need>
+        <need>Practice coding with feedback.</need>
+        <need>Study lessons that match current goals.</need>
+        <need>Run realistic mock interviews.</need>
+        <need>Keep personal data local.</need>
+      </needs>
+    </persona>
+  </personas>
+
+  <functional-requirements>
+    <requirement id="FR-001" priority="must" module="M-ONBOARDING">
+      The user can define initial skills, goals, target roles, and optionally provide resume-like text.
+    </requirement>
+    <requirement id="FR-002" priority="must" module="M-PROGRESS">
+      The system tracks skill-level progress, strengths, weaknesses, critical gaps, and goal readiness.
+    </requirement>
+    <requirement id="FR-003" priority="must" module="M-ASSESSMENT">
+      The system can assess user knowledge on a topic and store structured evaluation evidence.
+    </requirement>
+    <requirement id="FR-004" priority="must" module="M-LESSONS">
+      The system can generate or recommend learning items based on goals, skills, and evidence.
+    </requirement>
+    <requirement id="FR-005" priority="must" module="M-CODE-PRACTICE">
+      The system provides coding tasks, a web editor, deterministic test execution, and AI review.
+    </requirement>
+    <requirement id="FR-006" priority="must" module="M-SCHEDULING">
+      The system schedules reviews using spaced repetition inspired by SM-2.
+    </requirement>
+    <requirement id="FR-007" priority="should" module="M-INTERVIEW">
+      The system can run mock interviews by goal and difficulty and produce a readiness report.
+    </requirement>
+    <requirement id="FR-008" priority="should" module="M-KNOWLEDGE-GRAPH">
+      The system visualizes skills, prerequisites, related topics, strengths, weaknesses, and next steps.
+    </requirement>
+    <requirement id="FR-009" priority="must" module="M-AI">
+      AI providers are selected behind a provider abstraction and can be changed without changing product flows.
+    </requirement>
+    <requirement id="FR-010" priority="must" module="M-RAG">
+      RAG uses local content and memory sources with traceable retrieved context.
+    </requirement>
+    <requirement id="FR-011" priority="should" module="M-HISTORY">
+      The user can inspect prior attempts, mistakes, successes, and progress history.
+    </requirement>
+    <requirement id="FR-012" priority="should" module="M-GOALS">
+      The user can manage multiple goals without duplicating already-mastered general programming knowledge.
+    </requirement>
+  </functional-requirements>
+
+  <non-functional-requirements>
+    <requirement id="NFR-001" priority="must">The app must be local-first by default.</requirement>
+    <requirement id="NFR-002" priority="must">The app must keep AI provider credentials behind provider-specific adapters.</requirement>
+    <requirement id="NFR-003" priority="must">The app must support type-safe contracts across local API and frontend.</requirement>
+    <requirement id="NFR-004" priority="must">The app must preserve domain logic independence from UI, database, and provider SDKs.</requirement>
+    <requirement id="NFR-005" priority="must">The app must produce explainable recommendations based on stored evidence.</requirement>
+    <requirement id="NFR-006" priority="should">The app should be usable on mobile viewports.</requirement>
+    <requirement id="NFR-007" priority="should">Long-running AI workflows should be resumable or at least traceable through agent run records.</requirement>
+    <requirement id="NFR-008" priority="must">Coding execution must have deterministic checks before qualitative AI evaluation.</requirement>
+  </non-functional-requirements>
+
+  <risks>
+    <risk id="RISK-001" severity="high">
+      Codex subscription auth may not support every AI workflow, especially embeddings, background jobs, or structured outputs.
+    </risk>
+    <risk id="RISK-002" severity="high">
+      Unsafe user code execution can compromise the local machine if sandboxing is weak.
+    </risk>
+    <risk id="RISK-003" severity="medium">
+      Storing user memory as unstructured chat history would make recommendations difficult to explain.
+    </risk>
+    <risk id="RISK-004" severity="medium">
+      Multi-agent implementation without contracts can create drift between domain, persistence, RAG, and UI.
+    </risk>
+  </risks>
+</grace-requirements>
+
