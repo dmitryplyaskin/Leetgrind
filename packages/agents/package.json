@@ -1,0 +1,22 @@
+{
+  "name": "@leetgrind/agents",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist .turbo"
+  },
+  "dependencies": {
+    "@leetgrind/ai": "workspace:*",
+    "@leetgrind/domain": "workspace:*",
+    "@openai/agents": "^0.8.5"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@leetgrind/ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist .turbo"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.53",
+    "@leetgrind/shared": "workspace:*",
+    "@openrouter/ai-sdk-provider": "^2.8.0",
+    "ai": "^6.0.168",
+    "openai": "^6.34.0",
+    "zod": "^4.3.6"
+  }
+}
