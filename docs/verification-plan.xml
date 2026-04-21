@@ -14,6 +14,18 @@
       <purpose>Validate package builds, server build, and Vite production build.</purpose>
       <evidence>Exit code 0 and successful package plus web build output.</evidence>
     </verification>
+    <verification id="V-CMD-TEST" command="pnpm test" cwd="." required="conditional">
+      <purpose>Run Vitest unit, integration, and component tests.</purpose>
+      <evidence>Exit code 0 and all test files passed.</evidence>
+    </verification>
+    <verification id="V-CMD-TEST-E2E" command="pnpm test:e2e" cwd="." required="conditional">
+      <purpose>Run Playwright browser smoke and critical flow tests.</purpose>
+      <evidence>Exit code 0 and all browser tests passed.</evidence>
+    </verification>
+    <verification id="V-CMD-TEST-COVERAGE" command="pnpm test:coverage" cwd="." required="manual">
+      <purpose>Generate coverage report for review when module behavior stabilizes.</purpose>
+      <evidence>Coverage report generated in coverage output.</evidence>
+    </verification>
     <verification id="V-CMD-DEV" command="pnpm dev" cwd="." required="manual">
       <purpose>Run local server and web app for manual verification.</purpose>
       <evidence>Web app responds on localhost and API health endpoint returns ok.</evidence>
@@ -155,6 +167,7 @@
     <rule id="EVID-003">For UI changes, include manual or browser verification when feasible.</rule>
     <rule id="EVID-004">For AI workflow changes, include structured output validation and provider fallback considerations.</rule>
     <rule id="EVID-005">For persistence changes, include schema and migration impact.</rule>
+    <rule id="EVID-006">For behavior changes, include tests at the lowest useful level and run pnpm test.</rule>
+    <rule id="EVID-007">For critical route or browser workflow changes, run pnpm test:e2e when feasible.</rule>
   </evidence-policy>
 </grace-verification-plan>
-

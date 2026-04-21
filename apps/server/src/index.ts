@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import type { Express } from "express";
 import { initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import superjson from "superjson";
@@ -20,24 +21,30 @@ export const appRouter = t.router({
 
 export type AppRouter = typeof appRouter;
 
-const app = express();
-const port = Number(process.env.PORT ?? 3000);
+export function createApp(): Express {
+  const app = express();
 
-app.use(cors());
-app.use(express.json());
+  app.use(cors());
+  app.use(express.json());
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "leetgrind-server" });
-});
+  app.get("/health", (_req, res) => {
+    res.json({ ok: true, service: "leetgrind-server" });
+  });
 
-app.use(
-  "/trpc",
-  trpcExpress.createExpressMiddleware({
-    router: appRouter
-  })
-);
+  app.use(
+    "/trpc",
+    trpcExpress.createExpressMiddleware({
+      router: appRouter
+    })
+  );
 
-app.listen(port, "127.0.0.1", () => {
-  console.log(`Leetgrind server listening on http://127.0.0.1:${port}`);
-});
+  return app;
+}
 
+if (process.env.NODE_ENV !== "test") {
+  const port = Number(process.env.PORT ?? 3000);
+
+  createApp().listen(port, "127.0.0.1", () => {
+    console.log(`Leetgrind server listening on http://127.0.0.1:${port}`);
+  });
+}

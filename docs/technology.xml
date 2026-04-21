@@ -57,11 +57,21 @@
       <library name="Pyodide" role="Python execution in worker-compatible runtime"/>
       <library name="WebContainer API" role="future richer Node.js coding tasks"/>
     </code-execution>
+    <testing>
+      <library name="Vitest" role="unit and integration test runner"/>
+      <library name="Testing Library" role="React component testing"/>
+      <library name="jest-dom" role="DOM assertions"/>
+      <library name="supertest" role="Express API tests"/>
+      <library name="Playwright" role="browser end-to-end tests"/>
+    </testing>
   </approved-stack>
 
   <commands>
     <command id="CMD-BUILD" cwd="." value="pnpm build" required-for="runtime-or-package-boundary-changes"/>
     <command id="CMD-TYPECHECK" cwd="." value="pnpm typecheck" required-for="all-code-changes"/>
+    <command id="CMD-TEST" cwd="." value="pnpm test" required-for="all-behavior-changes"/>
+    <command id="CMD-TEST-COVERAGE" cwd="." value="pnpm test:coverage" required-for="coverage-review"/>
+    <command id="CMD-TEST-E2E" cwd="." value="pnpm test:e2e" required-for="critical-ui-flow-changes"/>
     <command id="CMD-DEV" cwd="." value="pnpm dev" required-for="local-manual-development"/>
     <command id="CMD-CLEAN" cwd="." value="pnpm clean" required-for="resetting-build-output"/>
     <command id="CMD-DRIZZLE-GENERATE" cwd="." value="pnpm --filter @leetgrind/db drizzle:generate" required-for="schema-migration-generation"/>
@@ -84,6 +94,8 @@
     <standard id="CODE-004">Avoid broad refactors unless required by the execution packet.</standard>
     <standard id="CODE-005">Use deterministic tests and runtime checks before qualitative AI review for coding practice.</standard>
     <standard id="CODE-006">Keep comments sparse and useful.</standard>
+    <standard id="CODE-007">Behavior changes should include unit, integration, component, or e2e tests at the lowest useful level.</standard>
+    <standard id="CODE-008">Normal tests must not call paid or external AI providers.</standard>
   </coding-standards>
 
   <forbidden-patterns>
@@ -95,4 +107,3 @@
     <pattern id="FORBID-006">Architecture changes without updating GRACE artifacts.</pattern>
   </forbidden-patterns>
 </grace-technology>
-

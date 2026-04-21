@@ -7,6 +7,7 @@
       <file path="../Product Vision.md" role="primary-product-vision"/>
       <file path="architecture.md" role="human-readable-architecture-draft"/>
       <file path="codex-subscription-auth.md" role="ai-provider-boundary"/>
+      <file path="roadmap/README.md" role="implementation-roadmap-index"/>
     </source-files>
   </metadata>
 
@@ -127,4 +128,3 @@
     </risk>
   </risks>
 </grace-requirements>
-

@@ -2,8 +2,9 @@
 <grace-development-plan project="leetgrind" version="0.1" updated="2026-04-21">
   <metadata>
     <title>Leetgrind Development Plan</title>
-    <status>initial-grace-bootstrap</status>
+    <status>roadmap-defined</status>
     <planning-principle>Define module contracts before implementation spreads.</planning-principle>
+    <roadmap-index>docs/roadmap/README.md</roadmap-index>
   </metadata>
 
   <modules>
@@ -156,9 +157,9 @@
   </modules>
 
   <phases>
-    <phase id="PH-000" status="done">
-      <name>Base workspace bootstrap</name>
-      <goal>Create monorepo, apps, packages, baseline dependencies, and successful build.</goal>
+    <phase id="PH-000" status="done" roadmap="docs/roadmap/phase-00-foundation-and-governance.md">
+      <name>Foundation And Governance</name>
+      <goal>Create monorepo, baseline packages, GRACE governance, and successful build/typecheck.</goal>
       <module>M-WEB</module>
       <module>M-SERVER-API</module>
       <module>M-DOMAIN</module>
@@ -171,30 +172,98 @@
       <module>M-UI</module>
       <module>M-SHARED</module>
     </phase>
-    <phase id="PH-001" status="next">
-      <name>Product skeleton</name>
-      <goal>Implement onboarding, goal capture, initial skill graph, and dashboard using persisted local data.</goal>
+
+    <phase id="PH-001" status="next" roadmap="docs/roadmap/phase-01-local-data-and-api-backbone.md">
+      <name>Local Data And API Backbone</name>
+      <goal>Implement local persistence, repositories, application context, and typed API backbone.</goal>
+      <module>M-DOMAIN</module>
+      <module>M-DB</module>
+      <module>M-SHARED</module>
+      <module>M-SERVER-API</module>
     </phase>
-    <phase id="PH-002" status="planned">
-      <name>AI provider MVP</name>
-      <goal>Implement one simple API-key provider through packages/ai and wire it to server-side use cases.</goal>
+
+    <phase id="PH-002" status="planned" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
+      <name>User Profile, Goals, And Onboarding</name>
+      <goal>Let the user define profile, goals, initial skills, languages, and resume context.</goal>
+      <module>M-WEB</module>
+      <module>M-SERVER-API</module>
+      <module>M-DOMAIN</module>
+      <module>M-DB</module>
+      <module>M-SHARED</module>
     </phase>
-    <phase id="PH-003" status="planned">
-      <name>Assessment and evidence loop</name>
-      <goal>Create assessment flow, AI evaluation, evidence extraction, and progress updates.</goal>
+
+    <phase id="PH-003" status="planned" roadmap="docs/roadmap/phase-03-progress-dashboard-knowledge-graph.md">
+      <name>Progress Dashboard And Knowledge Graph</name>
+      <goal>Show goal readiness, skill progress, weak spots, recommendations, recent activity, and skill graph.</goal>
+      <module>M-WEB</module>
+      <module>M-UI</module>
+      <module>M-SERVER-API</module>
+      <module>M-DOMAIN</module>
+      <module>M-DB</module>
+      <module>M-SCHEDULING</module>
     </phase>
-    <phase id="PH-004" status="planned">
-      <name>RAG and memory</name>
-      <goal>Ingest user documents and attempts into retrievable local context with embeddings.</goal>
+
+    <phase id="PH-004" status="planned" roadmap="docs/roadmap/phase-04-ai-providers-agents-rag.md">
+      <name>AI Providers, Agents, And RAG</name>
+      <goal>Implement provider settings, at least one provider adapter, agent runtime contracts, document ingestion, and retrieval.</goal>
+      <module>M-AI</module>
+      <module>M-AGENTS</module>
+      <module>M-RAG</module>
+      <module>M-DB</module>
+      <module>M-SERVER-API</module>
+      <module>M-WEB</module>
     </phase>
-    <phase id="PH-005" status="planned">
-      <name>Coding practice MVP</name>
-      <goal>Add editor, deterministic execution, test results, and AI qualitative review.</goal>
+
+    <phase id="PH-005" status="planned" roadmap="docs/roadmap/phase-05-assessments-lessons-recommendations.md">
+      <name>Assessments, Lessons, And Recommendations</name>
+      <goal>Create assessment sessions, AI evaluations, evidence extraction, lessons, and recommendation loop.</goal>
+      <module>M-DOMAIN</module>
+      <module>M-AGENTS</module>
+      <module>M-RAG</module>
+      <module>M-DB</module>
+      <module>M-SERVER-API</module>
+      <module>M-WEB</module>
+      <module>M-SCHEDULING</module>
     </phase>
-    <phase id="PH-006" status="planned">
-      <name>Interviews and recommendations</name>
-      <goal>Add mock interview workflows, SM-2 recommendations, and goal readiness reports.</goal>
+
+    <phase id="PH-006" status="planned" roadmap="docs/roadmap/phase-06-coding-practice-ide-runner.md">
+      <name>Coding Practice IDE And Runner</name>
+      <goal>Add coding tasks, CodeMirror editor, deterministic tests, hints, submissions, and AI review.</goal>
+      <module>M-CODE-RUNNER</module>
+      <module>M-WEB</module>
+      <module>M-SERVER-API</module>
+      <module>M-DOMAIN</module>
+      <module>M-DB</module>
+      <module>M-AGENTS</module>
+      <module>M-AI</module>
+    </phase>
+
+    <phase id="PH-007" status="planned" roadmap="docs/roadmap/phase-07-repetition-history-interviews.md">
+      <name>Spaced Repetition, History, And Mock Interviews</name>
+      <goal>Implement due reviews, progress history, mock interview sessions, and readiness reports.</goal>
+      <module>M-SCHEDULING</module>
+      <module>M-DOMAIN</module>
+      <module>M-DB</module>
+      <module>M-AGENTS</module>
+      <module>M-RAG</module>
+      <module>M-SERVER-API</module>
+      <module>M-WEB</module>
+    </phase>
+
+    <phase id="PH-008" status="planned" roadmap="docs/roadmap/phase-08-desktop-hardening-polish.md">
+      <name>Desktop Readiness, Hardening, And Polish</name>
+      <goal>Prepare Tauri path, data export/import, diagnostics, provider reliability, and safe code execution hardening.</goal>
+      <module>M-WEB</module>
+      <module>M-SERVER-API</module>
+      <module>M-DOMAIN</module>
+      <module>M-DB</module>
+      <module>M-AI</module>
+      <module>M-AGENTS</module>
+      <module>M-RAG</module>
+      <module>M-CODE-RUNNER</module>
+      <module>M-SCHEDULING</module>
+      <module>M-UI</module>
+      <module>M-SHARED</module>
     </phase>
   </phases>
 </grace-development-plan>
-

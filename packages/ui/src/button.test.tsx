@@ -1,0 +1,14 @@
+// @vitest-environment jsdom
+
+import "@testing-library/jest-dom/vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { Button } from "./button";
+
+describe("Button", () => {
+  it("renders an accessible button", () => {
+    render(<Button>Start setup</Button>);
+
+    expect(screen.getByRole("button", { name: "Start setup" })).toBeVisible();
+  });
+});

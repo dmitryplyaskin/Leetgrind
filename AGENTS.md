@@ -94,6 +94,8 @@ Use these commands from the repository root:
 
 ```powershell
 pnpm build
+pnpm test
+pnpm test:e2e
 pnpm typecheck
 pnpm dev
 pnpm clean
@@ -115,13 +117,25 @@ Before claiming implementation work is complete, run at least:
 pnpm typecheck
 ```
 
+For behavior changes, also run:
+
+```powershell
+pnpm test
+```
+
 For changes touching runtime behavior, package exports, build config, Vite, Express, Drizzle, or generated types, also run:
 
 ```powershell
 pnpm build
 ```
 
-For UI changes, start or reuse the Vite dev server and verify the affected screen in a browser when feasible.
+For critical UI route changes, start or reuse the Vite dev server and run or update Playwright coverage when feasible:
+
+```powershell
+pnpm test:e2e
+```
+
+See `docs/testing.md` for the detailed testing strategy.
 
 ## Multi-Agent Rules
 
@@ -175,4 +189,3 @@ When adding a new major feature, add or update:
 - verification scenario;
 - graph dependency;
 - operational packet if execution is multi-step.
-

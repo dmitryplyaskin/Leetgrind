@@ -156,16 +156,164 @@
     </packet>
 
     <packet id="OP-002" status="next" template="TPL-FEATURE">
-      <name>Onboarding and persisted goals skeleton</name>
+      <name>Local data and API backbone</name>
+      <target-modules>
+        <module>M-SERVER-API</module>
+        <module>M-DOMAIN</module>
+        <module>M-DB</module>
+        <module>M-SHARED</module>
+      </target-modules>
+      <expected-output>
+        Core schema, repositories, database context, and typed local API exist for profile, goals, skills, documents, attempts, evaluations, evidence, recommendations, and reviews.
+      </expected-output>
+      <roadmap>docs/roadmap/phase-01-local-data-and-api-backbone.md</roadmap>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+
+    <packet id="OP-003" status="planned" template="TPL-FEATURE">
+      <name>User profile, goals, and onboarding</name>
       <target-modules>
         <module>M-WEB</module>
         <module>M-SERVER-API</module>
         <module>M-DOMAIN</module>
         <module>M-DB</module>
+        <module>M-SHARED</module>
       </target-modules>
       <expected-output>
-        User can enter initial goal and skills, data is persisted locally, and dashboard can read it.
+        User can complete onboarding, define multiple goals, self-assess skills, set language preferences, and store resume context locally.
       </expected-output>
+      <roadmap>docs/roadmap/phase-02-user-profile-goals-onboarding.md</roadmap>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+
+    <packet id="OP-004" status="planned" template="TPL-FEATURE">
+      <name>Progress dashboard and knowledge graph</name>
+      <target-modules>
+        <module>M-WEB</module>
+        <module>M-UI</module>
+        <module>M-SERVER-API</module>
+        <module>M-DOMAIN</module>
+        <module>M-DB</module>
+        <module>M-SCHEDULING</module>
+      </target-modules>
+      <expected-output>
+        Dashboard shows goal readiness, strengths, weaknesses, next actions, recent activity, and an interactive skill graph.
+      </expected-output>
+      <roadmap>docs/roadmap/phase-03-progress-dashboard-knowledge-graph.md</roadmap>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+
+    <packet id="OP-005" status="planned" template="TPL-FEATURE">
+      <name>AI providers, agents, and RAG</name>
+      <target-modules>
+        <module>M-AI</module>
+        <module>M-AGENTS</module>
+        <module>M-RAG</module>
+        <module>M-DB</module>
+        <module>M-SERVER-API</module>
+        <module>M-WEB</module>
+      </target-modules>
+      <expected-output>
+        User can configure one AI provider, run validated provider calls, ingest local documents, retrieve context, and store agent run traces.
+      </expected-output>
+      <roadmap>docs/roadmap/phase-04-ai-providers-agents-rag.md</roadmap>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+
+    <packet id="OP-006" status="planned" template="TPL-FEATURE">
+      <name>Assessments, lessons, and recommendations</name>
+      <target-modules>
+        <module>M-DOMAIN</module>
+        <module>M-AGENTS</module>
+        <module>M-RAG</module>
+        <module>M-DB</module>
+        <module>M-SERVER-API</module>
+        <module>M-WEB</module>
+        <module>M-SCHEDULING</module>
+      </target-modules>
+      <expected-output>
+        User can take assessments, receive evaluations, store evidence, view generated lessons, and see explainable recommendations.
+      </expected-output>
+      <roadmap>docs/roadmap/phase-05-assessments-lessons-recommendations.md</roadmap>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+
+    <packet id="OP-007" status="planned" template="TPL-FEATURE">
+      <name>Coding practice IDE and runner</name>
+      <target-modules>
+        <module>M-CODE-RUNNER</module>
+        <module>M-WEB</module>
+        <module>M-SERVER-API</module>
+        <module>M-DOMAIN</module>
+        <module>M-DB</module>
+        <module>M-AGENTS</module>
+        <module>M-AI</module>
+      </target-modules>
+      <expected-output>
+        User can solve one-language coding tasks in a web editor, run deterministic tests, request hints, submit, and receive AI review.
+      </expected-output>
+      <roadmap>docs/roadmap/phase-06-coding-practice-ide-runner.md</roadmap>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+
+    <packet id="OP-008" status="planned" template="TPL-FEATURE">
+      <name>Spaced repetition, history, and mock interviews</name>
+      <target-modules>
+        <module>M-SCHEDULING</module>
+        <module>M-DOMAIN</module>
+        <module>M-DB</module>
+        <module>M-AGENTS</module>
+        <module>M-RAG</module>
+        <module>M-SERVER-API</module>
+        <module>M-WEB</module>
+      </target-modules>
+      <expected-output>
+        User can review due knowledge, inspect progress history, run mock interviews, and receive readiness reports.
+      </expected-output>
+      <roadmap>docs/roadmap/phase-07-repetition-history-interviews.md</roadmap>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm build</command>
+      </verification>
+    </packet>
+
+    <packet id="OP-009" status="planned" template="TPL-FEATURE">
+      <name>Desktop readiness, hardening, and polish</name>
+      <target-modules>
+        <module>M-WEB</module>
+        <module>M-SERVER-API</module>
+        <module>M-DOMAIN</module>
+        <module>M-DB</module>
+        <module>M-AI</module>
+        <module>M-AGENTS</module>
+        <module>M-RAG</module>
+        <module>M-CODE-RUNNER</module>
+        <module>M-SCHEDULING</module>
+        <module>M-UI</module>
+        <module>M-SHARED</module>
+      </target-modules>
+      <expected-output>
+        App has data export/import, diagnostics, safer code execution boundaries, provider reliability UX, and a documented Tauri path.
+      </expected-output>
+      <roadmap>docs/roadmap/phase-08-desktop-hardening-polish.md</roadmap>
       <verification>
         <command>pnpm typecheck</command>
         <command>pnpm build</command>
@@ -173,4 +321,3 @@
     </packet>
   </active-packets>
 </grace-operational-packets>
-
