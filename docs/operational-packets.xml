@@ -186,7 +186,7 @@
         <module>M-SHARED</module>
       </target-modules>
       <expected-output>
-        User can complete onboarding, define multiple goals, self-assess skills, set language preferences, and store resume context locally.
+        User can complete onboarding, define multiple goals, self-assess skills, set Russian or English UI language preference, set programming language preferences, and store resume context locally.
       </expected-output>
       <roadmap>docs/roadmap/phase-02-user-profile-goals-onboarding.md</roadmap>
       <verification>

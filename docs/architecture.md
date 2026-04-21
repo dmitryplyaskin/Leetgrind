@@ -66,6 +66,28 @@ packages/
     Shared Zod schemas, utility types, result helpers, constants
 ```
 
+## Internationalization
+
+Leetgrind should support Russian and English from the start.
+
+Initial decisions:
+
+- supported UI locales are `ru` and `en`;
+- the user can choose the UI language during onboarding and later in settings;
+- the preferred UI language is profile/preference data persisted locally;
+- the UI may fall back to browser language on first run, but must offer an explicit override;
+- user-facing React copy should go through a localization layer instead of being scattered as hard-coded strings;
+- shared UI primitives should receive localized labels from callers and should not own product copy;
+- domain, database, and provider packages should store stable values and user content, not translated UI labels;
+- AI workflows should receive the user's preferred language as explicit context when generating learner-facing explanations.
+
+Recommended libraries:
+
+- `i18next`;
+- `react-i18next`.
+
+Initial locale resources should live in `apps/web` because localization is first a UI concern. Shared packages may expose locale code types or schemas if needed, but should not become a global copy dumping ground.
+
 ## Application Layers
 
 ### UI Layer
@@ -81,7 +103,8 @@ Responsibilities:
 - graph visualization;
 - dashboards;
 - calling typed API methods;
-- rendering streaming AI output.
+- rendering streaming AI output;
+- managing UI locale selection and localized screen copy.
 
 The UI should not directly call AI providers or database repositories.
 
@@ -97,6 +120,8 @@ Recommended libraries:
 - `Tailwind CSS`;
 - `shadcn/ui`;
 - `Radix UI`;
+- `i18next`;
+- `react-i18next`;
 - `Zustand` for small UI-only state.
 
 ### Local API Layer

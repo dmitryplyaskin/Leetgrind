@@ -74,6 +74,9 @@ Use the GRACE documents as the public project contract:
 10. Update verification evidence.
    When you run commands, record the meaningful result in your final answer. If a required verification cannot run, state why.
 
+11. Keep user-facing UI localization-ready.
+   New visible UI strings in `apps/web` and `packages/ui` must be prepared for Russian and English localization. Do not bury important user-facing copy inside domain logic, persistence, or provider prompts. Store the user's UI language preference as profile/preference data, not as hard-coded client state.
+
 ## Current Module Map
 
 - `apps/web`: React UI, routes, screen composition, client-side interaction.

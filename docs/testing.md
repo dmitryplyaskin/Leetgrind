@@ -226,6 +226,14 @@ Must have tests for:
 - critical forms;
 - dashboard empty/loading/error states;
 - route smoke tests.
+- Russian and English rendering for user-facing route copy when localization is involved.
+
+Localization tests should verify:
+
+- locale fallback on first load;
+- explicit language switch between `ru` and `en`;
+- persistence of the user's UI language preference;
+- absence of untranslated localization keys in critical screens.
 
 ### `apps/server`
 
@@ -276,4 +284,3 @@ The initial baseline includes:
 - RAG chunking;
 - shared Button rendering;
 - Playwright app shell smoke test.
-

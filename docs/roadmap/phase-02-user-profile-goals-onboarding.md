@@ -14,6 +14,7 @@ The user can:
 - define target role or interview target;
 - enter current skills and confidence;
 - paste resume or background text;
+- choose Russian or English as the application UI language;
 - choose primary programming languages;
 - finish onboarding and land on a personalized dashboard shell.
 
@@ -47,6 +48,7 @@ Build an onboarding flow with these steps:
    - text paste;
    - future file upload.
 5. Preferences:
+   - application UI language: Russian or English;
    - preferred languages;
    - preferred AI provider placeholder;
    - daily/weekly study rhythm.
@@ -79,6 +81,7 @@ Add value objects or schemas for:
 - `StudyPreference`;
 - `SelfAssessedSkill`;
 - `UserLanguagePreference`;
+- `UserInterfaceLocale`;
 - `ResumeDocumentInput`.
 
 Rules:
@@ -86,6 +89,7 @@ Rules:
 - Goals are separate, but skills can be shared.
 - The app should not duplicate generic programming knowledge across goal tracks.
 - Resume text should become a document source, not just a profile field.
+- UI language is a user preference and should not be confused with programming language preferences or content language.
 
 ## API Work
 
@@ -112,6 +116,7 @@ Persist:
 - goals;
 - initial skills;
 - language preferences;
+- UI language preference (`ru` or `en`);
 - onboarding completion status;
 - resume document metadata and content.
 
@@ -140,6 +145,7 @@ Manual:
 - create at least two goals;
 - enter skills;
 - paste resume text;
+- switch UI language between Russian and English;
 - reload app and confirm data persists.
 
 ## Risks
@@ -152,5 +158,6 @@ Manual:
 
 - User can complete onboarding without AI.
 - Profile, goals, skills, and resume text persist locally.
+- UI language preference persists locally and visible onboarding copy renders in Russian and English.
 - Dashboard route can read onboarding state.
 - Data model supports multiple concurrent goals.

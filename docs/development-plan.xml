@@ -15,6 +15,7 @@
         <provides>React application shell and screens.</provides>
         <provides>Typed API calls through client adapters.</provides>
         <provides>UI composition using packages/ui components.</provides>
+        <provides>Russian and English localization wiring for user-facing UI.</provides>
         <must-not>Directly access PGLite, Drizzle repositories, OpenAI, OpenRouter, or Codex-specific code.</must-not>
       </public-contract>
       <depends-on>M-UI</depends-on>
@@ -139,6 +140,7 @@
       <public-contract>
         <provides>Button and future UI primitives.</provides>
         <provides>Styling utility helpers.</provides>
+        <provides>Locale-neutral UI primitives that receive already localized labels from callers.</provides>
         <must-not>Contain product workflow state, persistence access, or AI provider calls.</must-not>
       </public-contract>
       <depends-on>M-SHARED</depends-on>
@@ -150,6 +152,7 @@
       <purpose>Provide cross-package schemas, small utilities, and shared result contracts.</purpose>
       <public-contract>
         <provides>Shared Zod schemas and generic result types.</provides>
+        <provides>Shared locale code schemas when localization preferences cross package boundaries.</provides>
         <must-not>Become a dumping ground for domain, UI, or provider-specific logic.</must-not>
       </public-contract>
       <verification>V-M-SHARED</verification>
@@ -184,7 +187,7 @@
 
     <phase id="PH-002" status="next" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
       <name>User Profile, Goals, And Onboarding</name>
-      <goal>Let the user define profile, goals, initial skills, languages, and resume context.</goal>
+      <goal>Let the user define profile, goals, initial skills, UI language, programming languages, and resume context.</goal>
       <module>M-WEB</module>
       <module>M-SERVER-API</module>
       <module>M-DOMAIN</module>

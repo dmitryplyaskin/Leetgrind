@@ -39,6 +39,7 @@
       <item id="SCOPE-010">Mock interviews by difficulty and goal.</item>
       <item id="SCOPE-011">User knowledge graph visualization.</item>
       <item id="SCOPE-012">Future Tauri desktop shell compatibility.</item>
+      <item id="SCOPE-013">Russian and English application UI localization.</item>
     </in-scope>
     <out-of-scope-for-mvp>
       <item id="OOS-001">Multi-tenant SaaS backend.</item>
@@ -100,6 +101,9 @@
     <requirement id="FR-012" priority="should" module="M-GOALS">
       The user can manage multiple goals without duplicating already-mastered general programming knowledge.
     </requirement>
+    <requirement id="FR-013" priority="must" module="M-I18N">
+      The user can use the application UI in Russian or English and can change the preferred UI language.
+    </requirement>
   </functional-requirements>
 
   <non-functional-requirements>
@@ -111,6 +115,7 @@
     <requirement id="NFR-006" priority="should">The app should be usable on mobile viewports.</requirement>
     <requirement id="NFR-007" priority="should">Long-running AI workflows should be resumable or at least traceable through agent run records.</requirement>
     <requirement id="NFR-008" priority="must">Coding execution must have deterministic checks before qualitative AI evaluation.</requirement>
+    <requirement id="NFR-009" priority="must">User-facing UI copy must be localization-ready for Russian and English rather than hard-coded across components.</requirement>
   </non-functional-requirements>
 
   <risks>

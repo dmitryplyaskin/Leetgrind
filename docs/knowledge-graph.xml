@@ -73,6 +73,8 @@
     <surface id="SURFACE-LEARNING" modules="M-DOMAIN M-AGENTS M-SCHEDULING M-RAG" risk="medium">
       Progress, evidence, review scheduling, and recommendations.
     </surface>
+    <surface id="SURFACE-I18N" modules="M-WEB M-UI M-SHARED" risk="medium">
+      Russian and English UI localization, locale preference contracts, and localized route/component copy.
+    </surface>
   </surfaces>
 </grace-knowledge-graph>
-
