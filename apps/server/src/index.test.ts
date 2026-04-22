@@ -125,4 +125,73 @@ describe("server API", () => {
     expect(state.skills).toHaveLength(2);
     expect(state.resumeDocument?.sourceType).toBe("resume");
   });
+
+  it("saves onboarding drafts without marking onboarding complete", async () => {
+    const caller = appRouter.createCaller(context);
+
+    const draft = await caller.onboarding.saveDraft({
+      profile: {
+        displayName: "Draft user",
+        targetRole: "Fullstack Engineer",
+        experienceLevel: "junior"
+      },
+      goals: [
+        {
+          title: "Draft goal",
+          goalType: "role-growth",
+          targetRole: "Fullstack Engineer",
+          targetCompany: null,
+          targetSeniority: "junior",
+          interviewDate: null,
+          focusAreas: ["Node.js"],
+          description: null
+        },
+        {
+          title: "",
+          goalType: "custom",
+          targetRole: null,
+          targetCompany: null,
+          targetSeniority: null,
+          interviewDate: null,
+          focusAreas: [],
+          description: null
+        }
+      ],
+      skills: [
+        {
+          title: "Node.js",
+          level: "developing",
+          description: null
+        },
+        {
+          title: "",
+          level: "unknown",
+          description: null
+        }
+      ],
+      resume: {
+        title: "",
+        content: ""
+      },
+      preferences: {
+        uiLocale: "en",
+        contentLanguage: "mixed",
+        programmingLanguages: ["typescript"],
+        studyRhythm: "weekdays",
+        preferredAiProviderKind: "not-configured"
+      }
+    });
+    const state = await caller.onboarding.getState();
+
+    expect(draft.isComplete).toBe(false);
+    expect(state.isComplete).toBe(false);
+    expect(state.profile.displayName).toBe("Draft user");
+    expect(state.goals).toHaveLength(1);
+    expect(state.skills).toHaveLength(1);
+    expect(state.profile.preferences).toMatchObject({
+      onboarding: {
+        completedAt: null
+      }
+    });
+  });
 });

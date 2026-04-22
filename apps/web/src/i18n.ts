@@ -38,14 +38,28 @@ export const resources = {
         resume: "Resume source",
         ready: "Onboarding complete",
         noResume: "No resume document yet",
-        next: "Next phase will turn this saved context into progress signals and graph views."
+        next: "Next phase will turn this saved context into progress signals and graph views.",
+        primaryGoal: "Primary goal",
+        topSkills: "Initial skill map",
+        preferences: "Preferences",
+        nextActions: "Next actions",
+        localOnly: "Local database is the source of truth.",
+        actionReview: "Review weak skills",
+        actionDashboard: "Open progress graph",
+        actionPractice: "Start coding practice",
+        emptyState: "Complete onboarding to unlock personalized progress."
       },
       onboarding: {
         title: "Set up your local mentor context",
         subtitle: "This data stays in the local database and works without an AI provider.",
         save: "Complete onboarding",
+        draft: "Save draft",
         saving: "Saving...",
+        draftSaved: "Draft saved locally",
         saved: "Onboarding saved locally",
+        progress: "Setup progress",
+        summary: "Local profile summary",
+        offline: "Works offline. AI setup is optional.",
         addGoal: "Add goal",
         addSkill: "Add skill",
         remove: "Remove",
@@ -80,7 +94,8 @@ export const resources = {
         },
         hints: {
           commaSeparated: "Comma-separated",
-          aiOptional: "AI can be configured later."
+          aiOptional: "AI can be configured later.",
+          resume: "This is stored as a resume document for future RAG ingestion."
         }
       },
       options: {
@@ -165,14 +180,28 @@ export const resources = {
         resume: "Источник резюме",
         ready: "Онбординг завершен",
         noResume: "Документ резюме пока не добавлен",
-        next: "Следующая фаза превратит сохраненный контекст в сигналы прогресса и граф знаний."
+        next: "Следующая фаза превратит сохраненный контекст в сигналы прогресса и граф знаний.",
+        primaryGoal: "Главная цель",
+        topSkills: "Начальная карта навыков",
+        preferences: "Предпочтения",
+        nextActions: "Следующие действия",
+        localOnly: "Локальная база данных остается источником правды.",
+        actionReview: "Разобрать слабые навыки",
+        actionDashboard: "Открыть граф прогресса",
+        actionPractice: "Начать практику кода",
+        emptyState: "Заверши онбординг, чтобы открыть персональный прогресс."
       },
       onboarding: {
         title: "Настрой локальный контекст ментора",
         subtitle: "Эти данные остаются в локальной базе и работают без AI-провайдера.",
         save: "Завершить онбординг",
+        draft: "Сохранить черновик",
         saving: "Сохранение...",
+        draftSaved: "Черновик сохранен локально",
         saved: "Онбординг сохранен локально",
+        progress: "Прогресс настройки",
+        summary: "Сводка локального профиля",
+        offline: "Работает офлайн. AI можно настроить позже.",
         addGoal: "Добавить цель",
         addSkill: "Добавить навык",
         remove: "Удалить",
@@ -207,7 +236,8 @@ export const resources = {
         },
         hints: {
           commaSeparated: "Через запятую",
-          aiOptional: "AI можно настроить позже."
+          aiOptional: "AI можно настроить позже.",
+          resume: "Сохраняется как документ резюме для будущего RAG."
         }
       },
       options: {

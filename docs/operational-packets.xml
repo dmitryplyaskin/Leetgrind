@@ -176,7 +176,7 @@
       </result>
     </packet>
 
-    <packet id="OP-003" status="in-progress" template="TPL-FEATURE">
+    <packet id="OP-003" status="completed" template="TPL-FEATURE">
       <name>User profile, goals, and onboarding</name>
       <target-modules>
         <module>M-WEB</module>
@@ -193,9 +193,12 @@
         <command>pnpm typecheck</command>
         <command>pnpm build</command>
       </verification>
+      <result>
+        User profile, goals, skill self-assessment, resume context, UI language preference, programming language preference, draft saving, onboarding completion, localized onboarding UI, dashboard state, and verification coverage were implemented.
+      </result>
     </packet>
 
-    <packet id="OP-004" status="planned" template="TPL-FEATURE">
+    <packet id="OP-004" status="next" template="TPL-FEATURE">
       <name>Progress dashboard and knowledge graph</name>
       <target-modules>
         <module>M-WEB</module>

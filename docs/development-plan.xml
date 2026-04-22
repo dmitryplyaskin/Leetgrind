@@ -185,7 +185,7 @@
       <module>M-SERVER-API</module>
     </phase>
 
-    <phase id="PH-002" status="in-progress" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
+    <phase id="PH-002" status="done" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
       <name>User Profile, Goals, And Onboarding</name>
       <goal>Let the user define profile, goals, initial skills, UI language, programming languages, and resume context.</goal>
       <module>M-WEB</module>
@@ -195,7 +195,7 @@
       <module>M-SHARED</module>
     </phase>
 
-    <phase id="PH-003" status="planned" roadmap="docs/roadmap/phase-03-progress-dashboard-knowledge-graph.md">
+    <phase id="PH-003" status="next" roadmap="docs/roadmap/phase-03-progress-dashboard-knowledge-graph.md">
       <name>Progress Dashboard And Knowledge Graph</name>
       <goal>Show goal readiness, skill progress, weak spots, recommendations, recent activity, and skill graph.</goal>
       <module>M-WEB</module>

@@ -26,8 +26,8 @@ Leetgrind should become a local-first AI mentor for programming interview prepar
 | --- | --- | --- | --- |
 | 00 | Done / ongoing | Monorepo, GRACE governance, baseline architecture | all |
 | 01 | Done | Local persistence, repositories, typed API backbone | `packages/db`, `packages/domain`, `apps/server`, `packages/shared` |
-| 02 | Next | User can define profile, goals, skills, UI language, and resume context | `apps/web`, `apps/server`, `packages/domain`, `packages/db` |
-| 03 | Planned | Dashboard shows progress, weak spots, and skill graph | `apps/web`, `packages/ui`, `packages/domain`, `packages/db` |
+| 02 | Done | User can define profile, goals, skills, UI language, and resume context | `apps/web`, `apps/server`, `packages/domain`, `packages/db` |
+| 03 | Next | Dashboard shows progress, weak spots, and skill graph | `apps/web`, `packages/ui`, `packages/domain`, `packages/db` |
 | 04 | Planned | AI providers, agent runtime, RAG ingestion and retrieval | `packages/ai`, `packages/agents`, `packages/rag`, `packages/db` |
 | 05 | Planned | Assessments produce evaluations, evidence, lessons, recommendations | `packages/agents`, `packages/domain`, `packages/db`, `apps/web` |
 | 06 | Planned | LeetCode-like coding practice with editor, tests, hints, review | `packages/code-runner`, `apps/web`, `apps/server`, `packages/agents` |

@@ -1,6 +1,6 @@
 # Phase 02: User Profile, Goals, And Onboarding
 
-Status: in progress.
+Status: done.
 
 ## Goal
 

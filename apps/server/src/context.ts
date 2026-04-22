@@ -22,7 +22,7 @@ export async function createAppContext(
 ): Promise<AppContext> {
   const dataDir = "dataDir" in (options.database ?? {})
     ? options.database?.dataDir
-    : DEFAULT_SERVER_DATA_DIR;
+    : process.env.LEETGRIND_DATA_DIR ?? DEFAULT_SERVER_DATA_DIR;
   const database = await createDatabaseContext({
     runMigrations: true,
     ...options.database,

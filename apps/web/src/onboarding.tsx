@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, Plus, Save, Trash2 } from "lucide-react";
+import { CheckCircle2, Database, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import type { SelectHTMLAttributes } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -49,7 +49,7 @@ const defaultValues: OnboardingFormInput = {
     content: "Paste your resume, background, or current experience summary here."
   },
   preferences: {
-    uiLocale: "en",
+      uiLocale: i18n.language === "ru" ? "ru" : "en",
     contentLanguage: "mixed",
     programmingLanguages: ["typescript"],
     studyRhythm: "daily",
@@ -100,6 +100,11 @@ export function OnboardingRoute() {
   const navigate = useNavigate({ from: "/onboarding" });
   const utils = trpc.useUtils();
   const onboarding = trpc.onboarding.getState.useQuery();
+  const saveDraft = trpc.onboarding.saveDraft.useMutation({
+    onSuccess: async () => {
+      await utils.onboarding.getState.invalidate();
+    }
+  });
   const complete = trpc.onboarding.complete.useMutation({
     onSuccess: async () => {
       await utils.onboarding.getState.invalidate();
@@ -206,15 +211,66 @@ export function OnboardingRoute() {
     });
   }, [onboarding.data, reset, watchedLocale]);
 
+  const activeGoals = watch("goals").filter((goal) => goal.title.trim().length > 0);
+  const activeSkills = watch("skills").filter((skill) => skill.title.trim().length > 0);
+  const programmingLanguages = watch("preferences.programmingLanguages");
+  const isSaving = complete.isPending || saveDraft.isPending;
+
   return (
-    <section className="mx-auto grid max-w-6xl gap-8 px-6 py-10">
-      <div className="max-w-3xl space-y-3">
+    <section className="mx-auto grid max-w-7xl gap-8 px-6 py-8">
+      <div className="flex flex-col gap-3 border-b border-zinc-800 pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-3xl space-y-3">
         <p className="text-sm font-medium uppercase text-emerald-300">{t("app.onboarding")}</p>
         <h1 className="text-4xl font-semibold text-zinc-50">{t("onboarding.title")}</h1>
         <p className="text-lg leading-8 text-zinc-300">{t("onboarding.subtitle")}</p>
+        </div>
+        <div className="inline-flex items-center gap-2 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100">
+          <Database className="h-4 w-4" />
+          {t("onboarding.offline")}
+        </div>
       </div>
 
-      <form className="grid gap-6" onSubmit={handleSubmit((values) => complete.mutate(values))}>
+      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="h-max rounded-md border border-zinc-800 bg-zinc-900/80 p-5 lg:sticky lg:top-6">
+          <h2 className="text-sm font-medium uppercase text-zinc-400">{t("onboarding.progress")}</h2>
+          <div className="mt-5 grid gap-3">
+            {[
+              ["1", t("onboarding.steps.welcome")],
+              ["2", t("onboarding.steps.goals")],
+              ["3", t("onboarding.steps.skills")],
+              ["4", t("onboarding.steps.resume")],
+              ["5", t("onboarding.steps.preferences")]
+            ].map(([number, label]) => (
+              <div key={number} className="flex items-center gap-3 text-sm text-zinc-200">
+                <span className="grid h-7 w-7 place-items-center rounded-md bg-zinc-800 text-xs text-emerald-200">
+                  {number}
+                </span>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 border-t border-zinc-800 pt-5">
+            <h3 className="text-sm font-medium uppercase text-zinc-400">{t("onboarding.summary")}</h3>
+            <dl className="mt-4 grid gap-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-zinc-400">{t("dashboard.goals")}</dt>
+                <dd className="font-semibold text-zinc-50">{activeGoals.length}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-zinc-400">{t("dashboard.skills")}</dt>
+                <dd className="font-semibold text-zinc-50">{activeSkills.length}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-zinc-400">{t("onboarding.fields.programmingLanguages")}</dt>
+                <dd className="max-w-36 truncate font-semibold text-zinc-50">
+                  {programmingLanguages.join(", ")}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+
+      <form className="grid gap-5" onSubmit={handleSubmit((values) => complete.mutate(values))}>
         <section className="rounded-md border border-zinc-800 bg-zinc-900 p-5">
           <h2 className="text-xl font-semibold">{t("onboarding.steps.welcome")}</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
@@ -437,25 +493,35 @@ export function OnboardingRoute() {
             {complete.error?.message ?? "Check required fields before saving."}
           </div>
         ) : null}
-        {complete.error ? (
+        {complete.error || saveDraft.error ? (
           <div className="rounded-md border border-rose-400/30 bg-rose-400/10 p-4 text-sm text-rose-100">
-            {complete.error.message}
+            {complete.error?.message ?? saveDraft.error?.message}
           </div>
         ) : null}
-        {complete.isSuccess ? (
+        {complete.isSuccess || saveDraft.isSuccess ? (
           <div className="flex items-center gap-2 rounded-md border border-emerald-400/30 bg-emerald-400/10 p-4 text-sm text-emerald-100">
             <CheckCircle2 className="h-4 w-4" />
-            {t("onboarding.saved")}
+            {complete.isSuccess ? t("onboarding.saved") : t("onboarding.draftSaved")}
           </div>
         ) : null}
 
-        <div className="flex justify-end">
-          <Button type="submit" disabled={complete.isPending}>
+        <div className="sticky bottom-0 flex flex-col gap-3 border-t border-zinc-800 bg-zinc-950/95 py-4 backdrop-blur sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isSaving}
+            onClick={handleSubmit((values) => saveDraft.mutate(values))}
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {isSaving && saveDraft.isPending ? t("onboarding.saving") : t("onboarding.draft")}
+          </Button>
+          <Button type="submit" disabled={isSaving}>
             <Save className="mr-2 h-4 w-4" />
             {complete.isPending ? t("onboarding.saving") : t("onboarding.save")}
           </Button>
         </div>
       </form>
+      </div>
     </section>
   );
 }

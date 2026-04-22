@@ -104,3 +104,30 @@ export const onboardingCompleteInputSchema = z.object({
 });
 
 export type OnboardingCompleteInput = z.infer<typeof onboardingCompleteInputSchema>;
+
+export const onboardingDraftInputSchema = z.object({
+  profile: onboardingProfileInputSchema,
+  goals: z
+    .array(
+      onboardingGoalInputSchema.extend({
+        title: z.string().trim()
+      })
+    )
+    .max(8),
+  skills: z
+    .array(
+      selfAssessedSkillInputSchema.extend({
+        title: z.string().trim()
+      })
+    )
+    .max(80),
+  resume: z
+    .object({
+      title: z.string().trim(),
+      content: z.string().trim()
+    })
+    .nullable(),
+  preferences: onboardingPreferencesInputSchema
+});
+
+export type OnboardingDraftInput = z.infer<typeof onboardingDraftInputSchema>;
