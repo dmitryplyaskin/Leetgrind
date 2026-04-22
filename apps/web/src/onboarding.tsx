@@ -3,11 +3,13 @@ import { useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { z } from "zod";
 import {
   type OnboardingCompleteInput,
   onboardingCompleteInputSchema,
+  onboardingDraftInputSchema,
 } from "@leetgrind/shared";
 import {
   Alert,
@@ -37,7 +39,12 @@ import { i18n } from "./i18n";
 import { trpc } from "./trpc";
 
 type Locale = "ru" | "en";
-type OnboardingFormInput = z.input<typeof onboardingCompleteInputSchema>;
+type OnboardingFormInput = Omit<z.input<typeof onboardingDraftInputSchema>, "resume"> & {
+  resume: {
+    title: string;
+    content: string;
+  };
+};
 
 const defaultValues: OnboardingFormInput = {
   profile: {
@@ -64,8 +71,7 @@ const defaultValues: OnboardingFormInput = {
   ],
   resume: {
     title: "Resume",
-    content:
-      "Paste your resume, background, or current experience summary here.",
+    content: "",
   },
   preferences: {
     uiLocale: i18n.language === "ru" ? "ru" : "en",
@@ -119,10 +125,14 @@ export function OnboardingRoute() {
   });
 
   const form = useForm<OnboardingFormInput, unknown, OnboardingCompleteInput>({
-    resolver: zodResolver(onboardingCompleteInputSchema),
+    resolver: zodResolver(onboardingCompleteInputSchema) as Resolver<
+      OnboardingFormInput,
+      unknown,
+      OnboardingCompleteInput
+    >,
     defaultValues,
   });
-  const { control, formState, handleSubmit, register, reset, watch } = form;
+  const { control, formState, getValues, handleSubmit, register, reset, trigger, watch } = form;
   const goalFields = useFieldArray({ control, name: "goals" });
   const skillFields = useFieldArray({ control, name: "skills" });
   const watchedLocale = watch("preferences.uiLocale");
@@ -571,6 +581,7 @@ export function OnboardingRoute() {
                     autosize
                     label={t("onboarding.fields.resumeContent")}
                     minRows={6}
+                    placeholder={t("onboarding.hints.resumePlaceholder")}
                     {...register("resume.content")}
                   />
                 </Stack>
@@ -687,7 +698,15 @@ export function OnboardingRoute() {
                   loading={saveDraft.isPending}
                   type="button"
                   variant="default"
-                  onClick={handleSubmit((values) => saveDraft.mutate(values))}
+                  onClick={() => {
+                    const draft = onboardingDraftInputSchema.safeParse(getValues());
+
+                    if (draft.success) {
+                      saveDraft.mutate(draft.data);
+                    } else {
+                      void trigger();
+                    }
+                  }}
                 >
                   {isSaving && saveDraft.isPending
                     ? t("onboarding.saving")

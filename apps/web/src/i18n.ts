@@ -100,6 +100,8 @@ export const resources = {
         },
         hints: {
           commaSeparated: "Comma-separated",
+          resumePlaceholder:
+            "Paste your resume, background, or current experience summary.",
         },
       },
       options: {
@@ -233,6 +235,8 @@ export const resources = {
         },
         hints: {
           commaSeparated: "Через запятую",
+          resumePlaceholder:
+            "Вставь резюме, описание опыта или краткую профессиональную справку.",
         },
       },
       options: {

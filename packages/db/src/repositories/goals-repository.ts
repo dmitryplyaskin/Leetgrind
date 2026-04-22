@@ -1,8 +1,8 @@
 import { desc, eq } from "drizzle-orm";
-import type { Goal, GoalStatus } from "@leetgrind/domain";
+import type { Goal, GoalSkill, GoalSkillRelevance, GoalStatus } from "@leetgrind/domain";
 import { LOCAL_USER_PROFILE_ID } from "@leetgrind/domain";
 import type { LeetgrindDatabase } from "../pglite.js";
-import { goals } from "../schema.js";
+import { goalSkills, goals } from "../schema.js";
 import { definedValues } from "./utils.js";
 
 export interface CreateGoalInput {
@@ -20,6 +20,12 @@ export interface UpdateGoalInput {
   targetRole?: string | null;
   status?: GoalStatus;
   metadata?: Record<string, unknown>;
+}
+
+export interface GoalSkillLinkInput {
+  skillId: string;
+  relevance?: GoalSkillRelevance;
+  priority?: number;
 }
 
 export function createGoalsRepository(db: LeetgrindDatabase) {
@@ -73,6 +79,34 @@ export function createGoalsRepository(db: LeetgrindDatabase) {
         .returning();
 
       return (goal as Goal | undefined) ?? null;
+    },
+
+    async listSkillLinks(goalId: string): Promise<GoalSkill[]> {
+      const rows = await db
+        .select()
+        .from(goalSkills)
+        .where(eq(goalSkills.goalId, goalId));
+
+      return rows as GoalSkill[];
+    },
+
+    async replaceSkillLinks(goalId: string, input: GoalSkillLinkInput[]): Promise<GoalSkill[]> {
+      await db.delete(goalSkills).where(eq(goalSkills.goalId, goalId));
+
+      if (input.length === 0) {
+        return [];
+      }
+
+      const rows = input.map((link, index) => ({
+        goalId,
+        skillId: link.skillId,
+        relevance: link.relevance ?? "primary",
+        priority: link.priority ?? index
+      }));
+
+      const saved = await db.insert(goalSkills).values(rows).returning();
+
+      return saved as GoalSkill[];
     }
   };
 

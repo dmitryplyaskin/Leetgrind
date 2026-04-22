@@ -8,6 +8,7 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import { ArrowRight, LayoutDashboard } from "lucide-react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AppSurface,
@@ -31,7 +32,12 @@ const queryClient = new QueryClient();
 const trpcClient = createTrpcClient();
 
 function AppShell() {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const onboarding = trpc.onboarding.getState.useQuery(undefined, {
+    retry: false,
+    staleTime: 30_000,
+  });
+  const preferredLocale = onboarding.data?.profile.preferences.uiLocale;
   const navLinkStyle = {
     alignItems: "center",
     borderRadius: "var(--mantine-radius-sm)",
@@ -47,6 +53,15 @@ function AppShell() {
     background: "var(--mantine-color-default-hover)",
     color: "var(--mantine-color-text)",
   };
+
+  useEffect(() => {
+    if (
+      (preferredLocale === "ru" || preferredLocale === "en") &&
+      i18n.language !== preferredLocale
+    ) {
+      void i18n.changeLanguage(preferredLocale);
+    }
+  }, [i18n, preferredLocale]);
 
   return (
     <AppSurface>

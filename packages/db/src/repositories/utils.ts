@@ -5,9 +5,25 @@ export function definedValues<T extends Record<string, unknown>>(input: T): Part
 }
 
 export function slugifySkillTitle(title: string) {
-  return title
+  const slug = title
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .normalize("NFKD")
+    .replace(/\+/g, " plus ")
+    .replace(/#/g, " sharp ")
+    .replace(/&/g, " and ")
+    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
     .replace(/^-+|-+$/g, "");
+
+  if (slug.length > 0) {
+    return slug;
+  }
+
+  let hash = 0;
+
+  for (const char of title.trim()) {
+    hash = (Math.imul(hash, 31) + (char.codePointAt(0) ?? 0)) >>> 0;
+  }
+
+  return `skill-${hash.toString(36)}`;
 }

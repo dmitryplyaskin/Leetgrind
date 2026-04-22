@@ -122,7 +122,8 @@ describe("server API", () => {
       programmingLanguages: ["typescript", "python"]
     });
     expect(state.goals).toHaveLength(2);
-    expect(state.skills).toHaveLength(2);
+    expect(state.skills).toHaveLength(3);
+    expect(state.goalSkillLinks).toHaveLength(3);
     expect(state.resumeDocument?.sourceType).toBe("resume");
   });
 
@@ -193,5 +194,51 @@ describe("server API", () => {
         completedAt: null
       }
     });
+  });
+
+  it("completes onboarding without creating a placeholder resume document", async () => {
+    const caller = appRouter.createCaller(context);
+
+    await caller.onboarding.complete({
+      profile: {
+        displayName: "No resume user",
+        targetRole: "Frontend Engineer",
+        experienceLevel: "middle"
+      },
+      goals: [
+        {
+          title: "Frontend interviews",
+          goalType: "job-search",
+          targetRole: "Frontend Engineer",
+          targetCompany: null,
+          targetSeniority: "middle",
+          interviewDate: null,
+          focusAreas: ["React"],
+          description: null
+        }
+      ],
+      skills: [
+        {
+          title: "React",
+          level: "developing",
+          description: null
+        }
+      ],
+      resume: {
+        title: "",
+        content: ""
+      },
+      preferences: {
+        uiLocale: "en",
+        contentLanguage: "mixed",
+        programmingLanguages: ["typescript"],
+        studyRhythm: "daily",
+        preferredAiProviderKind: "not-configured"
+      }
+    });
+    const state = await caller.onboarding.getState();
+
+    expect(state.isComplete).toBe(true);
+    expect(state.resumeDocument).toBeNull();
   });
 });

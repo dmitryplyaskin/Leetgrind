@@ -95,11 +95,30 @@ export const resumeDocumentInputSchema = z.object({
   content: z.string().trim().min(1)
 });
 
+export const optionalResumeDocumentInputSchema = z.preprocess((value) => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return value;
+  }
+
+  const record = value as Record<string, unknown>;
+  const title = typeof record.title === "string" ? record.title.trim() : "";
+  const content = typeof record.content === "string" ? record.content.trim() : "";
+
+  if (content.length === 0) {
+    return null;
+  }
+
+  return {
+    title: title.length > 0 ? title : "Resume",
+    content
+  };
+}, resumeDocumentInputSchema.nullable());
+
 export const onboardingCompleteInputSchema = z.object({
   profile: onboardingProfileInputSchema,
   goals: z.array(onboardingGoalInputSchema).min(1).max(8),
   skills: z.array(selfAssessedSkillInputSchema).min(1).max(80),
-  resume: resumeDocumentInputSchema.nullable(),
+  resume: optionalResumeDocumentInputSchema,
   preferences: onboardingPreferencesInputSchema
 });
 

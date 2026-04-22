@@ -71,4 +71,27 @@ describe("local repositories", () => {
     expect(updatedResume.content).toContain("testing");
     expect(resumeDocuments).toHaveLength(2);
   });
+
+  it("creates stable skill slugs for localized and technical titles", async () => {
+    const saved = await context.repositories.skills.upsertMany([
+      {
+        title: "Графы",
+        level: "weak"
+      },
+      {
+        title: "C++",
+        level: "developing"
+      },
+      {
+        title: "C#",
+        level: "developing"
+      }
+    ]);
+    const slugs = new Set(saved.map((skill) => skill.slug));
+
+    expect(slugs.has("графы")).toBe(true);
+    expect(slugs.has("c-plus-plus")).toBe(true);
+    expect(slugs.has("c-sharp")).toBe(true);
+    expect(slugs.size).toBe(3);
+  });
 });

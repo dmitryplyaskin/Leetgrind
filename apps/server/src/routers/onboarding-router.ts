@@ -15,6 +15,25 @@ function normalizeTitle(title: string) {
   return title.trim().toLocaleLowerCase();
 }
 
+function uniqueNonEmptyTitles(titles: string[]) {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const title of titles) {
+    const trimmed = title.trim();
+    const key = normalizeTitle(trimmed);
+
+    if (trimmed.length === 0 || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    result.push(trimmed);
+  }
+
+  return result;
+}
+
 async function saveOnboardingInput({
   ctx,
   input,
@@ -55,7 +74,7 @@ async function saveOnboardingInput({
 
   const existingGoals = await ctx.database.repositories.goals.list(profile.id);
   const goalsByTitle = new Map(existingGoals.map((goal) => [normalizeTitle(goal.title), goal]));
-  const goals = [];
+  const savedGoals = [];
 
   for (const goalInput of input.goals.filter((goal) => goal.title.trim().length > 0)) {
     const goal = goalsByTitle.get(normalizeTitle(goalInput.title));
@@ -73,25 +92,69 @@ async function saveOnboardingInput({
     };
 
     if (goal) {
-      goals.push(
-        await ctx.database.repositories.goals.update(goal.id, {
-          ...goalPayload,
-          status: "active"
-        })
-      );
+      const savedGoal = await ctx.database.repositories.goals.update(goal.id, {
+        ...goalPayload,
+        status: "active"
+      });
+
+      if (savedGoal) {
+        savedGoals.push({ goal: savedGoal, input: goalInput });
+      }
     } else {
-      goals.push(
-        await ctx.database.repositories.goals.create({
+      savedGoals.push({
+        goal: await ctx.database.repositories.goals.create({
           profileId: profile.id,
           ...goalPayload
-        })
-      );
+        }),
+        input: goalInput
+      });
     }
   }
 
-  const skills = await ctx.database.repositories.skills.upsertMany(
-    input.skills.filter((skill) => skill.title.trim().length > 0)
+  const skillInputsByTitle = new Map(
+    input.skills
+      .filter((skill) => skill.title.trim().length > 0)
+      .map((skill) => [normalizeTitle(skill.title), skill])
   );
+
+  for (const focusArea of uniqueNonEmptyTitles(input.goals.flatMap((goal) => goal.focusAreas))) {
+    const key = normalizeTitle(focusArea);
+
+    if (!skillInputsByTitle.has(key)) {
+      skillInputsByTitle.set(key, {
+        title: focusArea,
+        level: "unknown",
+        description: null
+      });
+    }
+  }
+
+  const skills = await ctx.database.repositories.skills.upsertMany([...skillInputsByTitle.values()]);
+  const skillsByTitle = new Map(skills.map((skill) => [normalizeTitle(skill.title), skill]));
+
+  const goalSkillLinks = [];
+
+  for (const savedGoal of savedGoals) {
+    const focusAreas = uniqueNonEmptyTitles(savedGoal.input.focusAreas);
+    const links = focusAreas
+      .map((focusArea, index) => {
+        const skill = skillsByTitle.get(normalizeTitle(focusArea));
+
+        return skill
+          ? {
+              skillId: skill.id,
+              relevance: "primary" as const,
+              priority: index
+            }
+          : null;
+      })
+      .filter((link): link is NonNullable<typeof link> => link !== null);
+
+    goalSkillLinks.push(
+      ...(await ctx.database.repositories.goals.replaceSkillLinks(savedGoal.goal.id, links))
+    );
+  }
+
   const resumeDocument =
     input.resume && input.resume.content.trim().length > 0
       ? await ctx.database.repositories.documents.upsertResume({
@@ -107,7 +170,8 @@ async function saveOnboardingInput({
 
   return {
     profile,
-    goals: goals.filter(Boolean),
+    goals: savedGoals.map(({ goal }) => goal),
+    goalSkillLinks,
     skills,
     resumeDocument,
     isComplete: typeof (completedAt ?? existingOnboarding.completedAt) === "string"
@@ -131,6 +195,11 @@ export const onboardingRouter = router({
     return {
       profile,
       goals,
+      goalSkillLinks: (
+        await Promise.all(
+          goals.map((goal) => ctx.database.repositories.goals.listSkillLinks(goal.id))
+        )
+      ).flat(),
       skills,
       resumeDocument: resumeDocument ?? null,
       isComplete: typeof onboarding.completedAt === "string",
