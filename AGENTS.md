@@ -72,10 +72,13 @@ Use the GRACE documents as the public project contract:
    Keep edits scoped to the execution packet or user request. Do not rewrite unrelated files to match a preferred style.
 
 10. Update verification evidence.
-   When you run commands, record the meaningful result in your final answer. If a required verification cannot run, state why.
+    When you run commands, record the meaningful result in your final answer. If a required verification cannot run, state why.
 
 11. Keep user-facing UI localization-ready.
-   New visible UI strings in `apps/web` and `packages/ui` must be prepared for Russian and English localization. Do not bury important user-facing copy inside domain logic, persistence, or provider prompts. Store the user's UI language preference as profile/preference data, not as hard-coded client state.
+    New visible UI strings in `apps/web` and `packages/ui` must be prepared for Russian and English localization. Do not bury important user-facing copy inside domain logic, persistence, or provider prompts. Store the user's UI language preference as profile/preference data, not as hard-coded client state.
+
+12. Keep UI copy production-ready.
+    Do not write meta copy, implementation labels, architectural reassurances, or placeholder text in the product interface. Avoid strings like "local API", "works offline", "AI can be configured later", "future phase", and similar internal explanations unless the user is on a diagnostics/settings screen where that information directly supports an action. Every visible string must either help the user decide, act, understand their data, or recover from a real state.
 
 ## Current Module Map
 

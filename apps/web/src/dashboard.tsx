@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import {
   CalendarClock,
   CheckCircle2,
-  Database,
   FileText,
   Target,
   Zap,
@@ -55,7 +54,7 @@ export function DashboardRoute() {
   return (
     <Container>
       <PageSection>
-        <PageHeader className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px]">
+        <PageHeader>
           <div className="space-y-3">
             <Kicker>
               {onboarding.data?.isComplete
@@ -65,21 +64,12 @@ export function DashboardRoute() {
             <PageTitle>{t("dashboard.title")}</PageTitle>
             <PageLead>{t("dashboard.subtitle")}</PageLead>
           </div>
-          <Card>
-            <CardContent className="pt-5">
-              <div className="flex items-center gap-2 text-sm text-[var(--lg-primary-text)]">
-                <Database className="h-4 w-4" />
-                {t("dashboard.localOnly")}
-              </div>
-              <Button
-                asChild
-                className="mt-4 w-full"
-                variant={onboarding.data?.isComplete ? "secondary" : "default"}
-              >
-                <Link to="/onboarding">{t("dashboard.continueSetup")}</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <Button
+            asChild
+            variant={onboarding.data?.isComplete ? "secondary" : "default"}
+          >
+            <Link to="/onboarding">{t("dashboard.continueSetup")}</Link>
+          </Button>
         </PageHeader>
 
         {!onboarding.data?.isComplete ? (
@@ -189,13 +179,13 @@ export function DashboardRoute() {
           <Card>
             <CardHeader className="flex items-center gap-2">
               <CalendarClock className="h-5 w-5 text-[var(--lg-warning-text)]" />
-              <CardTitle>{t("dashboard.nextActions")}</CardTitle>
+              <CardTitle>{t("dashboard.focusAreas")}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3">
               {[
                 t("dashboard.actionReview"),
-                t("dashboard.actionDashboard"),
-                t("dashboard.actionPractice"),
+                t("dashboard.actionGoals"),
+                t("dashboard.actionResume"),
               ].map((action) => (
                 <div
                   key={action}
@@ -234,7 +224,7 @@ export function DashboardRoute() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.nextActions")}</CardTitle>
+              <CardTitle>{t("dashboard.weakSkills")}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3">
               {weakSkills.slice(0, 6).map((skill) => (
@@ -254,10 +244,6 @@ export function DashboardRoute() {
             </CardContent>
           </Card>
         </section>
-
-        <div className="border-t border-[var(--lg-border)] pt-6 text-[var(--lg-muted)]">
-          {t("dashboard.next")}
-        </div>
       </PageSection>
     </Container>
   );

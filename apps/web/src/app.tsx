@@ -19,7 +19,6 @@ import {
 } from "@leetgrind/ui";
 import { DashboardRoute } from "./dashboard";
 import "./i18n";
-import { LocalApiStatus } from "./local-api-status";
 import { OnboardingRoute } from "./onboarding";
 import { ThemeToggle } from "./theme";
 import { createTrpcClient, trpc } from "./trpc";
@@ -66,14 +65,6 @@ function AppShell() {
                 dark: t("app.theme.dark"),
                 light: t("app.theme.light"),
                 toggle: t("app.theme.toggle"),
-              }}
-            />
-            <LocalApiStatus
-              label={t("app.localApi")}
-              stateLabels={{
-                online: t("app.apiState.online"),
-                offline: t("app.apiState.offline"),
-                checking: t("app.apiState.checking"),
               }}
             />
           </nav>

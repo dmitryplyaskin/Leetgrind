@@ -98,6 +98,7 @@
     <standard id="CODE-007">Behavior changes should include unit, integration, component, or e2e tests at the lowest useful level.</standard>
     <standard id="CODE-008">Normal tests must not call paid or external AI providers.</standard>
     <standard id="CODE-009">New user-facing UI text should be defined through the localization layer for both ru and en locales.</standard>
+    <standard id="CODE-010">User-facing UI copy must be production-ready: specific, actionable, and meaningful to the learner.</standard>
   </coding-standards>
 
   <forbidden-patterns>
@@ -108,5 +109,6 @@
     <pattern id="FORBID-005">Provider-specific assumptions leaking into domain entities.</pattern>
     <pattern id="FORBID-006">Architecture changes without updating GRACE artifacts.</pattern>
     <pattern id="FORBID-007">Scattering untranslated user-facing strings across React screens and shared UI components.</pattern>
+    <pattern id="FORBID-008">Meta UI copy, implementation labels, architectural reassurances, and placeholder text such as local API status, works offline, AI can be configured later, future phase, or similar non-actionable interface copy.</pattern>
   </forbidden-patterns>
 </grace-technology>

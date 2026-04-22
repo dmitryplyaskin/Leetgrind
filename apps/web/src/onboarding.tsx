@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, Database, Plus, Save, Trash2 } from "lucide-react";
+import { CheckCircle2, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import type { SelectHTMLAttributes } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -11,7 +11,6 @@ import {
   onboardingCompleteInputSchema,
 } from "@leetgrind/shared";
 import {
-  Badge,
   Button,
   Card,
   Container,
@@ -243,10 +242,6 @@ export function OnboardingRoute() {
             <PageTitle>{t("onboarding.title")}</PageTitle>
             <PageLead>{t("onboarding.subtitle")}</PageLead>
           </div>
-          <Badge variant="success" className="text-sm">
-            <Database className="h-4 w-4" />
-            {t("onboarding.offline")}
-          </Badge>
         </PageHeader>
 
         <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -639,28 +634,7 @@ export function OnboardingRoute() {
                     {t("options.studyRhythm.flexible")}
                   </option>
                 </SelectField>
-                <SelectField
-                  label={t("onboarding.fields.preferredAiProviderKind")}
-                  {...register("preferences.preferredAiProviderKind")}
-                >
-                  <option value="not-configured">
-                    {t("options.providers.not-configured")}
-                  </option>
-                  <option value="openai-codex">
-                    {t("options.providers.openai-codex")}
-                  </option>
-                  <option value="openai-api-key">
-                    {t("options.providers.openai-api-key")}
-                  </option>
-                  <option value="openrouter">
-                    {t("options.providers.openrouter")}
-                  </option>
-                  <option value="local">{t("options.providers.local")}</option>
-                </SelectField>
               </div>
-              <p className="mt-4 text-sm text-[var(--lg-muted)]">
-                {t("onboarding.hints.aiOptional")}
-              </p>
             </Card>
 
             {Object.keys(formState.errors).length > 0 ? (
