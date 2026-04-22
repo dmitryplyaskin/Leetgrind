@@ -11,11 +11,15 @@ import { ArrowRight, LayoutDashboard } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   AppSurface,
+  Box,
   Button,
   Container,
+  Group,
   Kicker,
   PageLead,
   PageTitle,
+  Stack,
+  Text,
 } from "@leetgrind/ui";
 import { DashboardRoute } from "./dashboard";
 import "./i18n";
@@ -28,48 +32,85 @@ const trpcClient = createTrpcClient();
 
 function AppShell() {
   const { t } = useTranslation();
+  const navLinkStyle = {
+    alignItems: "center",
+    borderRadius: "var(--mantine-radius-sm)",
+    color: "var(--mantine-color-dimmed)",
+    display: "inline-flex",
+    gap: "var(--mantine-spacing-xs)",
+    minHeight: 40,
+    paddingInline: "var(--mantine-spacing-sm)",
+    textDecoration: "none",
+  };
+  const activeNavLinkStyle = {
+    ...navLinkStyle,
+    background: "var(--mantine-color-default-hover)",
+    color: "var(--mantine-color-text)",
+  };
 
   return (
     <AppSurface>
-      <header className="sticky top-0 z-20 border-b border-[var(--lg-border)] bg-[var(--lg-bg)]/90 backdrop-blur">
-        <Container className="flex items-center justify-between py-3">
-          <Link
-            to="/"
-            className="text-lg font-semibold tracking-normal text-[var(--lg-text)]"
-          >
-            Leetgrind
-          </Link>
-          <nav className="flex items-center gap-1 text-sm text-[var(--lg-muted)]">
+      <Box
+        component="header"
+        pos="sticky"
+        top={0}
+        style={{
+          backdropFilter: "blur(12px)",
+          background:
+            "color-mix(in srgb, var(--mantine-color-body) 92%, transparent)",
+          borderBottom: "1px solid var(--mantine-color-default-border)",
+          zIndex: 20,
+        }}
+      >
+        <Container py="sm">
+          <Group align="center" justify="space-between" wrap="nowrap">
             <Link
-              to="/dashboard"
-              className="rounded-md px-3 py-2 transition-colors hover:bg-[var(--lg-surface-muted)] hover:text-[var(--lg-text)]"
-              activeProps={{
-                className: "bg-[var(--lg-surface-muted)] text-[var(--lg-text)]",
+              to="/"
+              style={{
+                color: "var(--mantine-color-text)",
+                fontSize: "var(--mantine-font-size-lg)",
+                fontWeight: 700,
+                textDecoration: "none",
               }}
             >
-              <span className="hidden sm:inline">{t("app.dashboard")}</span>
-              <LayoutDashboard className="h-4 w-4 sm:hidden" />
+              Leetgrind
             </Link>
-            <Link
-              to="/onboarding"
-              className="rounded-md px-3 py-2 transition-colors hover:bg-[var(--lg-surface-muted)] hover:text-[var(--lg-text)]"
-              activeProps={{
-                className: "bg-[var(--lg-surface-muted)] text-[var(--lg-text)]",
-              }}
-            >
-              <span className="hidden sm:inline">{t("app.onboarding")}</span>
-              <ArrowRight className="h-4 w-4 sm:hidden" />
-            </Link>
-            <ThemeToggle
-              labels={{
-                dark: t("app.theme.dark"),
-                light: t("app.theme.light"),
-                toggle: t("app.theme.toggle"),
-              }}
-            />
-          </nav>
+            <Group component="nav" gap={4} wrap="nowrap">
+              <Link
+                to="/dashboard"
+                style={navLinkStyle}
+                activeProps={{ style: activeNavLinkStyle }}
+              >
+                <Text component="span" visibleFrom="sm" size="sm">
+                  {t("app.dashboard")}
+                </Text>
+                <Box hiddenFrom="sm">
+                  <LayoutDashboard size={18} />
+                </Box>
+              </Link>
+              <Link
+                to="/onboarding"
+                style={navLinkStyle}
+                activeProps={{ style: activeNavLinkStyle }}
+              >
+                <Text component="span" visibleFrom="sm" size="sm">
+                  {t("app.onboarding")}
+                </Text>
+                <Box hiddenFrom="sm">
+                  <ArrowRight size={18} />
+                </Box>
+              </Link>
+              <ThemeToggle
+                labels={{
+                  dark: t("app.theme.dark"),
+                  light: t("app.theme.light"),
+                  toggle: t("app.theme.toggle"),
+                }}
+              />
+            </Group>
+          </Group>
         </Container>
-      </header>
+      </Box>
       <Outlet />
     </AppSurface>
   );
@@ -80,27 +121,36 @@ function HomeRoute() {
 
   return (
     <Container>
-      <section className="grid min-h-[calc(100vh-65px)] content-center gap-8 py-12">
-        <div className="max-w-3xl space-y-5">
+      <Box
+        component="section"
+        mih="calc(100vh - 65px)"
+        py={{ base: 48, md: 72 }}
+        style={{ alignContent: "center", display: "grid" }}
+      >
+        <Stack gap="lg" maw={820}>
           <Kicker>{t("home.eyebrow")}</Kicker>
-          <PageTitle className="md:text-6xl">{t("home.title")}</PageTitle>
+          <PageTitle>{t("home.title")}</PageTitle>
           <PageLead>{t("home.copy")}</PageLead>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild>
-              <Link to="/onboarding">
-                <ArrowRight className="h-4 w-4" />
-                {t("home.start")}
-              </Link>
+          <Group gap="sm">
+            <Button
+              component={Link}
+              to="/onboarding"
+              leftSection={<ArrowRight size={16} />}
+            >
+              {t("home.start")}
             </Button>
-            <Button asChild variant="secondary">
-              <Link to="/dashboard">
-                <LayoutDashboard className="h-4 w-4" />
-                {t("home.dashboard")}
-              </Link>
+            <Button
+              color="gray"
+              component={Link}
+              to="/dashboard"
+              leftSection={<LayoutDashboard size={16} />}
+              variant="default"
+            >
+              {t("home.dashboard")}
             </Button>
-          </div>
-        </div>
-      </section>
+          </Group>
+        </Stack>
+      </Box>
     </Container>
   );
 }

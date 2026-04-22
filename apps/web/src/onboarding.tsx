@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect } from "react";
-import type { SelectHTMLAttributes } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { z } from "zod";
@@ -11,16 +10,28 @@ import {
   onboardingCompleteInputSchema,
 } from "@leetgrind/shared";
 import {
+  Alert,
+  Box,
   Button,
   Card,
+  CardContent,
+  Divider,
   Container,
+  Group,
   Kicker,
   PageHeader,
   PageLead,
   PageSection,
   PageTitle,
-  fieldControlClass as fieldClass,
-  labelClass,
+  Paper,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+  Textarea,
+  ThemeIcon,
+  Title,
 } from "@leetgrind/ui";
 import { i18n } from "./i18n";
 import { trpc } from "./trpc";
@@ -88,21 +99,6 @@ function stringArray(value: unknown): string[] {
 
 function localeOrDefault(value: unknown, fallback: Locale): Locale {
   return value === "ru" || value === "en" ? value : fallback;
-}
-
-function SelectField({
-  label,
-  children,
-  ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string }) {
-  return (
-    <label className={labelClass}>
-      {label}
-      <select {...props} className={fieldClass}>
-        {children}
-      </select>
-    </label>
-  );
 }
 
 export function OnboardingRoute() {
@@ -235,448 +231,482 @@ export function OnboardingRoute() {
 
   return (
     <Container>
-      <PageSection className="gap-8">
+      <PageSection>
         <PageHeader>
-          <div className="max-w-3xl space-y-3">
+          <Stack gap="xs" maw={760}>
             <Kicker>{t("app.onboarding")}</Kicker>
             <PageTitle>{t("onboarding.title")}</PageTitle>
             <PageLead>{t("onboarding.subtitle")}</PageLead>
-          </div>
+          </Stack>
         </PageHeader>
 
-        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <Card className="h-max p-5 lg:sticky lg:top-20">
-            <Kicker className="text-[var(--lg-muted)]">
-              {t("onboarding.progress")}
-            </Kicker>
-            <div className="mt-5 grid gap-3">
-              {[
-                ["1", t("onboarding.steps.welcome")],
-                ["2", t("onboarding.steps.goals")],
-                ["3", t("onboarding.steps.skills")],
-                ["4", t("onboarding.steps.resume")],
-                ["5", t("onboarding.steps.preferences")],
-              ].map(([number, label]) => (
-                <div
-                  key={number}
-                  className="flex items-center gap-3 text-sm text-[var(--lg-text)]"
-                >
-                  <span className="grid h-7 w-7 place-items-center rounded-md bg-[var(--lg-surface-muted)] text-xs text-[var(--lg-primary-text)]">
-                    {number}
-                  </span>
-                  <span>{label}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 border-t border-[var(--lg-border)] pt-5">
-              <Kicker className="text-[var(--lg-muted)]">
-                {t("onboarding.summary")}
-              </Kicker>
-              <dl className="mt-4 grid gap-3 text-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-[var(--lg-muted)]">
-                    {t("dashboard.goals")}
-                  </dt>
-                  <dd className="font-semibold text-[var(--lg-text)]">
-                    {activeGoals.length}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-[var(--lg-muted)]">
-                    {t("dashboard.skills")}
-                  </dt>
-                  <dd className="font-semibold text-[var(--lg-text)]">
-                    {activeSkills.length}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-[var(--lg-muted)]">
-                    {t("onboarding.fields.programmingLanguages")}
-                  </dt>
-                  <dd className="max-w-36 truncate font-semibold text-[var(--lg-text)]">
-                    {programmingLanguages.join(", ")}
-                  </dd>
-                </div>
+        <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+          <Card style={{ alignSelf: "start" }}>
+            <CardContent>
+              <Kicker c="dimmed">{t("onboarding.progress")}</Kicker>
+              <Stack gap="sm">
+                {[
+                  ["1", t("onboarding.steps.welcome")],
+                  ["2", t("onboarding.steps.goals")],
+                  ["3", t("onboarding.steps.skills")],
+                  ["4", t("onboarding.steps.resume")],
+                  ["5", t("onboarding.steps.preferences")],
+                ].map(([number, label]) => (
+                  <Group key={number} gap="sm" wrap="nowrap">
+                    <ThemeIcon
+                      color="teal"
+                      radius="sm"
+                      size="md"
+                      variant="light"
+                    >
+                      {number}
+                    </ThemeIcon>
+                    <Text size="sm">{label}</Text>
+                  </Group>
+                ))}
+              </Stack>
+              <Divider />
+              <Kicker c="dimmed">{t("onboarding.summary")}</Kicker>
+              <dl
+                style={{
+                  display: "grid",
+                  gap: "var(--mantine-spacing-sm)",
+                  margin: 0,
+                }}
+              >
+                {[
+                  [t("dashboard.goals"), activeGoals.length],
+                  [t("dashboard.skills"), activeSkills.length],
+                  [
+                    t("onboarding.fields.programmingLanguages"),
+                    programmingLanguages.join(", "),
+                  ],
+                ].map(([label, value]) => (
+                  <Group
+                    component="div"
+                    key={label}
+                    justify="space-between"
+                    gap="md"
+                  >
+                    <Text c="dimmed" component="dt" size="sm">
+                      {label}
+                    </Text>
+                    <Text component="dd" fw={700} lineClamp={1} m={0} size="sm">
+                      {value}
+                    </Text>
+                  </Group>
+                ))}
               </dl>
-            </div>
+            </CardContent>
           </Card>
 
           <form
-            className="grid gap-5"
+            style={{ display: "grid", gap: "var(--mantine-spacing-lg)" }}
             onSubmit={handleSubmit((values) => complete.mutate(values))}
           >
-            <Card className="p-5">
-              <h2 className="text-xl font-semibold">
-                {t("onboarding.steps.welcome")}
-              </h2>
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                <label className={labelClass}>
-                  {t("onboarding.fields.displayName")}
-                  <input
+            <Card>
+              <CardContent>
+                <Title order={2} size="h3">
+                  {t("onboarding.steps.welcome")}
+                </Title>
+                <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
+                  <TextInput
+                    label={t("onboarding.fields.displayName")}
                     {...register("profile.displayName")}
-                    className={fieldClass}
                   />
-                </label>
-                <label className={labelClass}>
-                  {t("onboarding.fields.targetRole")}
-                  <input
+                  <TextInput
+                    label={t("onboarding.fields.targetRole")}
                     {...register("profile.targetRole")}
-                    className={fieldClass}
                   />
-                </label>
-                <SelectField
-                  label={t("onboarding.fields.experienceLevel")}
-                  {...register("profile.experienceLevel")}
-                >
-                  <option value="beginner">
-                    {t("options.levels.beginner")}
-                  </option>
-                  <option value="junior">{t("options.levels.junior")}</option>
-                  <option value="middle">{t("options.levels.middle")}</option>
-                  <option value="senior">{t("options.levels.senior")}</option>
-                  <option value="expert">{t("options.levels.expert")}</option>
-                </SelectField>
-              </div>
+                  <Select
+                    label={t("onboarding.fields.experienceLevel")}
+                    data={[
+                      {
+                        value: "beginner",
+                        label: t("options.levels.beginner"),
+                      },
+                      { value: "junior", label: t("options.levels.junior") },
+                      { value: "middle", label: t("options.levels.middle") },
+                      { value: "senior", label: t("options.levels.senior") },
+                      { value: "expert", label: t("options.levels.expert") },
+                    ]}
+                    {...register("profile.experienceLevel")}
+                  />
+                </SimpleGrid>
+              </CardContent>
             </Card>
 
-            <Card className="p-5">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold">
-                  {t("onboarding.steps.goals")}
-                </h2>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() =>
-                    goalFields.append({
-                      title: "",
-                      goalType: "custom",
-                      targetRole: null,
-                      targetCompany: null,
-                      targetSeniority: null,
-                      interviewDate: null,
-                      focusAreas: [],
-                      description: null,
-                    })
-                  }
-                >
-                  <Plus className="h-4 w-4" />
-                  {t("onboarding.addGoal")}
-                </Button>
-              </div>
-              <div className="mt-5 grid gap-5">
-                {goalFields.fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="grid gap-4 border-t border-[var(--lg-border)] pt-5 md:grid-cols-3"
+            <Card>
+              <CardContent>
+                <Group align="center" justify="space-between" gap="md">
+                  <Title order={2} size="h3">
+                    {t("onboarding.steps.goals")}
+                  </Title>
+                  <Button
+                    color="gray"
+                    leftSection={<Plus size={16} />}
+                    type="button"
+                    variant="default"
+                    onClick={() =>
+                      goalFields.append({
+                        title: "",
+                        goalType: "custom",
+                        targetRole: null,
+                        targetCompany: null,
+                        targetSeniority: null,
+                        interviewDate: null,
+                        focusAreas: [],
+                        description: null,
+                      })
+                    }
                   >
-                    <label className={labelClass}>
-                      {t("onboarding.fields.goalTitle")}
-                      <input
-                        {...register(`goals.${index}.title`)}
-                        className={fieldClass}
-                      />
-                    </label>
-                    <SelectField
-                      label={t("onboarding.fields.goalType")}
-                      {...register(`goals.${index}.goalType`)}
-                    >
-                      <option value="job-search">
-                        {t("options.goalTypes.job-search")}
-                      </option>
-                      <option value="company-interview">
-                        {t("options.goalTypes.company-interview")}
-                      </option>
-                      <option value="role-growth">
-                        {t("options.goalTypes.role-growth")}
-                      </option>
-                      <option value="skill-growth">
-                        {t("options.goalTypes.skill-growth")}
-                      </option>
-                      <option value="custom">
-                        {t("options.goalTypes.custom")}
-                      </option>
-                    </SelectField>
-                    <label className={labelClass}>
-                      {t("onboarding.fields.targetCompany")}
-                      <input
-                        {...register(`goals.${index}.targetCompany`)}
-                        className={fieldClass}
-                      />
-                    </label>
-                    <label className={labelClass}>
-                      {t("onboarding.fields.targetRole")}
-                      <input
-                        {...register(`goals.${index}.targetRole`)}
-                        className={fieldClass}
-                      />
-                    </label>
-                    <SelectField
-                      label={t("onboarding.fields.targetSeniority")}
-                      {...register(`goals.${index}.targetSeniority`)}
-                    >
-                      <option value="">{t("options.empty")}</option>
-                      <option value="intern">
-                        {t("options.seniority.intern")}
-                      </option>
-                      <option value="junior">
-                        {t("options.seniority.junior")}
-                      </option>
-                      <option value="middle">
-                        {t("options.seniority.middle")}
-                      </option>
-                      <option value="senior">
-                        {t("options.seniority.senior")}
-                      </option>
-                      <option value="staff">
-                        {t("options.seniority.staff")}
-                      </option>
-                      <option value="lead">
-                        {t("options.seniority.lead")}
-                      </option>
-                    </SelectField>
-                    <label className={labelClass}>
-                      {t("onboarding.fields.interviewDate")}
-                      <input
-                        type="date"
-                        {...register(`goals.${index}.interviewDate`)}
-                        className={fieldClass}
-                      />
-                    </label>
-                    <Controller
-                      control={control}
-                      name={`goals.${index}.focusAreas`}
-                      render={({ field: controllerField }) => (
-                        <label className={labelClass}>
-                          {t("onboarding.fields.focusAreas")}
-                          <input
-                            className={fieldClass}
-                            value={toCsv(controllerField.value)}
-                            onChange={(event) =>
-                              controllerField.onChange(
-                                fromCsv(event.target.value),
-                              )
-                            }
-                            placeholder={t("onboarding.hints.commaSeparated")}
-                          />
-                        </label>
-                      )}
-                    />
-                    <label className={`${labelClass} md:col-span-2`}>
-                      {t("onboarding.fields.goalDescription")}
-                      <input
-                        {...register(`goals.${index}.description`)}
-                        className={fieldClass}
-                      />
-                    </label>
-                    {goalFields.fields.length > 1 ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => goalFields.remove(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        {t("onboarding.remove")}
-                      </Button>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
+                    {t("onboarding.addGoal")}
+                  </Button>
+                </Group>
+                <Stack gap="xl">
+                  {goalFields.fields.map((field, index) => (
+                    <Box key={field.id}>
+                      {index > 0 ? <Divider mb="lg" /> : null}
+                      <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
+                        <TextInput
+                          label={t("onboarding.fields.goalTitle")}
+                          {...register(`goals.${index}.title`)}
+                        />
+                        <Select
+                          label={t("onboarding.fields.goalType")}
+                          data={[
+                            {
+                              value: "job-search",
+                              label: t("options.goalTypes.job-search"),
+                            },
+                            {
+                              value: "company-interview",
+                              label: t("options.goalTypes.company-interview"),
+                            },
+                            {
+                              value: "role-growth",
+                              label: t("options.goalTypes.role-growth"),
+                            },
+                            {
+                              value: "skill-growth",
+                              label: t("options.goalTypes.skill-growth"),
+                            },
+                            {
+                              value: "custom",
+                              label: t("options.goalTypes.custom"),
+                            },
+                          ]}
+                          {...register(`goals.${index}.goalType`)}
+                        />
+                        <TextInput
+                          label={t("onboarding.fields.targetCompany")}
+                          {...register(`goals.${index}.targetCompany`)}
+                        />
+                        <TextInput
+                          label={t("onboarding.fields.targetRole")}
+                          {...register(`goals.${index}.targetRole`)}
+                        />
+                        <Select
+                          label={t("onboarding.fields.targetSeniority")}
+                          data={[
+                            { value: "", label: t("options.empty") },
+                            {
+                              value: "intern",
+                              label: t("options.seniority.intern"),
+                            },
+                            {
+                              value: "junior",
+                              label: t("options.seniority.junior"),
+                            },
+                            {
+                              value: "middle",
+                              label: t("options.seniority.middle"),
+                            },
+                            {
+                              value: "senior",
+                              label: t("options.seniority.senior"),
+                            },
+                            {
+                              value: "staff",
+                              label: t("options.seniority.staff"),
+                            },
+                            {
+                              value: "lead",
+                              label: t("options.seniority.lead"),
+                            },
+                          ]}
+                          {...register(`goals.${index}.targetSeniority`)}
+                        />
+                        <TextInput
+                          label={t("onboarding.fields.interviewDate")}
+                          type="date"
+                          {...register(`goals.${index}.interviewDate`)}
+                        />
+                        <Controller
+                          control={control}
+                          name={`goals.${index}.focusAreas`}
+                          render={({ field: controllerField }) => (
+                            <TextInput
+                              label={t("onboarding.fields.focusAreas")}
+                              value={toCsv(controllerField.value)}
+                              onChange={(event) =>
+                                controllerField.onChange(
+                                  fromCsv(event.target.value),
+                                )
+                              }
+                              placeholder={t("onboarding.hints.commaSeparated")}
+                            />
+                          )}
+                        />
+                        <TextInput
+                          label={t("onboarding.fields.goalDescription")}
+                          {...register(`goals.${index}.description`)}
+                        />
+                      </SimpleGrid>
+                      {goalFields.fields.length > 1 ? (
+                        <Button
+                          color="red"
+                          leftSection={<Trash2 size={16} />}
+                          mt="md"
+                          type="button"
+                          variant="subtle"
+                          onClick={() => goalFields.remove(index)}
+                        >
+                          {t("onboarding.remove")}
+                        </Button>
+                      ) : null}
+                    </Box>
+                  ))}
+                </Stack>
+              </CardContent>
             </Card>
 
-            <Card className="p-5">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold">
-                  {t("onboarding.steps.skills")}
-                </h2>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() =>
-                    skillFields.append({
-                      title: "",
-                      level: "unknown",
-                      description: null,
-                    })
-                  }
-                >
-                  <Plus className="h-4 w-4" />
-                  {t("onboarding.addSkill")}
-                </Button>
-              </div>
-              <div className="mt-5 grid gap-4">
-                {skillFields.fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="grid gap-4 border-t border-[var(--lg-border)] pt-5 md:grid-cols-4"
+            <Card>
+              <CardContent>
+                <Group align="center" justify="space-between" gap="md">
+                  <Title order={2} size="h3">
+                    {t("onboarding.steps.skills")}
+                  </Title>
+                  <Button
+                    color="gray"
+                    leftSection={<Plus size={16} />}
+                    type="button"
+                    variant="default"
+                    onClick={() =>
+                      skillFields.append({
+                        title: "",
+                        level: "unknown",
+                        description: null,
+                      })
+                    }
                   >
-                    <label className={labelClass}>
-                      {t("onboarding.fields.skillTitle")}
-                      <input
-                        {...register(`skills.${index}.title`)}
-                        className={fieldClass}
-                      />
-                    </label>
-                    <SelectField
-                      label={t("onboarding.fields.skillLevel")}
-                      {...register(`skills.${index}.level`)}
-                    >
-                      <option value="unknown">
-                        {t("options.skillLevels.unknown")}
-                      </option>
-                      <option value="weak">
-                        {t("options.skillLevels.weak")}
-                      </option>
-                      <option value="developing">
-                        {t("options.skillLevels.developing")}
-                      </option>
-                      <option value="strong">
-                        {t("options.skillLevels.strong")}
-                      </option>
-                    </SelectField>
-                    <label className={`${labelClass} md:col-span-2`}>
-                      {t("onboarding.fields.skillDescription")}
-                      <input
-                        {...register(`skills.${index}.description`)}
-                        className={fieldClass}
-                      />
-                    </label>
-                    {skillFields.fields.length > 1 ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => skillFields.remove(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        {t("onboarding.remove")}
-                      </Button>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
+                    {t("onboarding.addSkill")}
+                  </Button>
+                </Group>
+                <Stack gap="lg">
+                  {skillFields.fields.map((field, index) => (
+                    <Box key={field.id}>
+                      {index > 0 ? <Divider mb="lg" /> : null}
+                      <SimpleGrid cols={{ base: 1, md: 4 }} spacing="md">
+                        <TextInput
+                          label={t("onboarding.fields.skillTitle")}
+                          {...register(`skills.${index}.title`)}
+                        />
+                        <Select
+                          label={t("onboarding.fields.skillLevel")}
+                          data={[
+                            {
+                              value: "unknown",
+                              label: t("options.skillLevels.unknown"),
+                            },
+                            {
+                              value: "weak",
+                              label: t("options.skillLevels.weak"),
+                            },
+                            {
+                              value: "developing",
+                              label: t("options.skillLevels.developing"),
+                            },
+                            {
+                              value: "strong",
+                              label: t("options.skillLevels.strong"),
+                            },
+                          ]}
+                          {...register(`skills.${index}.level`)}
+                        />
+                        <TextInput
+                          label={t("onboarding.fields.skillDescription")}
+                          {...register(`skills.${index}.description`)}
+                        />
+                      </SimpleGrid>
+                      {skillFields.fields.length > 1 ? (
+                        <Button
+                          color="red"
+                          leftSection={<Trash2 size={16} />}
+                          mt="md"
+                          type="button"
+                          variant="subtle"
+                          onClick={() => skillFields.remove(index)}
+                        >
+                          {t("onboarding.remove")}
+                        </Button>
+                      ) : null}
+                    </Box>
+                  ))}
+                </Stack>
+              </CardContent>
             </Card>
 
-            <Card className="p-5">
-              <h2 className="text-xl font-semibold">
-                {t("onboarding.steps.resume")}
-              </h2>
-              <div className="mt-5 grid gap-4">
-                <label className={labelClass}>
-                  {t("onboarding.fields.resumeTitle")}
-                  <input {...register("resume.title")} className={fieldClass} />
-                </label>
-                <label className={labelClass}>
-                  {t("onboarding.fields.resumeContent")}
-                  <textarea
+            <Card>
+              <CardContent>
+                <Title order={2} size="h3">
+                  {t("onboarding.steps.resume")}
+                </Title>
+                <Stack gap="md">
+                  <TextInput
+                    label={t("onboarding.fields.resumeTitle")}
+                    {...register("resume.title")}
+                  />
+                  <Textarea
+                    autosize
+                    label={t("onboarding.fields.resumeContent")}
+                    minRows={6}
                     {...register("resume.content")}
-                    className={`${fieldClass} min-h-40 resize-y`}
                   />
-                </label>
-              </div>
+                </Stack>
+              </CardContent>
             </Card>
 
-            <Card className="p-5">
-              <h2 className="text-xl font-semibold">
-                {t("onboarding.steps.preferences")}
-              </h2>
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                <SelectField
-                  label={t("onboarding.fields.uiLocale")}
-                  {...register("preferences.uiLocale")}
-                >
-                  <option value="en">English</option>
-                  <option value="ru">Русский</option>
-                </SelectField>
-                <SelectField
-                  label={t("onboarding.fields.contentLanguage")}
-                  {...register("preferences.contentLanguage")}
-                >
-                  <option value="mixed">
-                    {t("options.contentLanguage.mixed")}
-                  </option>
-                  <option value="en">{t("options.contentLanguage.en")}</option>
-                  <option value="ru">{t("options.contentLanguage.ru")}</option>
-                </SelectField>
-                <Controller
-                  control={control}
-                  name="preferences.programmingLanguages"
-                  render={({ field }) => (
-                    <label className={labelClass}>
-                      {t("onboarding.fields.programmingLanguages")}
-                      <input
-                        className={fieldClass}
+            <Card>
+              <CardContent>
+                <Title order={2} size="h3">
+                  {t("onboarding.steps.preferences")}
+                </Title>
+                <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
+                  <Select
+                    label={t("onboarding.fields.uiLocale")}
+                    data={[
+                      { value: "en", label: "English" },
+                      { value: "ru", label: "Русский" },
+                    ]}
+                    {...register("preferences.uiLocale")}
+                  />
+                  <Select
+                    label={t("onboarding.fields.contentLanguage")}
+                    data={[
+                      {
+                        value: "mixed",
+                        label: t("options.contentLanguage.mixed"),
+                      },
+                      { value: "en", label: t("options.contentLanguage.en") },
+                      { value: "ru", label: t("options.contentLanguage.ru") },
+                    ]}
+                    {...register("preferences.contentLanguage")}
+                  />
+                  <Controller
+                    control={control}
+                    name="preferences.programmingLanguages"
+                    render={({ field }) => (
+                      <TextInput
+                        label={t("onboarding.fields.programmingLanguages")}
                         value={toCsv(field.value)}
                         onChange={(event) =>
                           field.onChange(fromCsv(event.target.value))
                         }
                         placeholder={t("onboarding.hints.commaSeparated")}
                       />
-                    </label>
-                  )}
-                />
-                <SelectField
-                  label={t("onboarding.fields.studyRhythm")}
-                  {...register("preferences.studyRhythm")}
-                >
-                  <option value="daily">
-                    {t("options.studyRhythm.daily")}
-                  </option>
-                  <option value="weekdays">
-                    {t("options.studyRhythm.weekdays")}
-                  </option>
-                  <option value="weekends">
-                    {t("options.studyRhythm.weekends")}
-                  </option>
-                  <option value="weekly">
-                    {t("options.studyRhythm.weekly")}
-                  </option>
-                  <option value="flexible">
-                    {t("options.studyRhythm.flexible")}
-                  </option>
-                </SelectField>
-              </div>
+                    )}
+                  />
+                  <Select
+                    label={t("onboarding.fields.studyRhythm")}
+                    data={[
+                      { value: "daily", label: t("options.studyRhythm.daily") },
+                      {
+                        value: "weekdays",
+                        label: t("options.studyRhythm.weekdays"),
+                      },
+                      {
+                        value: "weekends",
+                        label: t("options.studyRhythm.weekends"),
+                      },
+                      {
+                        value: "weekly",
+                        label: t("options.studyRhythm.weekly"),
+                      },
+                      {
+                        value: "flexible",
+                        label: t("options.studyRhythm.flexible"),
+                      },
+                    ]}
+                    {...register("preferences.studyRhythm")}
+                  />
+                </SimpleGrid>
+              </CardContent>
             </Card>
 
             {Object.keys(formState.errors).length > 0 ? (
-              <div className="rounded-md border border-[var(--lg-danger-soft)] bg-[var(--lg-danger-soft)] p-4 text-sm text-[var(--lg-danger-text)]">
+              <Alert color="red" radius="sm" variant="light">
                 {complete.error?.message ?? t("onboarding.checkRequired")}
-              </div>
+              </Alert>
             ) : null}
             {complete.error || saveDraft.error ? (
-              <div className="rounded-md border border-[var(--lg-danger-soft)] bg-[var(--lg-danger-soft)] p-4 text-sm text-[var(--lg-danger-text)]">
+              <Alert color="red" radius="sm" variant="light">
                 {complete.error?.message ?? saveDraft.error?.message}
-              </div>
+              </Alert>
             ) : null}
             {complete.isSuccess || saveDraft.isSuccess ? (
-              <div className="flex items-center gap-2 rounded-md border border-[var(--lg-success-soft)] bg-[var(--lg-success-soft)] p-4 text-sm text-[var(--lg-success-text)]">
-                <CheckCircle2 className="h-4 w-4" />
+              <Alert
+                color="green"
+                icon={<CheckCircle2 size={16} />}
+                radius="sm"
+                variant="light"
+              >
                 {complete.isSuccess
                   ? t("onboarding.saved")
                   : t("onboarding.draftSaved")}
-              </div>
+              </Alert>
             ) : null}
 
-            <div className="sticky bottom-0 flex flex-col gap-3 border-t border-[var(--lg-border)] bg-[var(--lg-bg)]/95 py-4 backdrop-blur sm:flex-row sm:justify-end">
-              <Button
-                type="button"
-                variant="secondary"
-                disabled={isSaving}
-                onClick={handleSubmit((values) => saveDraft.mutate(values))}
-              >
-                <Save className="h-4 w-4" />
-                {isSaving && saveDraft.isPending
-                  ? t("onboarding.saving")
-                  : t("onboarding.draft")}
-              </Button>
-              <Button type="submit" disabled={isSaving}>
-                <Save className="h-4 w-4" />
-                {complete.isPending
-                  ? t("onboarding.saving")
-                  : t("onboarding.save")}
-              </Button>
-            </div>
+            <Paper
+              bg="color-mix(in srgb, var(--mantine-color-body) 95%, transparent)"
+              bottom={0}
+              p="md"
+              pos="sticky"
+              radius={0}
+              style={{
+                backdropFilter: "blur(12px)",
+                borderTop: "1px solid var(--mantine-color-default-border)",
+                zIndex: 10,
+              }}
+            >
+              <Group justify="flex-end" gap="sm">
+                <Button
+                  color="gray"
+                  disabled={isSaving}
+                  leftSection={<Save size={16} />}
+                  loading={saveDraft.isPending}
+                  type="button"
+                  variant="default"
+                  onClick={handleSubmit((values) => saveDraft.mutate(values))}
+                >
+                  {isSaving && saveDraft.isPending
+                    ? t("onboarding.saving")
+                    : t("onboarding.draft")}
+                </Button>
+                <Button
+                  disabled={isSaving}
+                  leftSection={<Save size={16} />}
+                  loading={complete.isPending}
+                  type="submit"
+                >
+                  {complete.isPending
+                    ? t("onboarding.saving")
+                    : t("onboarding.save")}
+                </Button>
+              </Group>
+            </Paper>
           </form>
-        </div>
+        </SimpleGrid>
       </PageSection>
     </Container>
   );

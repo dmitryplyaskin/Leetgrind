@@ -1,108 +1,97 @@
-import * as React from "react";
-import { cn } from "./utils";
+import {
+  AppShell as MantineAppShell,
+  Alert,
+  Box,
+  Container as MantineContainer,
+  Divider,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+  ThemeIcon,
+} from "@mantine/core";
+import type { BoxProps, ContainerProps } from "@mantine/core";
+import type * as React from "react";
 
-export function AppSurface({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
+type DivProps = BoxProps & React.ComponentPropsWithoutRef<"div">;
+type SectionProps = BoxProps & React.ComponentPropsWithoutRef<"section">;
+type HeadingProps = BoxProps & React.ComponentPropsWithoutRef<"h1">;
+type ParagraphProps = BoxProps & React.ComponentPropsWithoutRef<"p">;
+
+export function AppSurface({ children, ...props }: DivProps) {
   return (
-    <main
-      className={cn(
-        "min-h-screen bg-[var(--lg-bg)] text-[var(--lg-text)] transition-colors duration-200",
-        className,
-      )}
+    <MantineAppShell bg="var(--mantine-color-body)" {...props}>
+      {children}
+    </MantineAppShell>
+  );
+}
+
+export function Container(props: ContainerProps) {
+  return (
+    <MantineContainer size="xl" px={{ base: "md", sm: "lg" }} {...props} />
+  );
+}
+
+export function PageSection(props: SectionProps) {
+  return <Stack component="section" gap="xl" py="xl" {...props} />;
+}
+
+export function PageHeader(props: DivProps) {
+  return (
+    <Group
+      align="flex-end"
+      justify="space-between"
+      gap="lg"
+      pb="xl"
+      style={{ borderBottom: "1px solid var(--mantine-color-default-border)" }}
       {...props}
     />
   );
 }
 
-export function Container({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function Kicker(props: ParagraphProps) {
   return (
-    <div
-      className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", className)}
+    <Text
+      c="teal.7"
+      fw={700}
+      size="sm"
+      tt="uppercase"
+      component="p"
       {...props}
     />
   );
 }
 
-export function PageSection({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
-  return <section className={cn("grid gap-6 py-8", className)} {...props} />;
-}
-
-export function PageHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function PageTitle(props: HeadingProps) {
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-4 border-b border-[var(--lg-border)] pb-6 lg:flex-row lg:items-end lg:justify-between",
-        className,
-      )}
+    <Title
+      order={1}
+      maw={900}
+      size="clamp(2.25rem, 6vw, 3.75rem)"
+      lh={1.08}
+      fw={700}
       {...props}
     />
   );
 }
 
-export function Kicker({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLParagraphElement>) {
+export function PageLead(props: ParagraphProps) {
   return (
-    <p
-      className={cn(
-        "text-sm font-medium uppercase tracking-normal text-[var(--lg-accent-text)]",
-        className,
-      )}
-      {...props}
-    />
+    <Text c="dimmed" size="lg" lh={1.65} maw={760} component="p" {...props} />
   );
 }
 
-export function PageTitle({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLHeadingElement>) {
-  return (
-    <h1
-      className={cn(
-        "max-w-4xl text-4xl font-semibold leading-tight tracking-normal text-[var(--lg-text)] md:text-5xl",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-export function PageLead({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLParagraphElement>) {
-  return (
-    <p
-      className={cn(
-        "max-w-3xl text-lg leading-8 text-[var(--lg-muted)]",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-export function Divider({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("border-t border-[var(--lg-border)]", className)}
-      {...props}
-    />
-  );
-}
+export {
+  Alert,
+  Box,
+  Divider,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+};

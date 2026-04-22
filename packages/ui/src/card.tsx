@@ -1,72 +1,48 @@
-import * as React from "react";
-import { cn } from "./utils";
+import { Card as MantineCard, Group, Stack, Text, Title } from "@mantine/core";
+import type { BoxProps, CardProps as MantineCardProps } from "@mantine/core";
+import type * as React from "react";
 
-export const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-lg border border-[var(--lg-border)] bg-[var(--lg-surface)] text-[var(--lg-text)] shadow-[var(--lg-shadow-sm)]",
-      className,
-    )}
-    {...props}
-  />
-));
-Card.displayName = "Card";
+type DivProps = BoxProps & React.ComponentPropsWithoutRef<"div">;
+type HeadingProps = BoxProps & React.ComponentPropsWithoutRef<"h2">;
+type ParagraphProps = BoxProps & React.ComponentPropsWithoutRef<"p">;
 
-export function CardHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("grid gap-2 p-5", className)} {...props} />;
-}
-
-export function CardTitle({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLHeadingElement>) {
+export function Card(props: MantineCardProps) {
   return (
-    <h2
-      className={cn(
-        "text-lg font-semibold tracking-normal text-[var(--lg-text)]",
-        className,
-      )}
+    <MantineCard
+      bg="var(--mantine-color-body)"
+      padding="lg"
+      radius="sm"
+      shadow="xs"
+      withBorder
       {...props}
     />
   );
 }
 
-export function CardDescription({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLParagraphElement>) {
-  return (
-    <p
-      className={cn("text-sm leading-6 text-[var(--lg-muted)]", className)}
-      {...props}
-    />
-  );
+export function CardHeader(props: DivProps) {
+  return <Group align="center" gap="xs" mb="md" {...props} />;
 }
 
-export function CardContent({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-5 pt-0", className)} {...props} />;
+export function CardTitle(props: HeadingProps) {
+  return <Title order={2} size="h4" fw={650} {...props} />;
 }
 
-export function CardFooter({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function CardDescription(props: ParagraphProps) {
+  return <Text c="dimmed" size="sm" lh={1.55} {...props} />;
+}
+
+export function CardContent(props: DivProps) {
+  return <Stack gap="md" {...props} />;
+}
+
+export function CardFooter(props: DivProps) {
   return (
-    <div
-      className={cn(
-        "flex items-center gap-3 border-t border-[var(--lg-border)] p-5",
-        className,
-      )}
+    <Group
+      align="center"
+      gap="sm"
+      mt="lg"
+      pt="lg"
+      style={{ borderTop: "1px solid var(--mantine-color-default-border)" }}
       {...props}
     />
   );

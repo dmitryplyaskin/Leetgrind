@@ -8,7 +8,9 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
+  Alert,
   Badge,
+  Box,
   Button,
   Card,
   CardContent,
@@ -16,11 +18,17 @@ import {
   CardHeader,
   CardTitle,
   Container,
+  Group,
   Kicker,
   PageHeader,
   PageLead,
   PageSection,
   PageTitle,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
 } from "@leetgrind/ui";
 import { trpc } from "./trpc";
 
@@ -55,7 +63,7 @@ export function DashboardRoute() {
     <Container>
       <PageSection>
         <PageHeader>
-          <div className="space-y-3">
+          <Stack gap="xs" maw={760}>
             <Kicker>
               {onboarding.data?.isComplete
                 ? t("dashboard.ready")
@@ -63,161 +71,192 @@ export function DashboardRoute() {
             </Kicker>
             <PageTitle>{t("dashboard.title")}</PageTitle>
             <PageLead>{t("dashboard.subtitle")}</PageLead>
-          </div>
+          </Stack>
           <Button
-            asChild
-            variant={onboarding.data?.isComplete ? "secondary" : "default"}
+            color={onboarding.data?.isComplete ? "gray" : "teal"}
+            component={Link}
+            to="/onboarding"
+            variant={onboarding.data?.isComplete ? "default" : "filled"}
           >
-            <Link to="/onboarding">{t("dashboard.continueSetup")}</Link>
+            {t("dashboard.continueSetup")}
           </Button>
         </PageHeader>
 
         {!onboarding.data?.isComplete ? (
-          <div className="rounded-md border border-[var(--lg-warning-soft)] bg-[var(--lg-warning-soft)] p-5 text-sm text-[var(--lg-warning-text)]">
+          <Alert color="yellow" radius="sm" variant="light">
             {t("dashboard.incomplete")} {t("dashboard.emptyState")}
-          </div>
+          </Alert>
         ) : null}
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }} spacing="md">
           <Card>
             <CardHeader>
-              <CardDescription className="uppercase">
+              <CardDescription tt="uppercase">
                 {t("dashboard.profile")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold">
+              <Text fw={700} size="xl">
                 {profile?.displayName ?? t("options.empty")}
-              </p>
-              <p className="mt-2 text-sm text-[var(--lg-muted)]">
+              </Text>
+              <Text c="dimmed" size="sm">
                 {profile?.targetRole ?? t("options.empty")}
-              </p>
+              </Text>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardDescription className="uppercase">
+              <CardDescription tt="uppercase">
                 {t("dashboard.goals")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold">{goals.length}</p>
-              <p className="mt-2 truncate text-sm text-[var(--lg-muted)]">
+              <Text fw={700} size="xl">
+                {goals.length}
+              </Text>
+              <Text c="dimmed" lineClamp={1} size="sm">
                 {goals[0]?.title ?? t("options.empty")}
-              </p>
+              </Text>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardDescription className="uppercase">
+              <CardDescription tt="uppercase">
                 {t("dashboard.skills")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold">{skills.length}</p>
-              <p className="mt-2 text-sm text-[var(--lg-muted)]">
+              <Text fw={700} size="xl">
+                {skills.length}
+              </Text>
+              <Text c="dimmed" size="sm">
                 {programmingLanguages.join(", ") || t("options.empty")}
-              </p>
+              </Text>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardDescription className="uppercase">
+              <CardDescription tt="uppercase">
                 {t("dashboard.resume")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-2 text-lg font-semibold">
-                {onboarding.data?.resumeDocument ? (
-                  <CheckCircle2 className="h-5 w-5 text-[var(--lg-primary-text)]" />
-                ) : (
-                  <FileText className="h-5 w-5 text-[var(--lg-subtle)]" />
-                )}
-                <span>
+              <Group gap="xs" wrap="nowrap">
+                <ThemeIcon
+                  color={onboarding.data?.resumeDocument ? "teal" : "gray"}
+                  radius="sm"
+                  size="sm"
+                  variant="light"
+                >
+                  {onboarding.data?.resumeDocument ? (
+                    <CheckCircle2 size={16} />
+                  ) : (
+                    <FileText size={16} />
+                  )}
+                </ThemeIcon>
+                <Text fw={700} lineClamp={2}>
                   {onboarding.data?.resumeDocument?.title ??
                     t("dashboard.noResume")}
-                </span>
-              </div>
+                </Text>
+              </Group>
             </CardContent>
           </Card>
-        </div>
+        </SimpleGrid>
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <Box
+          style={{
+            display: "grid",
+            gap: "var(--mantine-spacing-lg)",
+            gridTemplateColumns: "minmax(0, 1fr)",
+          }}
+        >
           <Card>
-            <CardHeader className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-[var(--lg-primary-text)]" />
+            <CardHeader>
+              <ThemeIcon color="teal" radius="sm" variant="light">
+                <Target size={18} />
+              </ThemeIcon>
               <CardTitle>{t("dashboard.primaryGoal")}</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3">
+            <CardContent>
               {goals.length > 0 ? (
                 goals.map((goal) => (
-                  <div
+                  <Paper
                     key={goal.id}
-                    className="grid gap-3 border-t border-[var(--lg-border)] pt-4 first:border-t-0 first:pt-0 md:grid-cols-[1fr_auto]"
+                    bg="var(--mantine-color-default-hover)"
+                    p="md"
+                    radius="sm"
                   >
-                    <div>
-                      <h3 className="font-semibold text-[var(--lg-text)]">
-                        {goal.title}
-                      </h3>
-                      <p className="mt-1 text-sm text-[var(--lg-muted)]">
-                        {goal.targetRole ?? t("options.empty")}
-                      </p>
-                    </div>
-                    <Badge variant="info">
-                      {t(`options.goalTypes.${readGoalType(goal.metadata)}`)}
-                    </Badge>
-                  </div>
+                    <Group align="flex-start" justify="space-between" gap="md">
+                      <Stack gap={4}>
+                        <Text fw={650}>{goal.title}</Text>
+                        <Text c="dimmed" size="sm">
+                          {goal.targetRole ?? t("options.empty")}
+                        </Text>
+                      </Stack>
+                      <Badge variant="info">
+                        {t(`options.goalTypes.${readGoalType(goal.metadata)}`)}
+                      </Badge>
+                    </Group>
+                  </Paper>
                 ))
               ) : (
-                <p className="text-[var(--lg-muted)]">
-                  {t("dashboard.emptyState")}
-                </p>
+                <Text c="dimmed">{t("dashboard.emptyState")}</Text>
               )}
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex items-center gap-2">
-              <CalendarClock className="h-5 w-5 text-[var(--lg-warning-text)]" />
+            <CardHeader>
+              <ThemeIcon color="yellow" radius="sm" variant="light">
+                <CalendarClock size={18} />
+              </ThemeIcon>
               <CardTitle>{t("dashboard.focusAreas")}</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3">
+            <CardContent>
               {[
                 t("dashboard.actionReview"),
                 t("dashboard.actionGoals"),
                 t("dashboard.actionResume"),
               ].map((action) => (
-                <div
+                <Paper
                   key={action}
-                  className="flex items-center gap-3 rounded-md bg-[var(--lg-surface-muted)] p-3 text-sm"
+                  bg="var(--mantine-color-default-hover)"
+                  p="sm"
+                  radius="sm"
                 >
-                  <Zap className="h-4 w-4 text-[var(--lg-primary-text)]" />
-                  <span>{action}</span>
-                </div>
+                  <Group gap="sm" wrap="nowrap">
+                    <Zap size={16} color="var(--mantine-color-teal-7)" />
+                    <Text size="sm">{action}</Text>
+                  </Group>
+                </Paper>
               ))}
             </CardContent>
           </Card>
-        </div>
+        </Box>
 
-        <section className="grid gap-5 lg:grid-cols-2">
+        <SimpleGrid component="section" cols={{ base: 1, lg: 2 }} spacing="lg">
           <Card>
             <CardHeader>
               <CardTitle>{t("dashboard.topSkills")}</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3">
+            <CardContent>
               {strongSkills.slice(0, 6).map((skill) => (
-                <div
+                <Paper
                   key={skill.id}
-                  className="flex items-center justify-between gap-3 rounded-md bg-[var(--lg-surface-muted)] px-4 py-3"
+                  bg="var(--mantine-color-default-hover)"
+                  p="md"
+                  radius="sm"
                 >
-                  <span>{skill.title}</span>
-                  <Badge variant="success">
-                    {t(`options.skillLevels.${skill.level}`)}
-                  </Badge>
-                </div>
+                  <Group justify="space-between" gap="sm">
+                    <Text>{skill.title}</Text>
+                    <Badge variant="success">
+                      {t(`options.skillLevels.${skill.level}`)}
+                    </Badge>
+                  </Group>
+                </Paper>
               ))}
               {strongSkills.length === 0 ? (
-                <p className="text-[var(--lg-muted)]">{t("options.empty")}</p>
+                <Text c="dimmed">{t("options.empty")}</Text>
               ) : null}
             </CardContent>
           </Card>
@@ -226,24 +265,28 @@ export function DashboardRoute() {
             <CardHeader>
               <CardTitle>{t("dashboard.weakSkills")}</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3">
+            <CardContent>
               {weakSkills.slice(0, 6).map((skill) => (
-                <div
+                <Paper
                   key={skill.id}
-                  className="flex items-center justify-between gap-3 rounded-md bg-[var(--lg-surface-muted)] px-4 py-3"
+                  bg="var(--mantine-color-default-hover)"
+                  p="md"
+                  radius="sm"
                 >
-                  <span>{skill.title}</span>
-                  <Badge variant="warning">
-                    {t(`options.skillLevels.${skill.level}`)}
-                  </Badge>
-                </div>
+                  <Group justify="space-between" gap="sm">
+                    <Text>{skill.title}</Text>
+                    <Badge variant="warning">
+                      {t(`options.skillLevels.${skill.level}`)}
+                    </Badge>
+                  </Group>
+                </Paper>
               ))}
               {weakSkills.length === 0 ? (
-                <p className="text-[var(--lg-muted)]">{t("options.empty")}</p>
+                <Text c="dimmed">{t("options.empty")}</Text>
               ) : null}
             </CardContent>
           </Card>
-        </section>
+        </SimpleGrid>
       </PageSection>
     </Container>
   );

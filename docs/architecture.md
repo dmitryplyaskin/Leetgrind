@@ -1,6 +1,6 @@
 # Leetgrind Architecture
 
-Last updated: 2026-04-21
+Last updated: 2026-04-22
 
 This document describes the initial architecture direction for Leetgrind. It is based on the current product vision and should be treated as a practical starting point, not as a frozen specification.
 
@@ -117,12 +117,15 @@ Recommended libraries:
 - `TanStack Query`;
 - `React Hook Form`;
 - `Zod`;
-- `Tailwind CSS`;
-- `shadcn/ui`;
-- `Radix UI`;
+- `Mantine v8`;
 - `i18next`;
 - `react-i18next`;
 - `Zustand` for small UI-only state.
+
+Mantine v8 is the approved UI component system. Agents should mention that
+Leetgrind uses Mantine v8 and reference `https://mantine.dev/llms.txt` when
+using AI assistance for Mantine component behavior. A local snapshot of the
+LLM-oriented Mantine index is stored at `docs/vendor/mantine-v8-llms.txt`.
 
 ### Local API Layer
 

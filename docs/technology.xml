@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-technology project="leetgrind" version="0.1" updated="2026-04-21">
+<grace-technology project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Technology Contract</title>
     <runtime>Node.js 22 or newer</runtime>
@@ -34,8 +34,7 @@
       <library name="TanStack Query" role="server state"/>
       <library name="React Hook Form" role="forms"/>
       <library name="Zod" role="schema validation"/>
-      <library name="Tailwind CSS" role="styling"/>
-      <library name="Radix UI" role="accessible primitives"/>
+      <library name="Mantine v8" role="component system, styling, accessible UI primitives"/>
       <library name="i18next and react-i18next" role="Russian and English UI localization"/>
       <library name="CodeMirror 6" role="coding editor"/>
       <library name="Cytoscape.js" role="knowledge graph visualization"/>
@@ -86,6 +85,7 @@
     <rule id="DEP-005">packages/rag may coordinate embeddings through packages/ai but must keep retrieval source metadata explicit.</rule>
     <rule id="DEP-006">apps/server coordinates use cases and adapters but should avoid holding core business rules directly.</rule>
     <rule id="DEP-007">New runtime dependencies require a reason in docs/technology.xml when they become architectural choices.</rule>
+    <rule id="DEP-008">Mantine v8 is the UI component source of truth; do not reintroduce Tailwind CSS utility styling without updating this contract.</rule>
   </dependency-rules>
 
   <coding-standards>
