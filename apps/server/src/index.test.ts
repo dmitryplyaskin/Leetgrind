@@ -2,8 +2,12 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { AiEmbeddingRequest, AiEmbeddingResult, AiObjectRequest, AiProvider, AiProviderFactory, AiTextRequest, AiTextResult } from "@leetgrind/ai";
 import { AiProviderRegistry } from "@leetgrind/ai";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { InMemoryCredentialStore } from "./ai/credential-store.js";
 import type { AppContext } from "./context.js";
+import { acquireDataDirLock } from "./database-lock.js";
 import { appRouter, createApp, createAppContext } from "./index.js";
 
 function vectorFor(input: string) {
@@ -278,6 +282,27 @@ describe("server API", () => {
       ok: true,
       service: "leetgrind-server"
     });
+  });
+
+  it("rejects a second app context for the same persistent data directory", async () => {
+    const dataDir = await mkdtemp(join(tmpdir(), "leetgrind-pglite-lock-"));
+    const lock = acquireDataDirLock(dataDir);
+
+    try {
+      await expect(
+        createAppContext({
+          aiRegistry: new AiProviderRegistry([fakeOpenRouterFactory]),
+          credentialStore: new InMemoryCredentialStore(),
+          database: {
+            dataDir,
+            runMigrations: true
+          }
+        })
+      ).rejects.toThrow(/already using the PGLite data directory/);
+    } finally {
+      await lock?.release();
+      await rm(dataDir, { force: true, recursive: true });
+    }
   });
 
   it("serves typed tRPC profile and goals procedures", async () => {

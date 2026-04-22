@@ -87,6 +87,9 @@ Use the GRACE documents as the public project contract:
 13. Follow the frontend design contract.
     Frontend work must use `docs/frontend-design.md`, Mantine v8, `packages/ui` primitives, and the `--lg-*` design tokens. When Codex has the `frontend-skill` installed, use it for visually significant UI work. Avoid default Inter/system typography, generic card mosaics, nested cards, and decorative chrome that does not improve the learner workflow.
 
+14. Do not leave dev servers behind.
+    Before starting `pnpm dev`, `pnpm --filter @leetgrind/server dev`, or `pnpm --filter @leetgrind/web dev`, check whether a suitable Leetgrind dev server is already running. Prefer reusing an existing server. If an agent starts a dev server for verification, it must track the process and stop it before the final response unless the user explicitly asks to keep it running. Do not start a second server process against the same PGLite data directory.
+
 ## Current Module Map
 
 - `apps/web`: React UI, routes, screen composition, client-side interaction.

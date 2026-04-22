@@ -218,6 +218,14 @@ Responsibilities:
 
 The rest of the app should not build raw SQL queries unless there is a clear reason.
 
+PGLite is opened as an embedded local database by the server process. The
+default persistent data directory is single-owner at runtime: only one
+Leetgrind server process may open `.leetgrind/pglite` at a time. The server
+runtime creates a lock file before initializing PGLite and removes it when the
+application context closes. Agents and developers should reuse an existing dev
+server for UI checks or stop any server they started before launching another
+one against the same data directory.
+
 ## AI Architecture
 
 AI access should be hidden behind a provider abstraction in `packages/ai`.

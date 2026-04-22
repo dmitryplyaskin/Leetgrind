@@ -55,6 +55,13 @@ Run `pnpm test:e2e` when changing:
 - settings flows;
 - anything that can break the first viewport or navigation.
 
+When a browser check needs a live app, first check whether a Leetgrind dev
+server is already running and reuse it when suitable. If a test or manual check
+starts `pnpm dev`, `pnpm --filter @leetgrind/server dev`, or
+`pnpm --filter @leetgrind/web dev`, stop that process after verification unless
+the user explicitly asks to keep it running. Do not leave multiple server
+processes pointing at the same `.leetgrind/pglite` directory.
+
 ## Test Types
 
 ### Unit Tests
