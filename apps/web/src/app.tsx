@@ -7,16 +7,18 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { Tooltip } from "@mantine/core";
+import { ActionIcon, Tooltip } from "@mantine/core";
 import {
   ArrowRight,
   BookOpen,
   ClipboardCheck,
   Clock3,
   LayoutDashboard,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings2,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AppSurface,
@@ -52,11 +54,21 @@ const trpcClient = createTrpcClient();
 
 function AppShell() {
   const { i18n, t } = useTranslation();
+  const [isNavigationHidden, setIsNavigationHidden] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    return window.localStorage.getItem("leetgrind.sidebarHidden") === "true";
+  });
   const onboarding = trpc.onboarding.getState.useQuery(undefined, {
     retry: false,
     staleTime: 30_000,
   });
   const preferredLocale = onboarding.data?.profile.preferences.uiLocale;
+  const toggleNavigationLabel = isNavigationHidden
+    ? t("app.navigation.showMenu")
+    : t("app.navigation.hideMenu");
   const navigationItems = [
     {
       icon: LayoutDashboard,
@@ -99,64 +111,122 @@ function AppShell() {
     }
   }, [i18n, preferredLocale]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "leetgrind.sidebarHidden",
+        String(isNavigationHidden),
+      );
+    }
+  }, [isNavigationHidden]);
+
   return (
     <AppSurface>
-      <Box className="app-shell-frame">
-        <Box component="aside" className="app-sidebar">
-          <Tooltip label="Leetgrind" position="right" openDelay={350}>
-            <Link
-              to="/"
-              aria-label="Leetgrind"
-              className="app-sidebar__brand"
-              title="Leetgrind"
+      <Box
+        className={
+          isNavigationHidden
+            ? "app-shell-frame app-shell-frame--nav-hidden"
+            : "app-shell-frame"
+        }
+      >
+        {isNavigationHidden ? (
+          <Tooltip
+            label={toggleNavigationLabel}
+            position="right"
+            openDelay={350}
+          >
+            <ActionIcon
+              aria-label={toggleNavigationLabel}
+              className="app-sidebar__reveal"
+              color="gray"
+              onClick={() => setIsNavigationHidden(false)}
+              title={toggleNavigationLabel}
+              type="button"
+              variant="default"
             >
-              <Box component="span" className="app-sidebar__brand-mark">
-                Lg
-              </Box>
-              <Text component="span" className="app-sidebar__wordmark">
-                Leetgrind
-              </Text>
-            </Link>
+              <PanelLeftOpen size={18} aria-hidden="true" />
+            </ActionIcon>
           </Tooltip>
-          <Stack component="nav" gap={6} className="app-sidebar__nav">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <Tooltip
-                  key={item.to}
-                  label={item.label}
-                  position="right"
-                  openDelay={350}
+        ) : (
+          <Box component="aside" className="app-sidebar">
+            <Group className="app-sidebar__top" gap={6} wrap="nowrap">
+              <Tooltip label="Leetgrind" position="right" openDelay={350}>
+                <Link
+                  to="/"
+                  aria-label="Leetgrind"
+                  className="app-sidebar__brand"
+                  title="Leetgrind"
                 >
-                  <Link
-                    to={item.to}
-                    aria-label={item.label}
-                    className="app-sidebar__link"
-                    activeProps={{
-                      className: "app-sidebar__link app-sidebar__link--active",
-                    }}
-                    title={item.label}
+                  <Box component="span" className="app-sidebar__brand-mark">
+                    Lg
+                  </Box>
+                  <Text component="span" className="app-sidebar__wordmark">
+                    Leetgrind
+                  </Text>
+                </Link>
+              </Tooltip>
+              <Tooltip
+                label={toggleNavigationLabel}
+                position="right"
+                openDelay={350}
+              >
+                <ActionIcon
+                  aria-label={toggleNavigationLabel}
+                  className="app-sidebar__collapse"
+                  color="gray"
+                  onClick={() => setIsNavigationHidden(true)}
+                  title={toggleNavigationLabel}
+                  type="button"
+                  variant="subtle"
+                >
+                  <PanelLeftClose size={18} aria-hidden="true" />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
+            <Stack component="nav" gap={6} className="app-sidebar__nav">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <Tooltip
+                    key={item.to}
+                    label={item.label}
+                    position="right"
+                    openDelay={350}
                   >
-                    <Icon size={20} strokeWidth={2} aria-hidden="true" />
-                    <Text component="span" className="app-sidebar__link-label">
-                      {item.label}
-                    </Text>
-                  </Link>
-                </Tooltip>
-              );
-            })}
-          </Stack>
-          <Box className="app-sidebar__footer">
-            <ThemeToggle
-              labels={{
-                dark: t("app.theme.dark"),
-                light: t("app.theme.light"),
-                toggle: t("app.theme.toggle"),
-              }}
-            />
+                    <Link
+                      to={item.to}
+                      aria-label={item.label}
+                      className="app-sidebar__link"
+                      activeProps={{
+                        className:
+                          "app-sidebar__link app-sidebar__link--active",
+                      }}
+                      title={item.label}
+                    >
+                      <Icon size={20} strokeWidth={2} aria-hidden="true" />
+                      <Text
+                        component="span"
+                        className="app-sidebar__link-label"
+                      >
+                        {item.label}
+                      </Text>
+                    </Link>
+                  </Tooltip>
+                );
+              })}
+            </Stack>
+            <Box className="app-sidebar__footer">
+              <ThemeToggle
+                labels={{
+                  dark: t("app.theme.dark"),
+                  light: t("app.theme.light"),
+                  toggle: t("app.theme.toggle"),
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
+        )}
         <Box component="main" className="app-main">
           <Outlet />
         </Box>

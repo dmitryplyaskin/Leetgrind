@@ -23,6 +23,10 @@ export const resources = {
         history: "History",
         lessons: "Lessons",
         onboarding: "Setup",
+        navigation: {
+          hideMenu: "Hide menu",
+          showMenu: "Show menu",
+        },
         theme: {
           toggle: "Theme",
           light: "Light theme",
@@ -427,6 +431,10 @@ export const resources = {
         history: "История",
         lessons: "Уроки",
         onboarding: "Настройка",
+        navigation: {
+          hideMenu: "Скрыть меню",
+          showMenu: "Показать меню",
+        },
         theme: {
           toggle: "Тема",
           light: "Светлая тема",

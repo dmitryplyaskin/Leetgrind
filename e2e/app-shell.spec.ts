@@ -14,6 +14,25 @@ test("renders the Leetgrind app shell", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("hides and restores the sidebar menu", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await expect(page.getByRole("navigation")).toBeVisible();
+
+  await page.getByRole("button", { name: /Hide menu|Скрыть меню/i }).click();
+
+  await expect(page.getByRole("navigation")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: /Show menu|Показать меню/i }),
+  ).toBeVisible();
+  await expect(page.locator(".app-shell-frame")).toHaveClass(/nav-hidden/);
+
+  await page.getByRole("button", { name: /Show menu|Показать меню/i }).click();
+
+  await expect(page.getByRole("navigation")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Leetgrind" })).toBeVisible();
+});
+
 test("renders onboarding and dashboard routes", async ({ page }) => {
   await page.goto("/onboarding");
 
