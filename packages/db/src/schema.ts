@@ -45,6 +45,7 @@ export const goals = pgTable(
     })
       .notNull()
       .default("active"),
+    metadata: jsonb("metadata").notNull().default({}),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },

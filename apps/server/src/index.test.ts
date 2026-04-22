@@ -57,4 +57,72 @@ describe("server API", () => {
 
     await expect(caller.goals.create({ title: "" })).rejects.toThrow();
   });
+
+  it("completes onboarding with profile, goals, skills, preferences, and resume", async () => {
+    const caller = appRouter.createCaller(context);
+
+    const result = await caller.onboarding.complete({
+      profile: {
+        displayName: "Dima",
+        targetRole: "Frontend Engineer",
+        experienceLevel: "middle"
+      },
+      goals: [
+        {
+          title: "Prepare for Yandex frontend interview",
+          goalType: "company-interview",
+          targetRole: "Frontend Engineer",
+          targetCompany: "Yandex",
+          targetSeniority: "middle",
+          interviewDate: null,
+          focusAreas: ["React", "Algorithms"],
+          description: "Focus on frontend interview readiness."
+        },
+        {
+          title: "Improve backend fundamentals",
+          goalType: "skill-growth",
+          targetRole: "Backend Engineer",
+          targetCompany: null,
+          targetSeniority: null,
+          interviewDate: null,
+          focusAreas: ["Node.js"],
+          description: null
+        }
+      ],
+      skills: [
+        {
+          title: "React",
+          level: "developing",
+          description: "Hooks and component design."
+        },
+        {
+          title: "Algorithms",
+          level: "weak",
+          description: null
+        }
+      ],
+      resume: {
+        title: "Resume",
+        content: "Frontend developer with React and TypeScript experience."
+      },
+      preferences: {
+        uiLocale: "ru",
+        contentLanguage: "ru",
+        programmingLanguages: ["typescript", "python"],
+        studyRhythm: "daily",
+        preferredAiProviderKind: "not-configured"
+      }
+    });
+    const state = await caller.onboarding.getState();
+
+    expect(result.isComplete).toBe(true);
+    expect(state.isComplete).toBe(true);
+    expect(state.profile.preferences).toMatchObject({
+      uiLocale: "ru",
+      programmingLanguages: ["typescript", "python"]
+    });
+    expect(state.goals).toHaveLength(2);
+    expect(state.skills).toHaveLength(2);
+    expect(state.resumeDocument?.sourceType).toBe("resume");
+  });
 });

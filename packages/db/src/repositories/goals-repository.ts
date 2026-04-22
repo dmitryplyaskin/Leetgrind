@@ -11,6 +11,7 @@ export interface CreateGoalInput {
   description?: string | null;
   targetRole?: string | null;
   status?: GoalStatus;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateGoalInput {
@@ -18,10 +19,11 @@ export interface UpdateGoalInput {
   description?: string | null;
   targetRole?: string | null;
   status?: GoalStatus;
+  metadata?: Record<string, unknown>;
 }
 
 export function createGoalsRepository(db: LeetgrindDatabase) {
-  return {
+  const repository = {
     async list(profileId = LOCAL_USER_PROFILE_ID): Promise<Goal[]> {
       const rows = await db
         .select()
@@ -40,11 +42,22 @@ export function createGoalsRepository(db: LeetgrindDatabase) {
           title: input.title,
           description: input.description ?? null,
           targetRole: input.targetRole ?? null,
-          status: input.status ?? "active"
+          status: input.status ?? "active",
+          metadata: input.metadata ?? {}
         })
         .returning();
 
       return goal as Goal;
+    },
+
+    async createMany(input: CreateGoalInput[]): Promise<Goal[]> {
+      const saved: Goal[] = [];
+
+      for (const goal of input) {
+        saved.push(await repository.create(goal));
+      }
+
+      return saved;
     },
 
     async update(id: string, input: UpdateGoalInput): Promise<Goal | null> {
@@ -62,4 +75,6 @@ export function createGoalsRepository(db: LeetgrindDatabase) {
       return (goal as Goal | undefined) ?? null;
     }
   };
+
+  return repository;
 }

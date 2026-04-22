@@ -16,5 +16,24 @@ export const documentsRouter = router({
   create: publicProcedure.input(createDocumentInputSchema).mutation(async ({ ctx, input }) => {
     await ctx.database.repositories.userProfiles.ensureLocalProfile();
     return ctx.database.repositories.documents.create(input);
+  }),
+
+  createResumeDocument: publicProcedure
+    .input(
+      z.object({
+        title: z.string().trim().min(1),
+        content: z.string().trim().min(1)
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const profile = await ctx.database.repositories.userProfiles.ensureLocalProfile();
+      return ctx.database.repositories.documents.upsertResume({
+        profileId: profile.id,
+        title: input.title,
+        content: input.content,
+        metadata: {
+          createdBy: "documents-router"
+        }
+      });
   })
 });

@@ -2,6 +2,13 @@ export const LOCAL_USER_PROFILE_ID = "00000000-0000-0000-0000-000000000001";
 
 export type ExperienceLevel = "beginner" | "junior" | "middle" | "senior" | "expert";
 export type GoalStatus = "active" | "paused" | "completed" | "archived";
+export type GoalType =
+  | "job-search"
+  | "company-interview"
+  | "role-growth"
+  | "skill-growth"
+  | "custom";
+export type TargetSeniority = "intern" | "junior" | "middle" | "senior" | "staff" | "lead";
 export type GoalSkillRelevance = "primary" | "supporting" | "stretch";
 export type SkillLevel = "unknown" | "weak" | "developing" | "strong";
 export type SkillEdgeRelation =
@@ -43,6 +50,32 @@ export type AgentRunKind =
   | "ingestion";
 export type AgentRunStatus = "queued" | "running" | "succeeded" | "failed" | "canceled";
 export type AiProviderKind = "openai-codex" | "openai-api-key" | "openrouter" | "local";
+export type UserInterfaceLocale = "ru" | "en";
+export type UserLanguagePreference = "ru" | "en" | "mixed";
+export type StudyRhythm = "daily" | "weekdays" | "weekends" | "weekly" | "flexible";
+
+export interface SelfAssessedSkill {
+  title: string;
+  level: SkillLevel;
+  description: string | null;
+}
+
+export interface ResumeDocumentInput {
+  title: string;
+  content: string;
+  source: "manual-onboarding";
+}
+
+export interface OnboardingPreferences {
+  uiLocale: UserInterfaceLocale;
+  contentLanguage: UserLanguagePreference;
+  programmingLanguages: string[];
+  studyRhythm: StudyRhythm;
+  preferredAiProviderKind: AiProviderKind | "not-configured";
+  onboarding: {
+    completedAt: string | null;
+  };
+}
 
 export interface UserProfile {
   id: string;
@@ -62,6 +95,7 @@ export interface Goal {
   description: string | null;
   targetRole: string | null;
   status: GoalStatus;
+  metadata: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }

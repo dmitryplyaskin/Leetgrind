@@ -13,5 +13,9 @@ export const skillsRouter = router({
 
   upsertMany: publicProcedure
     .input(z.object({ skills: z.array(skillInputSchema).max(100) }))
+    .mutation(({ ctx, input }) => ctx.database.repositories.skills.upsertMany(input.skills)),
+
+  selfAssess: publicProcedure
+    .input(z.object({ skills: z.array(skillInputSchema).min(1).max(100) }))
     .mutation(({ ctx, input }) => ctx.database.repositories.skills.upsertMany(input.skills))
 });

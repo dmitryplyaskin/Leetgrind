@@ -176,7 +176,7 @@
       </result>
     </packet>
 
-    <packet id="OP-003" status="next" template="TPL-FEATURE">
+    <packet id="OP-003" status="in-progress" template="TPL-FEATURE">
       <name>User profile, goals, and onboarding</name>
       <target-modules>
         <module>M-WEB</module>

@@ -1,0 +1,1 @@
+ALTER TABLE "goals" ADD COLUMN "metadata" jsonb DEFAULT '{}'::jsonb NOT NULL;

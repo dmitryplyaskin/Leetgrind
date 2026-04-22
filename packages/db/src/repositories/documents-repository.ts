@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { Document, DocumentSourceType } from "@leetgrind/domain";
 import { LOCAL_USER_PROFILE_ID } from "@leetgrind/domain";
 import type { LeetgrindDatabase } from "../pglite.js";
@@ -15,12 +15,25 @@ export interface CreateDocumentInput {
 }
 
 export function createDocumentsRepository(db: LeetgrindDatabase) {
-  return {
+  const repository = {
     async list(profileId = LOCAL_USER_PROFILE_ID): Promise<Document[]> {
       const rows = await db
         .select()
         .from(documents)
         .where(eq(documents.profileId, profileId))
+        .orderBy(desc(documents.createdAt));
+
+      return rows as Document[];
+    },
+
+    async listBySourceType(
+      sourceType: DocumentSourceType,
+      profileId = LOCAL_USER_PROFILE_ID
+    ): Promise<Document[]> {
+      const rows = await db
+        .select()
+        .from(documents)
+        .where(and(eq(documents.profileId, profileId), eq(documents.sourceType, sourceType)))
         .orderBy(desc(documents.createdAt));
 
       return rows as Document[];
@@ -41,6 +54,53 @@ export function createDocumentsRepository(db: LeetgrindDatabase) {
         .returning();
 
       return document as Document;
+    },
+
+    async upsertResume(input: {
+      profileId?: string;
+      title: string;
+      content: string;
+      metadata?: Record<string, unknown>;
+    }): Promise<Document> {
+      const profileId = input.profileId ?? LOCAL_USER_PROFILE_ID;
+      const [existing] = await db
+        .select()
+        .from(documents)
+        .where(
+          and(
+            eq(documents.profileId, profileId),
+            eq(documents.sourceType, "resume"),
+            eq(documents.source, "manual-onboarding")
+          )
+        )
+        .orderBy(desc(documents.createdAt))
+        .limit(1);
+
+      if (!existing) {
+        return repository.create({
+          profileId,
+          title: input.title,
+          sourceType: "resume",
+          source: "manual-onboarding",
+          contentType: "text/plain",
+          content: input.content,
+          metadata: input.metadata
+        });
+      }
+
+      const [document] = await db
+        .update(documents)
+        .set({
+          title: input.title,
+          content: input.content,
+          metadata: input.metadata ?? existing.metadata
+        })
+        .where(eq(documents.id, existing.id))
+        .returning();
+
+      return document as Document;
     }
   };
+
+  return repository;
 }

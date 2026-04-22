@@ -185,7 +185,7 @@
       <module>M-SERVER-API</module>
     </phase>
 
-    <phase id="PH-002" status="next" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
+    <phase id="PH-002" status="in-progress" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
       <name>User Profile, Goals, And Onboarding</name>
       <goal>Let the user define profile, goals, initial skills, UI language, programming languages, and resume context.</goal>
       <module>M-WEB</module>

@@ -28,12 +28,16 @@ describe("local repositories", () => {
 
     const goal = await context.repositories.goals.create({
       title: "Prepare for frontend interviews",
-      targetRole: "Frontend Engineer"
+      targetRole: "Frontend Engineer",
+      metadata: {
+        goalType: "job-search"
+      }
     });
     const goals = await context.repositories.goals.list();
 
     expect(goals).toHaveLength(1);
     expect(goals[0]?.id).toBe(goal.id);
+    expect(goals[0]?.metadata).toMatchObject({ goalType: "job-search" });
 
     const [skill] = await context.repositories.skills.upsertMany([
       {
@@ -57,5 +61,14 @@ describe("local repositories", () => {
     const documents = await context.repositories.documents.list();
 
     expect(documents[0]?.id).toBe(document.id);
+
+    const updatedResume = await context.repositories.documents.upsertResume({
+      title: "Resume",
+      content: "React, TypeScript, and testing experience"
+    });
+    const resumeDocuments = await context.repositories.documents.listBySourceType("resume");
+
+    expect(updatedResume.content).toContain("testing");
+    expect(resumeDocuments).toHaveLength(2);
   });
 });
