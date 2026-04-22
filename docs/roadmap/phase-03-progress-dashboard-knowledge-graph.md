@@ -1,6 +1,6 @@
 # Phase 03: Progress Dashboard And Knowledge Graph
 
-Status: planned.
+Status: done.
 
 ## Goal
 
@@ -80,6 +80,15 @@ Add procedures:
 - `history.listRecent`;
 - `recommendations.listActive`;
 
+Implemented contract:
+
+- `dashboard.getSummary` returns active goal, readiness, progress summaries, weak spots, deterministic actions, reviews, recent activity, and graph preview.
+- `goals.getReadiness` returns goal-scoped readiness, skills, weak spots, and next actions.
+- `skills.getGraph` returns Cytoscape-ready skill nodes and edges.
+- `skills.getDetail` returns skill progress, evidence, attempts, recommendations, reviews, goal links, and graph neighbors.
+- `history.listRecent` returns unified activity events.
+- `recommendations.listActive` returns pending stored recommendations.
+
 ## Data Work
 
 Seed initial skill graph templates for common tracks:
@@ -142,3 +151,6 @@ Manual:
 - User can inspect skill detail and recent progress.
 - Recommendations have visible reasons.
 
+## Result
+
+Phase 03 was implemented with domain read models, idempotent skill graph templates, deterministic recommendations, dashboard/readiness/history tRPC procedures, a Cytoscape graph preview, skill detail and goal detail routes, localized Russian and English UI copy, and verification coverage.

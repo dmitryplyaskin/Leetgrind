@@ -195,7 +195,7 @@
       <module>M-SHARED</module>
     </phase>
 
-    <phase id="PH-003" status="next" roadmap="docs/roadmap/phase-03-progress-dashboard-knowledge-graph.md">
+    <phase id="PH-003" status="done" roadmap="docs/roadmap/phase-03-progress-dashboard-knowledge-graph.md">
       <name>Progress Dashboard And Knowledge Graph</name>
       <goal>Show goal readiness, skill progress, weak spots, recommendations, recent activity, and skill graph.</goal>
       <module>M-WEB</module>
@@ -206,7 +206,7 @@
       <module>M-SCHEDULING</module>
     </phase>
 
-    <phase id="PH-004" status="planned" roadmap="docs/roadmap/phase-04-ai-providers-agents-rag.md">
+    <phase id="PH-004" status="next" roadmap="docs/roadmap/phase-04-ai-providers-agents-rag.md">
       <name>AI Providers, Agents, And RAG</name>
       <goal>Implement provider settings, at least one provider adapter, agent runtime contracts, document ingestion, and retrieval.</goal>
       <module>M-AI</module>

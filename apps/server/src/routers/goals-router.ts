@@ -23,6 +23,14 @@ const updateGoalInputSchema = z.object({
 export const goalsRouter = router({
   list: publicProcedure.query(({ ctx }) => ctx.database.repositories.goals.list()),
 
+  getReadiness: publicProcedure
+    .input(z.object({ goalId: z.uuid() }))
+    .query(({ ctx, input }) =>
+      ctx.database.repositories.dashboard.getGoalReadiness({
+        goalId: input.goalId
+      })
+    ),
+
   create: publicProcedure.input(createGoalInputSchema).mutation(async ({ ctx, input }) => {
     await ctx.database.repositories.userProfiles.ensureLocalProfile();
     return ctx.database.repositories.goals.create(input);

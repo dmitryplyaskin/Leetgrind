@@ -7,7 +7,7 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { ArrowRight, LayoutDashboard } from "lucide-react";
+import { ArrowRight, Clock3, LayoutDashboard } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,8 +23,11 @@ import {
   Text,
 } from "@leetgrind/ui";
 import { DashboardRoute } from "./dashboard";
+import { GoalDetailRoute } from "./goal-detail";
+import { HistoryRoute } from "./history";
 import "./i18n";
 import { OnboardingRoute } from "./onboarding";
+import { SkillDetailRoute } from "./skill-detail";
 import { ThemeToggle } from "./theme";
 import { createTrpcClient, trpc } from "./trpc";
 
@@ -115,6 +118,18 @@ function AppShell() {
                   <ArrowRight size={18} />
                 </Box>
               </Link>
+              <Link
+                to="/history"
+                style={navLinkStyle}
+                activeProps={{ style: activeNavLinkStyle }}
+              >
+                <Text component="span" visibleFrom="sm" size="sm">
+                  {t("app.history")}
+                </Text>
+                <Box hiddenFrom="sm">
+                  <Clock3 size={18} />
+                </Box>
+              </Link>
               <ThemeToggle
                 labels={{
                   dark: t("app.theme.dark"),
@@ -192,10 +207,31 @@ const dashboardRoute = createRoute({
   component: DashboardRoute,
 });
 
+const goalDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/goals/$goalId",
+  component: GoalDetailRoute,
+});
+
+const skillDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/skills/$skillId",
+  component: SkillDetailRoute,
+});
+
+const historyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/history",
+  component: HistoryRoute,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   onboardingRoute,
   dashboardRoute,
+  goalDetailRoute,
+  skillDetailRoute,
+  historyRoute,
 ]);
 
 const router = createRouter({

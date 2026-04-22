@@ -1,7 +1,7 @@
-import { asc, inArray, sql } from "drizzle-orm";
-import type { Skill, SkillLevel } from "@leetgrind/domain";
+import { asc, eq, inArray, sql } from "drizzle-orm";
+import type { Skill, SkillEdge, SkillLevel } from "@leetgrind/domain";
 import type { LeetgrindDatabase } from "../pglite.js";
-import { skills } from "../schema.js";
+import { skillEdges, skills } from "../schema.js";
 import { slugifySkillTitle } from "./utils.js";
 
 export interface UpsertSkillInput {
@@ -17,6 +17,32 @@ export function createSkillsRepository(db: LeetgrindDatabase) {
       const rows = await db.select().from(skills).orderBy(asc(skills.title));
 
       return rows as Skill[];
+    },
+
+    async get(id: string): Promise<Skill | null> {
+      const [row] = await db.select().from(skills).where(eq(skills.id, id));
+
+      return (row as Skill | undefined) ?? null;
+    },
+
+    async listByIds(ids: string[]): Promise<Skill[]> {
+      if (ids.length === 0) {
+        return [];
+      }
+
+      const rows = await db
+        .select()
+        .from(skills)
+        .where(inArray(skills.id, ids))
+        .orderBy(asc(skills.title));
+
+      return rows as Skill[];
+    },
+
+    async listEdges(): Promise<SkillEdge[]> {
+      const rows = await db.select().from(skillEdges);
+
+      return rows as SkillEdge[];
     },
 
     async upsertMany(input: UpsertSkillInput[]): Promise<Skill[]> {

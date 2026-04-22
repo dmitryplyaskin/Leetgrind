@@ -11,6 +11,28 @@ const skillInputSchema = z.object({
 export const skillsRouter = router({
   list: publicProcedure.query(({ ctx }) => ctx.database.repositories.skills.list()),
 
+  getGraph: publicProcedure
+    .input(
+      z
+        .object({
+          goalId: z.uuid().optional()
+        })
+        .optional()
+    )
+    .query(({ ctx, input }) =>
+      ctx.database.repositories.dashboard.getSkillGraph({
+        goalId: input?.goalId
+      })
+    ),
+
+  getDetail: publicProcedure
+    .input(z.object({ skillId: z.uuid() }))
+    .query(({ ctx, input }) =>
+      ctx.database.repositories.dashboard.getSkillDetail({
+        skillId: input.skillId
+      })
+    ),
+
   upsertMany: publicProcedure
     .input(z.object({ skills: z.array(skillInputSchema).max(100) }))
     .mutation(({ ctx, input }) => ctx.database.repositories.skills.upsertMany(input.skills)),

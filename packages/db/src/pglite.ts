@@ -6,10 +6,13 @@ import { migrate } from "drizzle-orm/pglite/migrator";
 import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createAttemptsRepository } from "./repositories/attempts-repository.js";
+import { createDashboardRepository } from "./repositories/dashboard-repository.js";
 import { createDocumentsRepository } from "./repositories/documents-repository.js";
 import { createEvidenceRepository } from "./repositories/evidence-repository.js";
 import { createGoalsRepository } from "./repositories/goals-repository.js";
 import { createRecommendationsRepository } from "./repositories/recommendations-repository.js";
+import { createReviewSchedulesRepository } from "./repositories/review-schedules-repository.js";
+import { createSkillGraphSeedRepository } from "./repositories/skill-graph-seed-repository.js";
 import { createSkillsRepository } from "./repositories/skills-repository.js";
 import { createUserProfileRepository } from "./repositories/user-profile-repository.js";
 import * as schema from "./schema.js";
@@ -81,7 +84,10 @@ export function createRepositories(db: LeetgrindDatabase) {
     attempts: createAttemptsRepository(db),
     evidence: createEvidenceRepository(db),
     documents: createDocumentsRepository(db),
-    recommendations: createRecommendationsRepository(db)
+    recommendations: createRecommendationsRepository(db),
+    reviewSchedules: createReviewSchedulesRepository(db),
+    seed: createSkillGraphSeedRepository(db),
+    dashboard: createDashboardRepository(db)
   };
 }
 

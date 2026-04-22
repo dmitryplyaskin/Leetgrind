@@ -241,4 +241,71 @@ describe("server API", () => {
     expect(state.isComplete).toBe(true);
     expect(state.resumeDocument).toBeNull();
   });
+
+  it("serves dashboard, graph, detail, history, and recommendation read models", async () => {
+    const caller = appRouter.createCaller(context);
+
+    await caller.onboarding.complete({
+      profile: {
+        displayName: "Dashboard user",
+        targetRole: "Frontend Engineer",
+        experienceLevel: "middle"
+      },
+      goals: [
+        {
+          title: "Frontend interviews",
+          goalType: "job-search",
+          targetRole: "Frontend Engineer",
+          targetCompany: null,
+          targetSeniority: "middle",
+          interviewDate: null,
+          focusAreas: ["React"],
+          description: null
+        }
+      ],
+      skills: [
+        {
+          title: "React",
+          level: "weak",
+          description: "Needs more practice with hooks."
+        }
+      ],
+      resume: null,
+      preferences: {
+        uiLocale: "en",
+        contentLanguage: "mixed",
+        programmingLanguages: ["typescript"],
+        studyRhythm: "daily",
+        preferredAiProviderKind: "not-configured"
+      }
+    });
+
+    const dashboard = await caller.dashboard.getSummary();
+    const goalId = dashboard.activeGoal?.id;
+    const skillId = dashboard.skills.find((skill) => skill.skill.slug === "react")?.skill.id;
+
+    expect(goalId).toBeDefined();
+    expect(skillId).toBeDefined();
+    expect(dashboard.graph.nodes.length).toBeGreaterThan(0);
+    expect(dashboard.nextActions.length).toBeGreaterThan(0);
+
+    await expect(caller.goals.getReadiness({ goalId: goalId! })).resolves.toMatchObject({
+      readiness: {
+        goal: {
+          id: goalId
+        }
+      }
+    });
+    await expect(caller.skills.getGraph({ goalId })).resolves.toMatchObject({
+      nodes: expect.any(Array),
+      edges: expect.any(Array)
+    });
+    await expect(caller.skills.getDetail({ skillId: skillId! })).resolves.toMatchObject({
+      skill: {
+        id: skillId
+      }
+    });
+    await expect(caller.history.listRecent({ limit: 5 })).resolves.toEqual(expect.any(Array));
+    await expect(caller.recommendations.listActive({ goalId })).resolves.toEqual(expect.any(Array));
+  });
 });

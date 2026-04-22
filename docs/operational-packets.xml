@@ -198,7 +198,7 @@
       </result>
     </packet>
 
-    <packet id="OP-004" status="next" template="TPL-FEATURE">
+    <packet id="OP-004" status="completed" template="TPL-FEATURE">
       <name>Progress dashboard and knowledge graph</name>
       <target-modules>
         <module>M-WEB</module>
@@ -215,10 +215,15 @@
       <verification>
         <command>pnpm typecheck</command>
         <command>pnpm build</command>
+        <command>pnpm test</command>
+        <command>pnpm test:e2e</command>
       </verification>
+      <result>
+        Dashboard read models, deterministic recommendations, idempotent common skill graph templates, tRPC procedures, Cytoscape graph preview, goal detail, skill detail, history route, and localized UI copy were implemented.
+      </result>
     </packet>
 
-    <packet id="OP-005" status="planned" template="TPL-FEATURE">
+    <packet id="OP-005" status="next" template="TPL-FEATURE">
       <name>AI providers, agents, and RAG</name>
       <target-modules>
         <module>M-AI</module>

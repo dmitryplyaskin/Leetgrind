@@ -1,12 +1,20 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import CytoscapeComponent from "react-cytoscapejs";
+import type { Core, EventObject } from "cytoscape";
 import {
+  AlertTriangle,
   CalendarClock,
   CheckCircle2,
-  FileText,
+  Clock3,
+  GitBranch,
+  LineChart,
+  ListChecks,
   Target,
   Zap,
 } from "lucide-react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { Progress, RingProgress, Select } from "@mantine/core";
 import {
   Alert,
   Badge,
@@ -32,262 +40,662 @@ import {
 } from "@leetgrind/ui";
 import { trpc } from "./trpc";
 
-function readPreferenceArray(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string")
-    : [];
+type CytoscapeStylesheet = Array<{
+  selector: string;
+  style: Record<string, string | number>;
+}>;
+
+interface DashboardSkillSummary {
+  skill: { id: string; title: string; level: string };
+  score: number;
+  goalRelevance: string | null;
+  attemptCount: number;
+  dueReviewCount: number;
 }
 
-function readGoalType(value: Record<string, unknown> | undefined) {
-  return typeof value?.goalType === "string" ? value.goalType : "job-search";
+interface DashboardAction {
+  id: string;
+  skillId: string | null;
+  titleKey: string;
+  reasonKey: string;
+  title?: string;
+  rationale?: string;
+}
+
+interface DashboardReview {
+  id: string;
+  skillId: string | null;
+  dueAt: Date | string;
+  state: string;
+}
+
+interface DashboardWeakSpot {
+  skillId: string;
+  title: string;
+  score: number;
+  reason: string;
+}
+
+interface DashboardActivity {
+  id: string;
+  kind: string;
+  title: string;
+  summary: string;
+  occurredAt: Date | string;
+  tone: string;
+}
+
+interface DashboardData {
+  activeGoal: { id: string; title: string; targetRole: string | null } | null;
+  readiness: {
+    score: number;
+    band: string;
+    totalSkills: number;
+    strongSkills: number;
+    dueReviews: number;
+  };
+  skills: DashboardSkillSummary[];
+  strongSkills: DashboardSkillSummary[];
+  weakSpots: DashboardWeakSpot[];
+  nextActions: DashboardAction[];
+  upcomingReviews: DashboardReview[];
+  recentActivity: DashboardActivity[];
+  graph: SkillGraphProps["graph"];
+}
+
+const graphStylesheet: CytoscapeStylesheet = [
+  {
+    selector: "node",
+    style: {
+      "background-color": "data(color)",
+      "border-color": "data(borderColor)",
+      "border-width": 2,
+      color: "var(--mantine-color-text)",
+      "font-size": 11,
+      height: "mapData(score, 0, 100, 28, 52)",
+      label: "data(label)",
+      "overlay-padding": 8,
+      shape: "round-rectangle",
+      "text-max-width": 92,
+      "text-valign": "center",
+      "text-wrap": "wrap",
+      width: "mapData(score, 0, 100, 82, 128)",
+    },
+  },
+  {
+    selector: "edge",
+    style: {
+      "curve-style": "bezier",
+      "line-color": "data(color)",
+      "target-arrow-color": "data(color)",
+      "target-arrow-shape": "triangle",
+      width: "mapData(weight, 0, 1, 1, 3)",
+    },
+  },
+];
+
+function formatDate(value: Date | string | null | undefined, locale: string) {
+  if (!value) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(locale === "ru" ? "ru-RU" : "en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function readinessColor(score: number) {
+  if (score >= 78) return "green";
+  if (score >= 50) return "teal";
+  if (score >= 25) return "yellow";
+  return "red";
+}
+
+function skillColor(level: string) {
+  if (level === "strong") return "success";
+  if (level === "developing") return "info";
+  if (level === "weak") return "warning";
+  return "neutral";
+}
+
+function graphNodeColor(level: string) {
+  if (level === "strong") return "var(--mantine-color-green-5)";
+  if (level === "developing") return "var(--mantine-color-blue-5)";
+  if (level === "weak") return "var(--mantine-color-yellow-5)";
+  return "var(--mantine-color-gray-5)";
+}
+
+function graphEdgeColor(relation: string) {
+  if (relation === "prerequisite") return "var(--mantine-color-teal-6)";
+  if (relation === "specialization") return "var(--mantine-color-blue-6)";
+  return "var(--mantine-color-gray-5)";
+}
+
+interface SkillGraphProps {
+  graph: {
+    nodes: Array<{
+      id: string;
+      label: string;
+      level: string;
+      score: number;
+      isGoalSkill: boolean;
+      dueReviewCount: number;
+    }>;
+    edges: Array<{
+      id: string;
+      source: string;
+      target: string;
+      relation: string;
+      weight: number;
+    }>;
+  };
+}
+
+export function SkillGraph({ graph }: SkillGraphProps) {
+  const navigate = useNavigate();
+  const cyRef = useRef<Core | null>(null);
+  const elements = useMemo(
+    () => [
+      ...graph.nodes.map((node) => ({
+        data: {
+          id: node.id,
+          label: node.label,
+          score: node.score,
+          color: graphNodeColor(node.level),
+          borderColor: node.isGoalSkill
+            ? "var(--mantine-color-teal-8)"
+            : "var(--mantine-color-default-border)",
+        },
+      })),
+      ...graph.edges.map((edge) => ({
+        data: {
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          weight: edge.weight,
+          color: graphEdgeColor(edge.relation),
+        },
+      })),
+    ],
+    [graph.edges, graph.nodes],
+  );
+
+  useEffect(() => {
+    const cy = cyRef.current;
+
+    if (!cy) {
+      return undefined;
+    }
+
+    const handleNodeTap = (event: EventObject) => {
+      const skillId = event.target.id();
+
+      void navigate({
+        to: "/skills/$skillId",
+        params: { skillId },
+      });
+    };
+
+    cy.on("tap", "node", handleNodeTap);
+
+    return () => {
+      cy.removeListener("tap", "node", handleNodeTap);
+    };
+  }, [navigate]);
+
+  return (
+    <Box
+      style={{
+        border: "1px solid var(--mantine-color-default-border)",
+        borderRadius: "var(--mantine-radius-sm)",
+        height: 460,
+        overflow: "hidden",
+      }}
+    >
+      <CytoscapeComponent
+        cy={(cy) => {
+          cyRef.current = cy;
+        }}
+        elements={elements}
+        layout={{ name: "cose", animate: false, fit: true, padding: 36 }}
+        stylesheet={graphStylesheet}
+        style={{ height: "100%", width: "100%" }}
+      />
+    </Box>
+  );
 }
 
 export function DashboardRoute() {
-  const { t } = useTranslation();
-  const onboarding = trpc.onboarding.getState.useQuery();
-  const profile = onboarding.data?.profile;
-  const preferences = profile?.preferences ?? {};
-  const programmingLanguages = readPreferenceArray(
-    preferences.programmingLanguages,
-  );
-  const goals = onboarding.data?.goals ?? [];
-  const skills = onboarding.data?.skills ?? [];
-  const weakSkills = skills.filter(
-    (skill) => skill.level === "weak" || skill.level === "unknown",
-  );
-  const strongSkills = skills.filter(
-    (skill) => skill.level === "strong" || skill.level === "developing",
-  );
+  const { i18n, t } = useTranslation();
+  const navigate = useNavigate();
+  const summary = trpc.dashboard.getSummary.useQuery(undefined, {
+    staleTime: 30_000,
+  });
+  const data = summary.data as DashboardData | undefined;
+  const goalOptions =
+    data?.skills
+      .filter((skill) => skill.goalRelevance)
+      .map((skill) => ({
+        value: skill.skill.id,
+        label: skill.skill.title,
+      })) ?? [];
 
   return (
     <Container>
       <PageSection>
         <PageHeader>
           <Stack gap="xs" maw={760}>
-            <Kicker>
-              {onboarding.data?.isComplete
-                ? t("dashboard.ready")
-                : t("app.dashboard")}
-            </Kicker>
+            <Kicker>{t("dashboard.kicker")}</Kicker>
             <PageTitle>{t("dashboard.title")}</PageTitle>
             <PageLead>{t("dashboard.subtitle")}</PageLead>
           </Stack>
-          <Button
-            color={onboarding.data?.isComplete ? "gray" : "teal"}
-            component={Link}
-            to="/onboarding"
-            variant={onboarding.data?.isComplete ? "default" : "filled"}
-          >
-            {t("dashboard.continueSetup")}
+          <Button color="gray" component={Link} to="/onboarding" variant="default">
+            {t("dashboard.updatePlan")}
           </Button>
         </PageHeader>
 
-        {!onboarding.data?.isComplete ? (
-          <Alert color="yellow" radius="sm" variant="light">
-            {t("dashboard.incomplete")} {t("dashboard.emptyState")}
+        {summary.isLoading ? (
+          <Alert color="blue" radius="sm" variant="light">
+            {t("common.loading")}
           </Alert>
         ) : null}
 
-        <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }} spacing="md">
-          <Card>
-            <CardHeader>
-              <CardDescription tt="uppercase">
-                {t("dashboard.profile")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Text fw={700} size="xl">
-                {profile?.displayName ?? t("options.empty")}
-              </Text>
-              <Text c="dimmed" size="sm">
-                {profile?.targetRole ?? t("options.empty")}
-              </Text>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription tt="uppercase">
-                {t("dashboard.goals")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Text fw={700} size="xl">
-                {goals.length}
-              </Text>
-              <Text c="dimmed" lineClamp={1} size="sm">
-                {goals[0]?.title ?? t("options.empty")}
-              </Text>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription tt="uppercase">
-                {t("dashboard.skills")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Text fw={700} size="xl">
-                {skills.length}
-              </Text>
-              <Text c="dimmed" size="sm">
-                {programmingLanguages.join(", ") || t("options.empty")}
-              </Text>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription tt="uppercase">
-                {t("dashboard.resume")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Group gap="xs" wrap="nowrap">
-                <ThemeIcon
-                  color={onboarding.data?.resumeDocument ? "teal" : "gray"}
-                  radius="sm"
-                  size="sm"
-                  variant="light"
-                >
-                  {onboarding.data?.resumeDocument ? (
-                    <CheckCircle2 size={16} />
+        {summary.error ? (
+          <Alert color="red" radius="sm" variant="light">
+            {t("common.loadError")}
+          </Alert>
+        ) : null}
+
+        {data ? (
+          <>
+            <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }} spacing="md">
+              <Card>
+                <CardHeader>
+                  <ThemeIcon color={readinessColor(data.readiness.score)} radius="sm" variant="light">
+                    <LineChart size={18} />
+                  </ThemeIcon>
+                  <CardTitle>{t("dashboard.readiness")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RingProgress
+                    label={
+                      <Text fw={700} ta="center">
+                        {data.readiness.score}%
+                      </Text>
+                    }
+                    sections={[
+                      {
+                        value: data.readiness.score,
+                        color: readinessColor(data.readiness.score),
+                      },
+                    ]}
+                    size={112}
+                    thickness={10}
+                  />
+                  <Badge variant={data.readiness.score >= 50 ? "success" : "warning"}>
+                    {t(`dashboard.readinessBands.${data.readiness.band}`)}
+                  </Badge>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <ThemeIcon color="teal" radius="sm" variant="light">
+                    <Target size={18} />
+                  </ThemeIcon>
+                  <CardTitle>{t("dashboard.activeGoal")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Text fw={700} size="lg">
+                    {data.activeGoal?.title ?? t("dashboard.noGoal")}
+                  </Text>
+                  <Text c="dimmed" size="sm">
+                    {data.activeGoal?.targetRole ?? t("options.empty")}
+                  </Text>
+                  {data.activeGoal ? (
+                    <Button
+                      color="gray"
+                      component="a"
+                      href={`/goals/${data.activeGoal.id}`}
+                      size="xs"
+                      variant="default"
+                    >
+                      {t("dashboard.openGoal")}
+                    </Button>
+                  ) : null}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <ThemeIcon color="green" radius="sm" variant="light">
+                    <CheckCircle2 size={18} />
+                  </ThemeIcon>
+                  <CardTitle>{t("dashboard.strongSkills")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Text fw={700} size="xl">
+                    {data.readiness.strongSkills}
+                  </Text>
+                  <Text c="dimmed" size="sm">
+                    {t("dashboard.ofSkills", { count: data.readiness.totalSkills })}
+                  </Text>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <ThemeIcon color="yellow" radius="sm" variant="light">
+                    <AlertTriangle size={18} />
+                  </ThemeIcon>
+                  <CardTitle>{t("dashboard.weakSpots")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Text fw={700} size="xl">
+                    {data.weakSpots.length}
+                  </Text>
+                  <Text c="dimmed" size="sm">
+                    {t("dashboard.dueReviews", { count: data.readiness.dueReviews })}
+                  </Text>
+                </CardContent>
+              </Card>
+            </SimpleGrid>
+
+            <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+              <Card>
+                <CardHeader>
+                  <ThemeIcon color="teal" radius="sm" variant="light">
+                    <ListChecks size={18} />
+                  </ThemeIcon>
+                  <CardTitle>{t("dashboard.nextActions")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {data.nextActions.length > 0 ? (
+                    data.nextActions.map((action) => {
+                      const skill = data.skills.find((item) => item.skill.id === action.skillId);
+
+                      return (
+                        <Paper
+                          key={action.id}
+                          bg="var(--mantine-color-default-hover)"
+                          p="md"
+                          radius="sm"
+                        >
+                          <Group align="flex-start" justify="space-between" gap="md">
+                            <Stack gap={4}>
+                              <Text fw={650}>
+                                {action.title ?? t(`dashboard.actions.${action.titleKey}`)}
+                              </Text>
+                              <Text c="dimmed" size="sm">
+                                {action.rationale ?? t(`dashboard.actionReasons.${action.reasonKey}`)}
+                              </Text>
+                              {skill ? (
+                                <Text c="dimmed" size="xs">
+                                  {skill.skill.title}
+                                </Text>
+                              ) : null}
+                            </Stack>
+                            {action.skillId ? (
+                              <Button
+                                color="gray"
+                                component="a"
+                                href={`/skills/${action.skillId}`}
+                                size="xs"
+                                variant="default"
+                              >
+                                {t("common.open")}
+                              </Button>
+                            ) : null}
+                          </Group>
+                        </Paper>
+                      );
+                    })
                   ) : (
-                    <FileText size={16} />
+                    <Text c="dimmed">{t("dashboard.noActions")}</Text>
                   )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <ThemeIcon color="yellow" radius="sm" variant="light">
+                    <CalendarClock size={18} />
+                  </ThemeIcon>
+                  <CardTitle>{t("dashboard.upcomingReviews")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {data.upcomingReviews.length > 0 ? (
+                    data.upcomingReviews.map((review) => {
+                      const skill = data.skills.find((item) => item.skill.id === review.skillId);
+
+                      return (
+                        <Paper
+                          key={review.id}
+                          bg="var(--mantine-color-default-hover)"
+                          p="md"
+                          radius="sm"
+                        >
+                          <Group justify="space-between" gap="md">
+                            <Stack gap={4}>
+                              <Text fw={650}>{skill?.skill.title ?? t("dashboard.review")}</Text>
+                              <Text c="dimmed" size="sm">
+                                {formatDate(review.dueAt, i18n.language)}
+                              </Text>
+                            </Stack>
+                            <Badge variant="info">{review.state}</Badge>
+                          </Group>
+                        </Paper>
+                      );
+                    })
+                  ) : (
+                    <Text c="dimmed">{t("dashboard.noReviews")}</Text>
+                  )}
+                </CardContent>
+              </Card>
+            </SimpleGrid>
+
+            <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("dashboard.strongSkills")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {data.strongSkills.length > 0 ? (
+                    data.strongSkills.map((summary) => (
+                      <SkillProgressRow key={summary.skill.id} summary={summary} />
+                    ))
+                  ) : (
+                    <Text c="dimmed">{t("options.empty")}</Text>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("dashboard.weakSpots")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {data.weakSpots.length > 0 ? (
+                    data.weakSpots.map((weakSpot) => (
+                      <Paper
+                        key={weakSpot.skillId}
+                        bg="var(--mantine-color-default-hover)"
+                        p="md"
+                        radius="sm"
+                      >
+                        <Group justify="space-between" gap="md">
+                          <Stack gap={4} style={{ flex: 1 }}>
+                            <Text fw={650}>{weakSpot.title}</Text>
+                            <Progress value={weakSpot.score} color={readinessColor(weakSpot.score)} />
+                            <Text c="dimmed" size="sm">
+                              {t(`dashboard.weakSpotReasons.${weakSpot.reason}`)}
+                            </Text>
+                          </Stack>
+                          <Button
+                            color="gray"
+                            component="a"
+                            href={`/skills/${weakSpot.skillId}`}
+                            size="xs"
+                            variant="default"
+                          >
+                            {t("common.open")}
+                          </Button>
+                        </Group>
+                      </Paper>
+                    ))
+                  ) : (
+                    <Text c="dimmed">{t("dashboard.noWeakSpots")}</Text>
+                  )}
+                </CardContent>
+              </Card>
+            </SimpleGrid>
+
+            <Card>
+              <CardHeader>
+                <ThemeIcon color="teal" radius="sm" variant="light">
+                  <GitBranch size={18} />
                 </ThemeIcon>
-                <Text fw={700} lineClamp={2}>
-                  {onboarding.data?.resumeDocument?.title ??
-                    t("dashboard.noResume")}
-                </Text>
-              </Group>
-            </CardContent>
-          </Card>
-        </SimpleGrid>
+                <CardTitle>{t("dashboard.graph")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {goalOptions.length > 0 ? (
+                  <Select
+                    data={goalOptions}
+                    label={t("dashboard.goalSkillJump")}
+                    onChange={(skillId) => {
+                      if (skillId) {
+                        void navigate({
+                          to: "/skills/$skillId",
+                          params: { skillId },
+                        });
+                      }
+                    }}
+                    placeholder={t("dashboard.chooseSkill")}
+                  />
+                ) : null}
+                {data.graph.nodes.length > 0 ? (
+                  <SkillGraph graph={data.graph} />
+                ) : (
+                  <Text c="dimmed">{t("dashboard.noGraph")}</Text>
+                )}
+              </CardContent>
+            </Card>
 
-        <Box
-          style={{
-            display: "grid",
-            gap: "var(--mantine-spacing-lg)",
-            gridTemplateColumns: "minmax(0, 1fr)",
-          }}
-        >
-          <Card>
-            <CardHeader>
-              <ThemeIcon color="teal" radius="sm" variant="light">
-                <Target size={18} />
-              </ThemeIcon>
-              <CardTitle>{t("dashboard.primaryGoal")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {goals.length > 0 ? (
-                goals.map((goal) => (
-                  <Paper
-                    key={goal.id}
-                    bg="var(--mantine-color-default-hover)"
-                    p="md"
-                    radius="sm"
-                  >
-                    <Group align="flex-start" justify="space-between" gap="md">
-                      <Stack gap={4}>
-                        <Text fw={650}>{goal.title}</Text>
-                        <Text c="dimmed" size="sm">
-                          {goal.targetRole ?? t("options.empty")}
-                        </Text>
-                      </Stack>
-                      <Badge variant="info">
-                        {t(`options.goalTypes.${readGoalType(goal.metadata)}`)}
-                      </Badge>
-                    </Group>
-                  </Paper>
-                ))
-              ) : (
-                <Text c="dimmed">{t("dashboard.emptyState")}</Text>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <ThemeIcon color="yellow" radius="sm" variant="light">
-                <CalendarClock size={18} />
-              </ThemeIcon>
-              <CardTitle>{t("dashboard.focusAreas")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {[
-                t("dashboard.actionReview"),
-                t("dashboard.actionGoals"),
-                t("dashboard.actionResume"),
-              ].map((action) => (
-                <Paper
-                  key={action}
-                  bg="var(--mantine-color-default-hover)"
-                  p="sm"
-                  radius="sm"
-                >
-                  <Group gap="sm" wrap="nowrap">
-                    <Zap size={16} color="var(--mantine-color-teal-7)" />
-                    <Text size="sm">{action}</Text>
-                  </Group>
-                </Paper>
-              ))}
-            </CardContent>
-          </Card>
-        </Box>
-
-        <SimpleGrid component="section" cols={{ base: 1, lg: 2 }} spacing="lg">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("dashboard.topSkills")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {strongSkills.slice(0, 6).map((skill) => (
-                <Paper
-                  key={skill.id}
-                  bg="var(--mantine-color-default-hover)"
-                  p="md"
-                  radius="sm"
-                >
-                  <Group justify="space-between" gap="sm">
-                    <Text>{skill.title}</Text>
-                    <Badge variant="success">
-                      {t(`options.skillLevels.${skill.level}`)}
-                    </Badge>
-                  </Group>
-                </Paper>
-              ))}
-              {strongSkills.length === 0 ? (
-                <Text c="dimmed">{t("options.empty")}</Text>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("dashboard.weakSkills")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {weakSkills.slice(0, 6).map((skill) => (
-                <Paper
-                  key={skill.id}
-                  bg="var(--mantine-color-default-hover)"
-                  p="md"
-                  radius="sm"
-                >
-                  <Group justify="space-between" gap="sm">
-                    <Text>{skill.title}</Text>
-                    <Badge variant="warning">
-                      {t(`options.skillLevels.${skill.level}`)}
-                    </Badge>
-                  </Group>
-                </Paper>
-              ))}
-              {weakSkills.length === 0 ? (
-                <Text c="dimmed">{t("options.empty")}</Text>
-              ) : null}
-            </CardContent>
-          </Card>
-        </SimpleGrid>
+            <Card>
+              <CardHeader>
+                <ThemeIcon color="blue" radius="sm" variant="light">
+                  <Clock3 size={18} />
+                </ThemeIcon>
+                <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {data.recentActivity.length > 0 ? (
+                  data.recentActivity.slice(0, 6).map((event) => (
+                    <ActivityRow key={event.id} event={event} locale={i18n.language} />
+                  ))
+                ) : (
+                  <Text c="dimmed">{t("dashboard.noActivity")}</Text>
+                )}
+                <Button color="gray" component={Link} to="/history" variant="default">
+                  {t("dashboard.openHistory")}
+                </Button>
+              </CardContent>
+            </Card>
+          </>
+        ) : null}
       </PageSection>
     </Container>
+  );
+}
+
+function SkillProgressRow({
+  summary,
+}: {
+  summary: {
+    skill: { id: string; title: string; level: string };
+    score: number;
+    attemptCount: number;
+    dueReviewCount: number;
+  };
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Paper bg="var(--mantine-color-default-hover)" p="md" radius="sm">
+      <Group justify="space-between" gap="md">
+        <Stack gap={6} style={{ flex: 1 }}>
+          <Group justify="space-between" gap="sm">
+            <Text fw={650}>{summary.skill.title}</Text>
+            <Badge variant={skillColor(summary.skill.level)}>
+              {t(`options.skillLevels.${summary.skill.level}`)}
+            </Badge>
+          </Group>
+          <Progress value={summary.score} color={readinessColor(summary.score)} />
+          <Text c="dimmed" size="xs">
+            {t("dashboard.skillSignals", {
+              attempts: summary.attemptCount,
+              reviews: summary.dueReviewCount,
+            })}
+          </Text>
+        </Stack>
+        <Button
+          color="gray"
+          component="a"
+          href={`/skills/${summary.skill.id}`}
+          size="xs"
+          variant="default"
+        >
+          {t("common.open")}
+        </Button>
+      </Group>
+    </Paper>
+  );
+}
+
+function ActivityRow({
+  event,
+  locale,
+}: {
+  event: {
+    id: string;
+    kind: string;
+    title: string;
+    summary: string;
+    occurredAt: Date | string;
+    tone: string;
+  };
+  locale: string;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Paper bg="var(--mantine-color-default-hover)" p="md" radius="sm">
+      <Group align="flex-start" justify="space-between" gap="md">
+        <Stack gap={4}>
+          <Group gap="xs">
+            <Badge
+              variant={
+                event.tone === "positive"
+                  ? "success"
+                  : event.tone === "warning"
+                    ? "warning"
+                    : "neutral"
+              }
+            >
+              {t(`history.kinds.${event.kind}`)}
+            </Badge>
+            <Text c="dimmed" size="xs">
+              {formatDate(event.occurredAt, locale)}
+            </Text>
+          </Group>
+          <Text fw={650}>{event.title}</Text>
+          <Text c="dimmed" size="sm" lineClamp={2}>
+            {event.summary}
+          </Text>
+        </Stack>
+      </Group>
+    </Paper>
   );
 }

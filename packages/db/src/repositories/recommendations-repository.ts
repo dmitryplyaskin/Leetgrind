@@ -41,6 +41,26 @@ export function createRecommendationsRepository(db: LeetgrindDatabase) {
       return rows as Recommendation[];
     },
 
+    async listActive({
+      profileId = LOCAL_USER_PROFILE_ID,
+      goalId
+    }: {
+      profileId?: string;
+      goalId?: string;
+    } = {}): Promise<Recommendation[]> {
+      const rows = await db
+        .select()
+        .from(recommendations)
+        .where(eq(recommendations.profileId, profileId))
+        .orderBy(desc(recommendations.createdAt));
+
+      return (rows as Recommendation[]).filter(
+        (recommendation) =>
+          recommendation.status === "pending" &&
+          (!goalId || !recommendation.goalId || recommendation.goalId === goalId)
+      );
+    },
+
     async create(input: CreateRecommendationInput): Promise<Recommendation> {
       const [recommendation] = await db
         .insert(recommendations)

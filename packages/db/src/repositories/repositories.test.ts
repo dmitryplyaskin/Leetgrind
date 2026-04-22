@@ -94,4 +94,79 @@ describe("local repositories", () => {
     expect(slugs.has("c-sharp")).toBe(true);
     expect(slugs.size).toBe(3);
   });
+
+  it("seeds the common skill graph without overwriting self-assessed skills", async () => {
+    await context.repositories.skills.upsertMany([
+      {
+        slug: "react",
+        title: "React",
+        level: "developing",
+        description: "User-assessed React skill."
+      }
+    ]);
+
+    const seed = await context.repositories.seed.ensureCommonTemplates();
+    const skills = await context.repositories.skills.list();
+    const edges = await context.repositories.skills.listEdges();
+    const react = skills.find((skill) => skill.slug === "react");
+
+    expect(seed.skillCount).toBeGreaterThan(0);
+    expect(seed.edgeCount).toBeGreaterThan(0);
+    expect(edges.length).toBeGreaterThan(0);
+    expect(react?.level).toBe("developing");
+    expect(react?.description).toBe("User-assessed React skill.");
+  });
+
+  it("builds dashboard summaries from local evidence and goal links", async () => {
+    const profile = await context.repositories.userProfiles.ensureLocalProfile();
+    const [react] = await context.repositories.skills.upsertMany([
+      {
+        slug: "react",
+        title: "React",
+        level: "developing",
+        description: "Components and hooks."
+      }
+    ]);
+
+    expect(react).toBeDefined();
+
+    const goal = await context.repositories.goals.create({
+      profileId: profile.id,
+      title: "Frontend interviews",
+      targetRole: "Frontend Engineer"
+    });
+
+    await context.repositories.goals.replaceSkillLinks(goal.id, [
+      {
+        skillId: react!.id,
+        relevance: "primary",
+        priority: 0
+      }
+    ]);
+    await context.repositories.evidence.create({
+      profileId: profile.id,
+      goalId: goal.id,
+      skillId: react!.id,
+      sourceType: "manual",
+      polarity: "weakness",
+      summary: "Needs clearer hook dependency reasoning.",
+      confidence: 0.9
+    });
+
+    const summary = await context.repositories.dashboard.getSummary({
+      profileId: profile.id,
+      goalId: goal.id
+    });
+    const detail = await context.repositories.dashboard.getSkillDetail({
+      profileId: profile.id,
+      skillId: react!.id
+    });
+
+    expect(summary.activeGoal?.id).toBe(goal.id);
+    expect(summary.readiness.totalSkills).toBe(1);
+    expect(summary.weakSpots.some((weakSpot) => weakSpot.skillId === react!.id)).toBe(true);
+    expect(summary.nextActions.length).toBeGreaterThan(0);
+    expect(summary.graph.nodes.length).toBeGreaterThan(0);
+    expect(detail?.evidence).toHaveLength(1);
+  });
 });
