@@ -217,7 +217,7 @@
       <module>M-WEB</module>
     </phase>
 
-    <phase id="PH-005" status="next" roadmap="docs/roadmap/phase-05-assessments-lessons-recommendations.md">
+    <phase id="PH-005" status="done" roadmap="docs/roadmap/phase-05-assessments-lessons-recommendations.md">
       <name>Assessments, Lessons, And Recommendations</name>
       <goal>Create assessment sessions, AI evaluations, evidence extraction, lessons, and recommendation loop.</goal>
       <module>M-DOMAIN</module>
@@ -229,7 +229,7 @@
       <module>M-SCHEDULING</module>
     </phase>
 
-    <phase id="PH-006" status="planned" roadmap="docs/roadmap/phase-06-coding-practice-ide-runner.md">
+    <phase id="PH-006" status="next" roadmap="docs/roadmap/phase-06-coding-practice-ide-runner.md">
       <name>Coding Practice IDE And Runner</name>
       <goal>Add coding tasks, CodeMirror editor, deterministic tests, hints, submissions, and AI review.</goal>
       <module>M-CODE-RUNNER</module>

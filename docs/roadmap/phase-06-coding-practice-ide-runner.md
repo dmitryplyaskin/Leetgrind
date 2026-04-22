@@ -1,6 +1,6 @@
 # Phase 06: Coding Practice IDE And Runner
 
-Status: planned.
+Status: active.
 
 ## Goal
 
@@ -197,3 +197,13 @@ Security verification:
 - AI review produces structured evaluation.
 - Coding evidence updates skill progress.
 
+## Current Packet Focus
+
+The first active Phase 06 slice owns:
+
+- `packages/code-runner` runner contracts and normalized result shapes;
+- JavaScript execution through a controlled in-process VM adapter;
+- per-test timeout handling;
+- stdout and stderr capture;
+- explicit unsupported-language reporting for not-yet-implemented adapters;
+- safety tests for missing host globals and disabled dynamic code generation.

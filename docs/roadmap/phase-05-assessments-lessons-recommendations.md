@@ -1,6 +1,6 @@
 # Phase 05: Assessments, Lessons, And Recommendations
 
-Status: active.
+Status: done.
 
 ## Goal
 

@@ -248,7 +248,7 @@
       </result>
     </packet>
 
-    <packet id="OP-006" status="active" template="TPL-FEATURE">
+    <packet id="OP-006" status="done" template="TPL-FEATURE">
       <name>Assessments, lessons, and recommendations</name>
       <target-modules>
         <module>M-DOMAIN</module>
@@ -274,7 +274,7 @@
       </result>
     </packet>
 
-    <packet id="OP-007" status="planned" template="TPL-FEATURE">
+    <packet id="OP-007" status="active" template="TPL-FEATURE">
       <name>Coding practice IDE and runner</name>
       <target-modules>
         <module>M-CODE-RUNNER</module>
@@ -293,6 +293,9 @@
         <command>pnpm typecheck</command>
         <command>pnpm build</command>
       </verification>
+      <result>
+        Initial JavaScript runner abstraction now normalizes test results, captures stdout and stderr, enforces per-test timeout, blocks dynamic code generation, and reports unsupported languages explicitly.
+      </result>
     </packet>
 
     <packet id="OP-008" status="planned" template="TPL-FEATURE">
