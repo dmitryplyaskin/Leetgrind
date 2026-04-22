@@ -341,6 +341,20 @@ The initial end-to-end content flow is:
 
 Do not store all AI memory as a single chat history. Store explicit domain events and evidence.
 
+## Assessment And Lesson Loop
+
+Phase 05 adds a first complete evidence loop:
+
+1. create an `assessment_session`;
+2. persist typed `assessment_questions`;
+3. store learner `assessment_answers` as the session progresses;
+4. finish the session into `attempts`, `evaluations`, and `evidence`;
+5. generate follow-up lessons into `learning_items` with `kind = "lesson"`;
+6. refresh explainable recommendations linked to evidence and goals;
+7. update review schedules through `packages/scheduling`.
+
+This keeps in-progress assessment state separate from downstream progress evidence.
+
 ## Progress And Evidence Model
 
 Progress tracking should be based on evidence.

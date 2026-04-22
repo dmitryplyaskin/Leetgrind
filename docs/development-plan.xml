@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-development-plan project="leetgrind" version="0.1" updated="2026-04-21">
+<grace-development-plan project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Development Plan</title>
     <status>roadmap-defined</status>
@@ -206,7 +206,7 @@
       <module>M-SCHEDULING</module>
     </phase>
 
-    <phase id="PH-004" status="next" roadmap="docs/roadmap/phase-04-ai-providers-agents-rag.md">
+    <phase id="PH-004" status="done" roadmap="docs/roadmap/phase-04-ai-providers-agents-rag.md">
       <name>AI Providers, Agents, And RAG</name>
       <goal>Implement provider settings, at least one provider adapter, agent runtime contracts, document ingestion, and retrieval.</goal>
       <module>M-AI</module>
@@ -217,7 +217,7 @@
       <module>M-WEB</module>
     </phase>
 
-    <phase id="PH-005" status="planned" roadmap="docs/roadmap/phase-05-assessments-lessons-recommendations.md">
+    <phase id="PH-005" status="next" roadmap="docs/roadmap/phase-05-assessments-lessons-recommendations.md">
       <name>Assessments, Lessons, And Recommendations</name>
       <goal>Create assessment sessions, AI evaluations, evidence extraction, lessons, and recommendation loop.</goal>
       <module>M-DOMAIN</module>

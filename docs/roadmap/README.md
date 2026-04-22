@@ -1,6 +1,6 @@
 # Leetgrind Roadmap
 
-Last updated: 2026-04-21
+Last updated: 2026-04-22
 
 This roadmap turns the product vision into an implementation sequence. It is intentionally written as a working plan for human and AI agents. The GRACE XML files define the machine-readable contracts; these roadmap files explain what to build, where to build it, and how to verify it.
 
@@ -28,8 +28,8 @@ Leetgrind should become a local-first AI mentor for programming interview prepar
 | 01 | Done | Local persistence, repositories, typed API backbone | `packages/db`, `packages/domain`, `apps/server`, `packages/shared` |
 | 02 | Done | User can define profile, goals, skills, UI language, and resume context | `apps/web`, `apps/server`, `packages/domain`, `packages/db` |
 | 03 | Done | Dashboard shows progress, weak spots, and skill graph | `apps/web`, `packages/ui`, `packages/domain`, `packages/db` |
-| 04 | Next | AI providers, agent runtime, RAG ingestion and retrieval | `packages/ai`, `packages/agents`, `packages/rag`, `packages/db` |
-| 05 | Planned | Assessments produce evaluations, evidence, lessons, recommendations | `packages/agents`, `packages/domain`, `packages/db`, `apps/web` |
+| 04 | Done | AI providers, agent runtime, RAG ingestion and retrieval | `packages/ai`, `packages/agents`, `packages/rag`, `packages/db` |
+| 05 | Next | Assessments produce evaluations, evidence, lessons, recommendations | `packages/agents`, `packages/domain`, `packages/db`, `apps/web` |
 | 06 | Planned | LeetCode-like coding practice with editor, tests, hints, review | `packages/code-runner`, `apps/web`, `apps/server`, `packages/agents` |
 | 07 | Planned | Review scheduling, progress history, mock interviews | `packages/scheduling`, `packages/agents`, `apps/web`, `packages/db` |
 | 08 | Planned | Tauri readiness, data export/import, reliability, UX polish | all |

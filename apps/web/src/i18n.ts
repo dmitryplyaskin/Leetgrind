@@ -67,9 +67,11 @@ export const resources = {
         noRuns: "No agent runs have been recorded yet.",
         runKinds: {
           mentor: "Mentor preview",
+          "assessment-mentor": "Assessment workflow",
           interviewer: "Interview workflow",
           "coding-reviewer": "Coding review",
           planner: "Planner workflow",
+          "lesson-planner": "Lesson planner",
           recommender: "Recommendation workflow",
           ingestion: "Document ingestion",
           "provider-test": "Provider test"
@@ -238,6 +240,69 @@ export const resources = {
         subtitle: "Attempts, evidence, recommendations, and review signals in one timeline.",
         title: "History",
       },
+      assessments: {
+        kicker: "Assessments",
+        providerCta: "Open AI settings",
+        fields: {
+          goal: "Goal",
+          skill: "Skill",
+          focus: "Focus"
+        },
+        placeholders: {
+          goal: "Choose a goal",
+          skill: "Choose a skill",
+          focus: "Add any specific angle you want the assessment to cover."
+        },
+        verdicts: {
+          excellent: "Excellent",
+          pass: "Pass",
+          "needs-work": "Needs work",
+          fail: "Fail"
+        },
+        new: {
+          title: "Start a focused assessment",
+          subtitle: "Pick a goal or skill and generate a mixed-format knowledge check.",
+          configure: "Assessment setup",
+          start: "Start assessment"
+        },
+        session: {
+          title: "Assessment session",
+          subtitle: "Answer each question and then finish the session to get structured feedback.",
+          question: "Question",
+          answerPlaceholder: "Write your answer here.",
+          finish: "Finish assessment"
+        },
+        result: {
+          title: "Assessment result",
+          subtitle: "Structured feedback, follow-up lessons, and next actions.",
+          pending: "The result is not available yet.",
+          score: "Score",
+          verdict: "Verdict",
+          evidence: "Evidence",
+          feedback: "Question feedback"
+        }
+      },
+      lessons: {
+        kicker: "Lessons",
+        title: "Follow-up lessons",
+        subtitle: "Generated lessons tied to current evidence and recent assessments.",
+        library: "Lesson library",
+        empty: "No lessons are available yet.",
+        back: "Back to lessons",
+        openForSkill: "Open lessons",
+        detail: {
+          title: "Lesson detail",
+          content: "Lesson content",
+          takeaways: "Key takeaways",
+          practicePrompt: "Practice prompt"
+        }
+      },
+      recommendations: {
+        title: "Recommendations",
+        empty: "No explainable recommendations are available yet.",
+        accept: "Accept",
+        dismiss: "Dismiss"
+      },
       onboarding: {
         title: "Set up your interview plan",
         subtitle:
@@ -385,9 +450,11 @@ export const resources = {
         noRuns: "Запуски агентов пока не записаны.",
         runKinds: {
           mentor: "Mentor preview",
+          "assessment-mentor": "Assessment workflow",
           interviewer: "Интервью workflow",
           "coding-reviewer": "Code review",
           planner: "Planner workflow",
+          "lesson-planner": "Lesson planner",
           recommender: "Recommendation workflow",
           ingestion: "Индексация документа",
           "provider-test": "Проверка провайдера"
@@ -555,6 +622,69 @@ export const resources = {
         },
         subtitle: "Попытки, сигналы, рекомендации и повторения в одной ленте.",
         title: "История",
+      },
+      assessments: {
+        kicker: "Проверки знаний",
+        providerCta: "Открыть AI настройки",
+        fields: {
+          goal: "Цель",
+          skill: "Навык",
+          focus: "Фокус"
+        },
+        placeholders: {
+          goal: "Выбери цель",
+          skill: "Выбери навык",
+          focus: "Укажи, на чем стоит сфокусировать проверку."
+        },
+        verdicts: {
+          excellent: "Отлично",
+          pass: "Зачтено",
+          "needs-work": "Нужно доработать",
+          fail: "Не пройдено"
+        },
+        new: {
+          title: "Запусти точечную проверку",
+          subtitle: "Выбери цель или навык и сгенерируй mixed-format assessment.",
+          configure: "Параметры проверки",
+          start: "Начать проверку"
+        },
+        session: {
+          title: "Сессия проверки",
+          subtitle: "Ответь на все вопросы и заверши сессию, чтобы получить структурированный разбор.",
+          question: "Вопрос",
+          answerPlaceholder: "Напиши ответ здесь.",
+          finish: "Завершить проверку"
+        },
+        result: {
+          title: "Результат проверки",
+          subtitle: "Структурированный разбор, уроки и следующие шаги.",
+          pending: "Результат пока недоступен.",
+          score: "Оценка",
+          verdict: "Вердикт",
+          evidence: "Сигналы",
+          feedback: "Разбор по вопросам"
+        }
+      },
+      lessons: {
+        kicker: "Уроки",
+        title: "Уроки по итогам",
+        subtitle: "Сгенерированные уроки, привязанные к текущим сигналам и последним assessment-сессиям.",
+        library: "Библиотека уроков",
+        empty: "Уроки пока не доступны.",
+        back: "Назад к урокам",
+        openForSkill: "Открыть уроки",
+        detail: {
+          title: "Детали урока",
+          content: "Содержимое урока",
+          takeaways: "Ключевые выводы",
+          practicePrompt: "Практическая подсказка"
+        }
+      },
+      recommendations: {
+        title: "Рекомендации",
+        empty: "Объяснимые рекомендации пока не доступны.",
+        accept: "Принять",
+        dismiss: "Скрыть"
       },
       onboarding: {
         title: "Настрой план подготовки",

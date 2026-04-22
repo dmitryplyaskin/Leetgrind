@@ -248,7 +248,7 @@
       </result>
     </packet>
 
-    <packet id="OP-006" status="planned" template="TPL-FEATURE">
+    <packet id="OP-006" status="active" template="TPL-FEATURE">
       <name>Assessments, lessons, and recommendations</name>
       <target-modules>
         <module>M-DOMAIN</module>
@@ -266,7 +266,12 @@
       <verification>
         <command>pnpm typecheck</command>
         <command>pnpm build</command>
+        <command>pnpm test</command>
+        <command>pnpm test:e2e</command>
       </verification>
+      <result>
+        Phase 05 now has dedicated assessment persistence, validated workflows, lesson storage, recommendation actions, localized web routes, and verification coverage.
+      </result>
     </packet>
 
     <packet id="OP-007" status="planned" template="TPL-FEATURE">

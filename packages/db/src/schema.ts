@@ -152,9 +152,11 @@ export const agentRuns = pgTable(
     kind: text("kind", {
       enum: [
         "mentor",
+        "assessment-mentor",
         "interviewer",
         "coding-reviewer",
         "planner",
+        "lesson-planner",
         "recommender",
         "ingestion",
         "provider-test"
@@ -226,6 +228,89 @@ export const evaluations = pgTable(
   (table) => ({
     attemptIdx: index("evaluations_attempt_id_idx").on(table.attemptId),
     agentRunIdx: index("evaluations_agent_run_id_idx").on(table.agentRunId)
+  })
+);
+
+export const assessmentSessions = pgTable(
+  "assessment_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profileId: uuid("profile_id")
+      .notNull()
+      .default(LOCAL_USER_PROFILE_ID)
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    goalId: uuid("goal_id").references(() => goals.id, { onDelete: "set null" }),
+    skillId: uuid("skill_id").references(() => skills.id, { onDelete: "set null" }),
+    attemptId: uuid("attempt_id").references(() => attempts.id, { onDelete: "set null" }),
+    evaluationId: uuid("evaluation_id").references(() => evaluations.id, { onDelete: "set null" }),
+    status: text("status", {
+      enum: ["draft", "in-progress", "completed", "abandoned"]
+    })
+      .notNull()
+      .default("draft"),
+    locale: text("locale", { enum: ["ru", "en"] }).notNull().default("en"),
+    title: text("title").notNull(),
+    summary: text("summary"),
+    difficulty: text("difficulty"),
+    focusPrompt: text("focus_prompt"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true })
+  },
+  (table) => ({
+    profileIdx: index("assessment_sessions_profile_id_idx").on(table.profileId),
+    statusIdx: index("assessment_sessions_status_idx").on(table.status),
+    goalIdx: index("assessment_sessions_goal_id_idx").on(table.goalId),
+    skillIdx: index("assessment_sessions_skill_id_idx").on(table.skillId)
+  })
+);
+
+export const assessmentQuestions = pgTable(
+  "assessment_questions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => assessmentSessions.id, { onDelete: "cascade" }),
+    ordinal: integer("ordinal").notNull(),
+    kind: text("kind", {
+      enum: ["multiple-choice", "short-answer", "explanation", "scenario-analysis"]
+    }).notNull(),
+    skillId: uuid("skill_id").references(() => skills.id, { onDelete: "set null" }),
+    prompt: text("prompt").notNull(),
+    payload: jsonb("payload").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    sessionOrdinalIdx: uniqueIndex("assessment_questions_session_ordinal_idx").on(
+      table.sessionId,
+      table.ordinal
+    ),
+    skillIdx: index("assessment_questions_skill_id_idx").on(table.skillId)
+  })
+);
+
+export const assessmentAnswers = pgTable(
+  "assessment_answers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => assessmentSessions.id, { onDelete: "cascade" }),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => assessmentQuestions.id, { onDelete: "cascade" }),
+    answer: jsonb("answer").notNull().default({}),
+    score: real("score"),
+    feedback: text("feedback"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    sessionQuestionIdx: uniqueIndex("assessment_answers_session_question_idx").on(
+      table.sessionId,
+      table.questionId
+    )
   })
 );
 
@@ -387,6 +472,7 @@ export const providerSettings = pgTable(
 
 export const userProfilesRelations = relations(userProfiles, ({ many }) => ({
   goals: many(goals),
+  assessmentSessions: many(assessmentSessions),
   attempts: many(attempts),
   evidence: many(evidence),
   documents: many(documents),
@@ -399,6 +485,7 @@ export const goalsRelations = relations(goals, ({ one, many }) => ({
     fields: [goals.profileId],
     references: [userProfiles.id]
   }),
+  assessmentSessions: many(assessmentSessions),
   goalSkills: many(goalSkills),
   attempts: many(attempts),
   evidence: many(evidence),
@@ -410,6 +497,8 @@ export const skillsRelations = relations(skills, ({ many }) => ({
   outgoingEdges: many(skillEdges, { relationName: "fromSkill" }),
   incomingEdges: many(skillEdges, { relationName: "toSkill" }),
   learningItems: many(learningItems),
+  assessmentSessions: many(assessmentSessions),
+  assessmentQuestions: many(assessmentQuestions),
   attempts: many(attempts),
   evidence: many(evidence),
   recommendations: many(recommendations),
@@ -477,6 +566,54 @@ export const evaluationsRelations = relations(evaluations, ({ one }) => ({
   agentRun: one(agentRuns, {
     fields: [evaluations.agentRunId],
     references: [agentRuns.id]
+  })
+}));
+
+export const assessmentSessionsRelations = relations(assessmentSessions, ({ one, many }) => ({
+  profile: one(userProfiles, {
+    fields: [assessmentSessions.profileId],
+    references: [userProfiles.id]
+  }),
+  goal: one(goals, {
+    fields: [assessmentSessions.goalId],
+    references: [goals.id]
+  }),
+  skill: one(skills, {
+    fields: [assessmentSessions.skillId],
+    references: [skills.id]
+  }),
+  attempt: one(attempts, {
+    fields: [assessmentSessions.attemptId],
+    references: [attempts.id]
+  }),
+  evaluation: one(evaluations, {
+    fields: [assessmentSessions.evaluationId],
+    references: [evaluations.id]
+  }),
+  questions: many(assessmentQuestions),
+  answers: many(assessmentAnswers)
+}));
+
+export const assessmentQuestionsRelations = relations(assessmentQuestions, ({ one, many }) => ({
+  session: one(assessmentSessions, {
+    fields: [assessmentQuestions.sessionId],
+    references: [assessmentSessions.id]
+  }),
+  skill: one(skills, {
+    fields: [assessmentQuestions.skillId],
+    references: [skills.id]
+  }),
+  answers: many(assessmentAnswers)
+}));
+
+export const assessmentAnswersRelations = relations(assessmentAnswers, ({ one }) => ({
+  session: one(assessmentSessions, {
+    fields: [assessmentAnswers.sessionId],
+    references: [assessmentSessions.id]
+  }),
+  question: one(assessmentQuestions, {
+    fields: [assessmentAnswers.questionId],
+    references: [assessmentQuestions.id]
   })
 }));
 

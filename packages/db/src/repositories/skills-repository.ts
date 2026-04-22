@@ -25,6 +25,10 @@ export function createSkillsRepository(db: LeetgrindDatabase) {
       return (row as Skill | undefined) ?? null;
     },
 
+    async getById(id: string): Promise<Skill | null> {
+      return this.get(id);
+    },
+
     async listByIds(ids: string[]): Promise<Skill[]> {
       if (ids.length === 0) {
         return [];

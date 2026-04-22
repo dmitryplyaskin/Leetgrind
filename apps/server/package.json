@@ -22,6 +22,7 @@
     "@leetgrind/db": "workspace:*",
     "@leetgrind/domain": "workspace:*",
     "@leetgrind/rag": "workspace:*",
+    "@leetgrind/scheduling": "workspace:*",
     "@leetgrind/shared": "workspace:*",
     "@napi-rs/keyring": "^1.2.0",
     "@trpc/server": "^11.16.0",

@@ -52,7 +52,20 @@ function badgeForLevel(level: string) {
 export function SkillDetailRoute() {
   const { skillId } = useParams({ from: "/skills/$skillId" });
   const { i18n, t } = useTranslation();
+  const utils = trpc.useUtils();
   const detail = trpc.skills.getDetail.useQuery({ skillId });
+  const acceptRecommendation = trpc.recommendations.accept.useMutation({
+    onSuccess: async () => {
+      await detail.refetch();
+      await utils.dashboard.getSummary.invalidate();
+    }
+  });
+  const dismissRecommendation = trpc.recommendations.dismiss.useMutation({
+    onSuccess: async () => {
+      await detail.refetch();
+      await utils.dashboard.getSummary.invalidate();
+    }
+  });
   const data = detail.data;
 
   return (
@@ -64,9 +77,22 @@ export function SkillDetailRoute() {
             <PageTitle>{data?.skill.title ?? t("skillDetail.title")}</PageTitle>
             <PageLead>{data?.skill.description ?? t("skillDetail.subtitle")}</PageLead>
           </Stack>
-          <Button color="gray" component={Link} to="/dashboard" variant="default">
-            {t("common.backToDashboard")}
-          </Button>
+          <Group gap="xs">
+            <Button color="gray" component={Link} to="/assessments/new" variant="default">
+              {t("assessments.new.start")}
+            </Button>
+            <Button
+              color="gray"
+              component="a"
+              href={`/skills/${skillId}/lessons`}
+              variant="default"
+            >
+              {t("lessons.openForSkill")}
+            </Button>
+            <Button color="gray" component={Link} to="/dashboard" variant="default">
+              {t("common.backToDashboard")}
+            </Button>
+          </Group>
         </PageHeader>
 
         {detail.isLoading ? (
@@ -229,6 +255,60 @@ export function SkillDetailRoute() {
                 </CardContent>
               </Card>
             </SimpleGrid>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("recommendations.title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {data.recommendations.length > 0 ? (
+                  data.recommendations.map((recommendation) => (
+                    <Paper
+                      key={recommendation.id}
+                      bg="var(--mantine-color-default-hover)"
+                      p="md"
+                      radius="sm"
+                    >
+                      <Stack gap="sm">
+                        <Text fw={650}>{recommendation.title}</Text>
+                        <Text c="dimmed" size="sm">
+                          {recommendation.rationale}
+                        </Text>
+                        <Group justify="flex-end">
+                          <Button
+                            loading={acceptRecommendation.isPending}
+                            onClick={() =>
+                              acceptRecommendation.mutate({
+                                recommendationId: recommendation.id
+                              })
+                            }
+                            size="xs"
+                            variant="default"
+                          >
+                            {t("recommendations.accept")}
+                          </Button>
+                          <Button
+                            color="gray"
+                            loading={dismissRecommendation.isPending}
+                            onClick={() =>
+                              dismissRecommendation.mutate({
+                                recommendationId: recommendation.id
+                              })
+                            }
+                            size="xs"
+                            variant="default"
+                          >
+                            {t("recommendations.dismiss")}
+                          </Button>
+                        </Group>
+                      </Stack>
+                    </Paper>
+                  ))
+                ) : (
+                  <Text c="dimmed">{t("recommendations.empty")}</Text>
+                )}
+              </CardContent>
+            </Card>
           </>
         ) : null}
       </PageSection>

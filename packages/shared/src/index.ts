@@ -56,6 +56,35 @@ export const aiProviderPreferenceSchema = z.union([
   z.literal("not-configured")
 ]);
 export const retrievalDomainSchema = z.enum(["content", "memory"]);
+export const assessmentQuestionKindSchema = z.enum([
+  "multiple-choice",
+  "short-answer",
+  "explanation",
+  "scenario-analysis"
+]);
+export type AssessmentQuestionKind = z.infer<typeof assessmentQuestionKindSchema>;
+export const assessmentSessionStatusSchema = z.enum([
+  "draft",
+  "in-progress",
+  "completed",
+  "abandoned"
+]);
+export type AssessmentSessionStatus = z.infer<typeof assessmentSessionStatusSchema>;
+export const evaluationVerdictSchema = z.enum(["excellent", "pass", "needs-work", "fail"]);
+export const recommendationKindSchema = z.enum([
+  "lesson",
+  "practice",
+  "review",
+  "assessment",
+  "interview",
+  "adjacent-topic"
+]);
+export const recommendationStatusSchema = z.enum([
+  "pending",
+  "accepted",
+  "dismissed",
+  "completed"
+]);
 const nullableRequiredTextSchema = z.union([
   z.string().trim().min(1),
   z.literal("").transform(() => null),
@@ -300,13 +329,211 @@ export const ragContextItemSchema = z.object({
 
 export type RagContextItem = z.infer<typeof ragContextItemSchema>;
 
+export const assessmentChoiceSchema = z.object({
+  id: nonEmptyStringSchema,
+  label: nonEmptyStringSchema
+});
+
+export const assessmentQuestionBaseSchema = z.object({
+  id: uuidSchema,
+  skillId: uuidSchema.nullable(),
+  prompt: nonEmptyStringSchema,
+  explanation: z.string().trim().nullable().optional()
+});
+
+export const multipleChoiceQuestionSchema = assessmentQuestionBaseSchema.extend({
+  kind: z.literal("multiple-choice"),
+  choices: z.array(assessmentChoiceSchema).min(2).max(6),
+  correctChoiceIds: z.array(nonEmptyStringSchema).min(1).max(4),
+  rationale: z.string().trim().nullable().optional()
+});
+
+export const shortAnswerQuestionSchema = assessmentQuestionBaseSchema.extend({
+  kind: z.literal("short-answer"),
+  expectedConcepts: z.array(nonEmptyStringSchema).min(1).max(6),
+  placeholder: z.string().trim().nullable().optional()
+});
+
+export const explanationQuestionSchema = assessmentQuestionBaseSchema.extend({
+  kind: z.literal("explanation"),
+  rubric: z.array(nonEmptyStringSchema).min(2).max(8)
+});
+
+export const scenarioAnalysisQuestionSchema = assessmentQuestionBaseSchema.extend({
+  kind: z.literal("scenario-analysis"),
+  scenario: nonEmptyStringSchema,
+  rubric: z.array(nonEmptyStringSchema).min(2).max(8)
+});
+
+export const assessmentQuestionSchema = z.discriminatedUnion("kind", [
+  multipleChoiceQuestionSchema,
+  shortAnswerQuestionSchema,
+  explanationQuestionSchema,
+  scenarioAnalysisQuestionSchema
+]);
+
+export type AssessmentQuestion = z.infer<typeof assessmentQuestionSchema>;
+
+export const multipleChoiceAnswerSchema = z.object({
+  questionId: uuidSchema,
+  kind: z.literal("multiple-choice"),
+  selectedChoiceIds: z.array(nonEmptyStringSchema).max(4)
+});
+
+export const textAssessmentAnswerSchema = z.object({
+  questionId: uuidSchema,
+  kind: z.enum(["short-answer", "explanation", "scenario-analysis"]),
+  responseText: nonEmptyStringSchema
+});
+
+export const assessmentAnswerSchema = z.discriminatedUnion("kind", [
+  multipleChoiceAnswerSchema,
+  textAssessmentAnswerSchema
+]);
+
+export type AssessmentAnswer = z.infer<typeof assessmentAnswerSchema>;
+
+export const assessmentQuestionEvaluationSchema = z.object({
+  questionId: uuidSchema,
+  score: z.number().min(0).max(1),
+  verdict: evaluationVerdictSchema,
+  feedback: nonEmptyStringSchema,
+  strengths: z.array(nonEmptyStringSchema).max(4),
+  gaps: z.array(nonEmptyStringSchema).max(4),
+  citedContextIds: z.array(uuidSchema).max(8)
+});
+
+export type AssessmentQuestionEvaluation = z.infer<typeof assessmentQuestionEvaluationSchema>;
+
+export const assessmentEvidenceSeedSchema = z.object({
+  summary: nonEmptyStringSchema,
+  polarity: z.enum(["strength", "weakness", "gap", "progress", "neutral"]),
+  confidence: z.number().min(0).max(1),
+  skillId: uuidSchema.nullable().optional()
+});
+
+export type AssessmentEvidenceSeed = z.infer<typeof assessmentEvidenceSeedSchema>;
+
+export const assessmentSessionSummarySchema = z.object({
+  id: uuidSchema,
+  profileId: uuidSchema,
+  goalId: uuidSchema.nullable(),
+  skillId: uuidSchema.nullable(),
+  status: assessmentSessionStatusSchema,
+  locale: userInterfaceLocaleSchema,
+  title: nonEmptyStringSchema,
+  summary: z.string().trim().nullable(),
+  difficulty: z.string().trim().nullable(),
+  focusPrompt: z.string().trim().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  completedAt: z.coerce.date().nullable()
+});
+
+export type AssessmentSessionSummary = z.infer<typeof assessmentSessionSummarySchema>;
+
+export const assessmentAnswerRecordSchema = z.object({
+  id: uuidSchema,
+  sessionId: uuidSchema,
+  questionId: uuidSchema,
+  answer: assessmentAnswerSchema,
+  score: z.number().min(0).max(1).nullable(),
+  feedback: z.string().trim().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+});
+
+export type AssessmentAnswerRecord = z.infer<typeof assessmentAnswerRecordSchema>;
+
+export const lessonPayloadSchema = z.object({
+  body: nonEmptyStringSchema,
+  takeaways: z.array(nonEmptyStringSchema).min(1).max(8),
+  practicePrompt: z.string().trim().nullable().optional(),
+  evidenceIds: z.array(uuidSchema).max(12).default([]),
+  contextItemIds: z.array(uuidSchema).max(12).default([])
+});
+
+export type LessonPayload = z.infer<typeof lessonPayloadSchema>;
+
+export const lessonSummarySchema = z.object({
+  id: uuidSchema,
+  kind: z.literal("lesson"),
+  title: nonEmptyStringSchema,
+  summary: z.string().trim().nullable(),
+  skillId: uuidSchema.nullable(),
+  difficulty: z.string().trim().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+});
+
+export type LessonSummary = z.infer<typeof lessonSummarySchema>;
+
+export const lessonDetailSchema = lessonSummarySchema.extend({
+  payload: lessonPayloadSchema
+});
+
+export type LessonDetail = z.infer<typeof lessonDetailSchema>;
+
+export const recommendationSummarySchema = z.object({
+  id: uuidSchema,
+  profileId: uuidSchema,
+  goalId: uuidSchema.nullable(),
+  skillId: uuidSchema.nullable(),
+  kind: recommendationKindSchema,
+  status: recommendationStatusSchema,
+  title: nonEmptyStringSchema,
+  rationale: nonEmptyStringSchema,
+  evidenceIds: z.array(uuidSchema),
+  payload: z.record(z.string(), z.unknown()),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+});
+
+export type RecommendationSummary = z.infer<typeof recommendationSummarySchema>;
+
+export const assessmentResultSchema = z.object({
+  session: assessmentSessionSummarySchema,
+  overallScore: z.number().min(0).max(100),
+  verdict: evaluationVerdictSchema,
+  summary: nonEmptyStringSchema,
+  evaluationId: uuidSchema,
+  attemptId: uuidSchema,
+  evidence: z.array(
+    z.object({
+      id: uuidSchema,
+      summary: nonEmptyStringSchema,
+      polarity: z.enum(["strength", "weakness", "gap", "progress", "neutral"]),
+      confidence: z.number().min(0).max(1),
+      skillId: uuidSchema.nullable(),
+      goalId: uuidSchema.nullable(),
+      createdAt: z.coerce.date()
+    })
+  ),
+  questionEvaluations: z.array(assessmentQuestionEvaluationSchema),
+  lessons: z.array(lessonSummarySchema),
+  recommendations: z.array(recommendationSummarySchema)
+});
+
+export type AssessmentResult = z.infer<typeof assessmentResultSchema>;
+
+export const assessmentSessionDetailSchema = z.object({
+  session: assessmentSessionSummarySchema,
+  questions: z.array(assessmentQuestionSchema),
+  answers: z.array(assessmentAnswerRecordSchema),
+  result: assessmentResultSchema.nullable()
+});
+
+export type AssessmentSessionDetail = z.infer<typeof assessmentSessionDetailSchema>;
+
 export const agentRunSummarySchema = z.object({
   id: uuidSchema,
   kind: z.enum([
     "mentor",
+    "assessment-mentor",
     "interviewer",
     "coding-reviewer",
     "planner",
+    "lesson-planner",
     "recommender",
     "ingestion",
     "provider-test"
@@ -321,6 +548,75 @@ export const agentRunSummarySchema = z.object({
 });
 
 export type AgentRunSummary = z.infer<typeof agentRunSummarySchema>;
+
+export const assessmentCreateSessionInputSchema = z.object({
+  goalId: uuidSchema.optional(),
+  skillId: uuidSchema.optional(),
+  locale: userInterfaceLocaleSchema,
+  difficulty: nullableOptionalTextSchema.optional(),
+  focusPrompt: nullableOptionalTextSchema.optional()
+});
+
+export type AssessmentCreateSessionInput = z.infer<typeof assessmentCreateSessionInputSchema>;
+
+export const assessmentSubmitAnswerInputSchema = z.object({
+  sessionId: uuidSchema,
+  answer: assessmentAnswerSchema
+});
+
+export type AssessmentSubmitAnswerInput = z.infer<typeof assessmentSubmitAnswerInputSchema>;
+
+export const assessmentSessionInputSchema = z.object({
+  sessionId: uuidSchema
+});
+
+export type AssessmentSessionInput = z.infer<typeof assessmentSessionInputSchema>;
+
+export const lessonsListInputSchema = z
+  .object({
+    skillId: uuidSchema.optional(),
+    limit: z.number().int().min(1).max(24).default(12)
+  })
+  .optional();
+
+export type LessonsListInput = z.infer<typeof lessonsListInputSchema>;
+
+export const lessonIdInputSchema = z.object({
+  lessonId: uuidSchema
+});
+
+export type LessonIdInput = z.infer<typeof lessonIdInputSchema>;
+
+export const generateLessonInputSchema = z.object({
+  goalId: uuidSchema.optional(),
+  skillId: uuidSchema.optional(),
+  locale: userInterfaceLocaleSchema,
+  focusPrompt: nullableOptionalTextSchema.optional(),
+  evidenceIds: z.array(uuidSchema).max(12).optional()
+});
+
+export type GenerateLessonInput = z.infer<typeof generateLessonInputSchema>;
+
+export const refreshRecommendationsInputSchema = z.object({
+  goalId: uuidSchema.optional(),
+  skillId: uuidSchema.optional(),
+  limit: z.number().int().min(1).max(8).default(4)
+});
+
+export type RefreshRecommendationsInput = z.infer<typeof refreshRecommendationsInputSchema>;
+
+export const recommendationMutationInputSchema = z.object({
+  recommendationId: uuidSchema
+});
+
+export type RecommendationMutationInput = z.infer<typeof recommendationMutationInputSchema>;
+
+export const recommendationRefreshResultSchema = z.object({
+  created: z.array(recommendationSummarySchema),
+  reused: z.array(recommendationSummarySchema)
+});
+
+export type RecommendationRefreshResult = z.infer<typeof recommendationRefreshResultSchema>;
 
 export const agentPreviewInputSchema = z.object({
   prompt: z.string().trim().min(1),

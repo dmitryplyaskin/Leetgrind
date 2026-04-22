@@ -245,4 +245,83 @@ describe("local repositories", () => {
       })
     ]);
   });
+
+  it("stores assessment sessions, answers, evaluations, and lessons", async () => {
+    await context.repositories.userProfiles.ensureLocalProfile();
+    const [skill] = await context.repositories.skills.upsertMany([
+      {
+        slug: "react",
+        title: "React",
+        level: "developing"
+      }
+    ]);
+
+    const created = await context.repositories.assessmentSessions.create({
+      skillId: skill!.id,
+      locale: "en",
+      title: "React check",
+      summary: "Assessment summary",
+      questions: [
+        {
+          id: "00000000-0000-0000-0000-000000000101",
+          kind: "multiple-choice",
+          skillId: skill!.id,
+          prompt: "Which hook stores local state?",
+          choices: [
+            { id: "a", label: "useMemo" },
+            { id: "b", label: "useState" }
+          ],
+          correctChoiceIds: ["b"]
+        }
+      ]
+    });
+    const answer = await context.repositories.assessmentSessions.upsertAnswer({
+      sessionId: created.session.id,
+      questionId: created.questions[0]!.id,
+      answer: {
+        questionId: created.questions[0]!.id,
+        kind: "multiple-choice",
+        selectedChoiceIds: ["b"]
+      },
+      score: 1,
+      feedback: "Correct"
+    });
+    const lesson = await context.repositories.learningItems.createLesson({
+      title: "React lesson",
+      summary: "Follow-up",
+      skillId: skill!.id,
+      payload: {
+        body: "Lesson body",
+        takeaways: ["One"],
+        practicePrompt: "Try it",
+        evidenceIds: [],
+        contextItemIds: []
+      }
+    });
+    const attempt = await context.repositories.attempts.create({
+      skillId: skill!.id,
+      kind: "assessment",
+      prompt: "React check",
+      response: {}
+    });
+    const evaluation = await context.repositories.evaluations.create({
+      attemptId: attempt.id,
+      score: 80,
+      verdict: "pass",
+      summary: "Strong basics",
+      payload: {}
+    });
+    const updated = await context.repositories.assessmentSessions.update(created.session.id, {
+      attemptId: attempt.id,
+      evaluationId: evaluation.id,
+      status: "completed",
+      completedAt: new Date()
+    });
+    const detail = await context.repositories.assessmentSessions.getDetail(created.session.id);
+
+    expect(answer.score).toBe(1);
+    expect(lesson.kind).toBe("lesson");
+    expect(updated?.evaluationId).toBe(evaluation.id);
+    expect(detail?.answers).toHaveLength(1);
+  });
 });

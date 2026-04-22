@@ -56,6 +56,7 @@ interface DashboardSkillSummary {
 interface DashboardAction {
   id: string;
   skillId: string | null;
+  recommendationId?: string;
   titleKey: string;
   reasonKey: string;
   title?: string;
@@ -270,6 +271,17 @@ export function SkillGraph({ graph }: SkillGraphProps) {
 export function DashboardRoute() {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
+  const utils = trpc.useUtils();
+  const acceptRecommendation = trpc.recommendations.accept.useMutation({
+    onSuccess: async () => {
+      await utils.dashboard.getSummary.invalidate();
+    },
+  });
+  const dismissRecommendation = trpc.recommendations.dismiss.useMutation({
+    onSuccess: async () => {
+      await utils.dashboard.getSummary.invalidate();
+    },
+  });
   const summary = trpc.dashboard.getSummary.useQuery(undefined, {
     staleTime: 30_000,
   });
@@ -438,15 +450,57 @@ export function DashboardRoute() {
                               ) : null}
                             </Stack>
                             {action.skillId ? (
-                              <Button
-                                color="gray"
-                                component="a"
-                                href={`/skills/${action.skillId}`}
-                                size="xs"
-                                variant="default"
-                              >
-                                {t("common.open")}
-                              </Button>
+                              <Group gap="xs">
+                                {action.recommendationId ? (
+                                  <>
+                                    <Button
+                                      loading={acceptRecommendation.isPending}
+                                      onClick={() =>
+                                        acceptRecommendation.mutate({
+                                          recommendationId: action.recommendationId!,
+                                        })
+                                      }
+                                      size="xs"
+                                      variant="default"
+                                    >
+                                      {t("recommendations.accept")}
+                                    </Button>
+                                    <Button
+                                      color="gray"
+                                      loading={dismissRecommendation.isPending}
+                                      onClick={() =>
+                                        dismissRecommendation.mutate({
+                                          recommendationId: action.recommendationId!,
+                                        })
+                                      }
+                                      size="xs"
+                                      variant="default"
+                                    >
+                                      {t("recommendations.dismiss")}
+                                    </Button>
+                                  </>
+                                ) : action.titleKey === "takeAssessment" ? (
+                                  <Button
+                                    color="gray"
+                                    component={Link}
+                                    size="xs"
+                                    to="/assessments/new"
+                                    variant="default"
+                                  >
+                                    {t("assessments.new.start")}
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    color="gray"
+                                    component="a"
+                                    href={`/skills/${action.skillId}`}
+                                    size="xs"
+                                    variant="default"
+                                  >
+                                    {t("common.open")}
+                                  </Button>
+                                )}
+                              </Group>
                             ) : null}
                           </Group>
                         </Paper>

@@ -1,3 +1,4 @@
+import { assessmentsRouter } from "./routers/assessments-router.js";
 import { aiProvidersRouter, aiSettingsRouter } from "./routers/ai-router.js";
 import { agentsRouter } from "./routers/agents-router.js";
 import { dashboardRouter } from "./routers/dashboard-router.js";
@@ -5,6 +6,7 @@ import { documentsRouter } from "./routers/documents-router.js";
 import { goalsRouter } from "./routers/goals-router.js";
 import { healthRouter } from "./routers/health-router.js";
 import { historyRouter } from "./routers/history-router.js";
+import { lessonsRouter } from "./routers/lessons-router.js";
 import { onboardingRouter } from "./routers/onboarding-router.js";
 import { profileRouter } from "./routers/profile-router.js";
 import { ragRouter } from "./routers/rag-router.js";
@@ -14,6 +16,7 @@ import { router } from "./trpc.js";
 
 export const appRouter = router({
   health: healthRouter,
+  assessments: assessmentsRouter,
   ai: router({
     providers: aiProvidersRouter,
     settings: aiSettingsRouter
@@ -24,6 +27,7 @@ export const appRouter = router({
   profile: profileRouter,
   goals: goalsRouter,
   skills: skillsRouter,
+  lessons: lessonsRouter,
   documents: documentsRouter,
   history: historyRouter,
   rag: ragRouter,

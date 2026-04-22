@@ -74,6 +74,9 @@ importers:
       '@leetgrind/rag':
         specifier: workspace:*
         version: link:../../packages/rag
+      '@leetgrind/scheduling':
+        specifier: workspace:*
+        version: link:../../packages/scheduling
       '@leetgrind/shared':
         specifier: workspace:*
         version: link:../../packages/shared

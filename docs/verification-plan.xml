@@ -44,6 +44,7 @@
         <scenario id="SC-WEB-003">UI state does not store persistent domain data.</scenario>
         <scenario id="SC-WEB-004">Visible app UI can render in Russian and English through the localization layer.</scenario>
         <scenario id="SC-WEB-005">AI settings and provider management screens cover saved-provider state, provider test state, and localized form copy.</scenario>
+        <scenario id="SC-WEB-006">Assessment, result, and lesson routes render localized learner-facing copy and actionable provider-setup fallbacks.</scenario>
       </scenarios>
     </module>
 
@@ -57,6 +58,7 @@
         <scenario id="SC-SERVER-002">tRPC procedures validate inputs through Zod or typed schemas.</scenario>
         <scenario id="SC-SERVER-003">Server routes coordinate use cases instead of embedding all business rules.</scenario>
         <scenario id="SC-SERVER-004">AI provider save/test, document ingest/search, preview run, and recent agent run procedures are covered with fake provider or keychain adapters.</scenario>
+        <scenario id="SC-SERVER-005">Assessment create/answer/finish, lesson generation, and recommendation mutations are covered with fake provider adapters.</scenario>
       </scenarios>
     </module>
 
@@ -81,6 +83,7 @@
         <scenario id="SC-DB-002">Vector fields and dimensions are intentional and documented.</scenario>
         <scenario id="SC-DB-003">Repository APIs do not leak raw persistence details unnecessarily.</scenario>
         <scenario id="SC-DB-004">Provider settings persist only non-secret metadata while agent runs and document chunks remain queryable with source references.</scenario>
+        <scenario id="SC-DB-005">Assessment sessions, question payloads, answers, lessons, and linked evaluation ids remain queryable through typed repositories.</scenario>
       </scenarios>
     </module>
 
@@ -107,6 +110,7 @@
         <scenario id="SC-AGENTS-002">Agent results can produce traceable evidence or recommendations.</scenario>
         <scenario id="SC-AGENTS-003">Agent workflows use retrieval context with citations when RAG is involved.</scenario>
         <scenario id="SC-AGENTS-004">Preview workflows record provider, model, status, and referenced context ids in agent run traces.</scenario>
+        <scenario id="SC-AGENTS-005">Assessment, lesson, and recommendation workflows validate structured outputs before persistence.</scenario>
       </scenarios>
     </module>
 

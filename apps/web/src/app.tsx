@@ -22,14 +22,20 @@ import {
   Stack,
   Text,
 } from "@leetgrind/ui";
+import { AssessmentResultRoute } from "./assessment-result";
+import { AssessmentSessionRoute } from "./assessment-session";
+import { AssessmentsNewRoute } from "./assessments-new";
 import { DashboardRoute } from "./dashboard";
 import { GoalDetailRoute } from "./goal-detail";
 import { HistoryRoute } from "./history";
 import "./i18n";
+import { LessonDetailRoute } from "./lesson-detail";
+import { LessonsRoute } from "./lessons";
 import { OnboardingRoute } from "./onboarding";
 import { AiProvidersRoute } from "./settings-ai-providers";
 import { AiSettingsRoute } from "./settings-ai";
 import { SkillDetailRoute } from "./skill-detail";
+import { SkillLessonsRoute } from "./skill-lessons";
 import { ThemeToggle } from "./theme";
 import { createTrpcClient, trpc } from "./trpc";
 
@@ -221,6 +227,24 @@ const dashboardRoute = createRoute({
   component: DashboardRoute,
 });
 
+const assessmentsNewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/assessments/new",
+  component: AssessmentsNewRoute,
+});
+
+const assessmentSessionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/assessments/$sessionId",
+  component: AssessmentSessionRoute,
+});
+
+const assessmentResultRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/assessments/$sessionId/result",
+  component: AssessmentResultRoute,
+});
+
 const goalDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/goals/$goalId",
@@ -231,6 +255,24 @@ const skillDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/skills/$skillId",
   component: SkillDetailRoute,
+});
+
+const lessonsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/lessons",
+  component: LessonsRoute,
+});
+
+const lessonDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/lessons/$lessonId",
+  component: LessonDetailRoute,
+});
+
+const skillLessonsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/skills/$skillId/lessons",
+  component: SkillLessonsRoute,
 });
 
 const historyRoute = createRoute({
@@ -255,8 +297,14 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   onboardingRoute,
   dashboardRoute,
+  assessmentsNewRoute,
+  assessmentSessionRoute,
+  assessmentResultRoute,
   goalDetailRoute,
   skillDetailRoute,
+  lessonsRoute,
+  lessonDetailRoute,
+  skillLessonsRoute,
   historyRoute,
   aiSettingsRoute,
   aiProvidersRoute,

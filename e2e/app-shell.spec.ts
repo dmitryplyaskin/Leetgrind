@@ -60,6 +60,30 @@ test("renders onboarding and dashboard routes", async ({ page }) => {
     page.getByRole("heading", { name: /Skill detail|Детали навыка/i }),
   ).toBeVisible();
 
+  await page.goto("/assessments/new");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /Start a focused assessment|Запусти точечную проверку/i,
+    }),
+  ).toBeVisible();
+
+  await page.goto("/lessons");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /Follow-up lessons|Уроки по итогам/i,
+    }),
+  ).toBeVisible();
+
+  await page.goto("/skills/00000000-0000-0000-0000-000000000001/lessons");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /Follow-up lessons|Уроки по итогам/i,
+    }),
+  ).toBeVisible();
+
   await page.goto("/goals/00000000-0000-0000-0000-000000000001");
 
   await expect(

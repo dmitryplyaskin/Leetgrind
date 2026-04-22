@@ -66,14 +66,129 @@ class FakeOpenRouterProvider implements AiProvider {
   async generateObject<TSchema extends AiObjectRequest["schema"]>(
     input: AiObjectRequest<TSchema>
   ): Promise<import("zod").infer<TSchema>> {
-    const baseResult = {
+    if (input.prompt.includes("Generate a balanced assessment")) {
+      return input.schema.parse({
+        title: "React fundamentals check",
+        summary: "A mixed-format check for React interview readiness.",
+        questions: [
+          {
+            kind: "multiple-choice",
+            prompt: "Which hook is used for local component state?",
+            choices: [
+              { id: "a", label: "useMemo" },
+              { id: "b", label: "useState" },
+              { id: "c", label: "useContext" }
+            ],
+            correctChoiceIds: ["b"],
+            rationale: "useState manages local component state."
+          },
+          {
+            kind: "short-answer",
+            prompt: "What does the dependency array control in useEffect?",
+            expectedConcepts: ["effect reruns", "dependency tracking"]
+          },
+          {
+            kind: "explanation",
+            prompt: "Explain reconciliation in React.",
+            rubric: ["tree comparison", "minimal DOM work"]
+          },
+          {
+            kind: "scenario-analysis",
+            prompt: "How would you reduce re-rendering in a dashboard?",
+            scenario: "Typing in one widget causes the whole dashboard to update.",
+            rubric: ["state isolation", "measured optimization"]
+          }
+        ]
+      });
+    }
+
+    if (input.prompt.includes("Evaluate the answers")) {
+      return input.schema.parse({
+        summary: "The learner has solid React fundamentals but still needs sharper explanation quality.",
+        overallScore: 72,
+        verdict: "pass",
+        questionEvaluations: [
+          {
+            questionId: "00000000-0000-4000-8000-000000000002",
+            score: 0.72,
+            verdict: "pass",
+            feedback: "Good direction, but the dependency array should be tied more explicitly to effect reruns.",
+            strengths: ["Recognized that dependencies affect reruns."],
+            gaps: ["Needs clearer explanation of rerun control."],
+            citedContextIds: []
+          },
+          {
+            questionId: "00000000-0000-4000-8000-000000000003",
+            score: 0.64,
+            verdict: "needs-work",
+            feedback: "The explanation covers diffing but misses the practical impact on DOM updates.",
+            strengths: ["Understands virtual comparison."],
+            gaps: ["Needs stronger explanation of update minimization."],
+            citedContextIds: []
+          },
+          {
+            questionId: "00000000-0000-4000-8000-000000000004",
+            score: 0.76,
+            verdict: "pass",
+            feedback: "Reasonable scenario analysis with a good instinct for isolating state.",
+            strengths: ["Suggested state isolation."],
+            gaps: ["Could be more concrete about component boundaries."],
+            citedContextIds: []
+          }
+        ],
+        evidence: [
+          {
+            summary: "Correctly identified local state management in React.",
+            polarity: "strength",
+            confidence: 0.82
+          },
+          {
+            summary: "Needs clearer explanation of effect dependencies and render isolation.",
+            polarity: "gap",
+            confidence: 0.76
+          }
+        ]
+      });
+    }
+
+    if (input.prompt.includes("Create 1-3 lessons")) {
+      return input.schema.parse({
+        lessons: [
+          {
+            title: "Effect dependencies without guesswork",
+            summary: "A short lesson on how to reason about effect dependencies.",
+            payload: {
+              body: "Start from what the effect reads and then derive the dependency list from those reads.",
+              takeaways: ["Model reads before writing dependencies", "Avoid cargo-cult fixes"],
+              practicePrompt: "Review one useEffect and justify each dependency.",
+              evidenceIds: [],
+              contextItemIds: []
+            }
+          }
+        ]
+      });
+    }
+
+    if (input.prompt.includes("Return no more than four recommendations")) {
+      return input.schema.parse({
+        recommendations: [
+          {
+            kind: "lesson",
+            title: "Review effect dependency reasoning",
+            rationale: "Recent evidence shows explanation gaps around effect dependencies.",
+            evidenceIds: [],
+            payload: {}
+          }
+        ]
+      });
+    }
+
+    return input.schema.parse({
       summary: "Context looks relevant.",
       response: `Mentor answer for: ${input.prompt}`,
       nextActions: ["Review the retrieved material"],
       evidence: ["Retrieved local content was used"]
-    };
-
-    return input.schema.parse(baseResult);
+    });
   }
 
   async embed(input: AiEmbeddingRequest): Promise<AiEmbeddingResult> {
@@ -138,7 +253,7 @@ describe("server API", () => {
         runMigrations: true
       }
     });
-  });
+  }, 20000);
 
   afterEach(async () => {
     await context?.database.close();
@@ -497,5 +612,95 @@ describe("server API", () => {
     expect(preview.run.status).toBe("succeeded");
     expect(runs.some((run) => run.kind === "ingestion")).toBe(true);
     expect(runs.some((run) => run.kind === "mentor")).toBe(true);
+  });
+
+  it("creates, completes, and follows up on an assessment", async () => {
+    const caller = appRouter.createCaller(context);
+    const provider = await caller.ai.providers.save({
+      kind: "openrouter",
+      displayName: "Primary OpenRouter",
+      textModel: "openai/gpt-4o-mini",
+      embeddingModel: "openai/text-embedding-3-small",
+      apiKey: "test-key",
+      isDefault: true
+    });
+    const [skill] = await caller.skills.upsertMany({
+      skills: [
+        {
+          title: "React",
+          level: "developing",
+          description: "Hooks and rendering."
+        }
+      ]
+    });
+    const session = await caller.assessments.createSession({
+      skillId: skill.id,
+      locale: "en",
+      focusPrompt: "Check React fundamentals"
+    });
+
+    expect(provider.id).toBeTruthy();
+    expect(session.questions).toHaveLength(4);
+
+    for (const question of session.questions) {
+      if (question.kind === "multiple-choice") {
+        await caller.assessments.submitAnswer({
+          sessionId: session.session.id,
+          answer: {
+            questionId: question.id,
+            kind: "multiple-choice",
+            selectedChoiceIds: [question.correctChoiceIds[0]!]
+          }
+        });
+      } else {
+        await caller.assessments.submitAnswer({
+          sessionId: session.session.id,
+          answer: {
+            questionId: question.id,
+            kind: question.kind,
+            responseText: "Structured answer"
+          }
+        });
+      }
+    }
+
+    const completed = await caller.assessments.finishSession({
+      sessionId: session.session.id
+    });
+
+    expect(completed?.result?.overallScore).toBeGreaterThan(0);
+    expect(completed?.result?.lessons.length).toBeGreaterThan(0);
+    expect(completed?.result?.recommendations.length).toBeGreaterThan(0);
+
+    const lessons = await caller.lessons.list();
+    const lesson = await caller.lessons.get({
+      lessonId: lessons[0]!.id
+    });
+
+    expect(lesson?.payload.body).toContain("dependency");
+
+    const refreshed = await caller.recommendations.refresh({
+      skillId: skill.id,
+      limit: 2
+    });
+
+    expect(refreshed.created.length + refreshed.reused.length).toBeGreaterThan(0);
+
+    const active = await caller.recommendations.listActive();
+
+    await caller.recommendations.accept({
+      recommendationId: active[0]!.id
+    });
+    await caller.recommendations.dismiss({
+      recommendationId: completed!.result!.recommendations[0]!.id
+    });
+
+    const runs = await caller.agents.listRecentRuns({
+      limit: 12
+    });
+
+    expect(runs.some((run) => run.kind === "assessment-mentor")).toBe(true);
+    expect(runs.some((run) => run.kind === "lesson-planner")).toBe(true);
+    expect(runs.some((run) => run.kind === "recommender")).toBe(true);
   });
 });

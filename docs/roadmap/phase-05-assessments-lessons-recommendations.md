@@ -1,6 +1,6 @@
 # Phase 05: Assessments, Lessons, And Recommendations
 
-Status: planned.
+Status: active.
 
 ## Goal
 
@@ -173,3 +173,13 @@ Manual:
 - At least one lesson can be generated or displayed.
 - Recommendations are linked to evidence and goals.
 
+## Current Packet Focus
+
+The first active Phase 05 packet now owns:
+
+- dedicated assessment persistence with `assessment_sessions`, `assessment_questions`, and `assessment_answers`;
+- structured assessment question and answer contracts in shared and domain packages;
+- `assessment-mentor`, `lesson-planner`, and `recommender` workflows with validated outputs;
+- lesson persistence through `learning_items.kind = "lesson"`;
+- recommendation accept, dismiss, and deduped refresh actions;
+- localized assessment and lesson routes in `apps/web`.

@@ -1,6 +1,6 @@
 # Phase 04: AI Providers, Agents, And RAG
 
-Status: planned.
+Status: done.
 
 ## Goal
 
@@ -175,3 +175,14 @@ Manual:
 - RAG can ingest and retrieve local document chunks.
 - Provider/model/context metadata is stored for AI workflows.
 
+## Implementation Notes
+
+Phase 04 is complete in the current workspace.
+
+Delivered scope:
+
+- OpenRouter-first provider registry with keychain-backed secret storage;
+- localized AI settings and provider management routes;
+- provider test flow and traced recent agent runs;
+- content-document ingest, chunking, embedding, and cited retrieval;
+- typed mentor preview workflow through `packages/agents`.

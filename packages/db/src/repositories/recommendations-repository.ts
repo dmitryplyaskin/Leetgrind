@@ -61,6 +61,32 @@ export function createRecommendationsRepository(db: LeetgrindDatabase) {
       );
     },
 
+    async findPendingByScope({
+      profileId = LOCAL_USER_PROFILE_ID,
+      goalId,
+      skillId,
+      kind
+    }: {
+      profileId?: string;
+      goalId?: string | null;
+      skillId?: string | null;
+      kind: RecommendationKind;
+    }): Promise<Recommendation | null> {
+      const rows = await this.listActive({
+        profileId,
+        goalId: goalId ?? undefined
+      });
+
+      return (
+        rows.find(
+          (recommendation) =>
+            recommendation.kind === kind &&
+            (recommendation.goalId ?? null) === (goalId ?? null) &&
+            (recommendation.skillId ?? null) === (skillId ?? null)
+        ) ?? null
+      );
+    },
+
     async create(input: CreateRecommendationInput): Promise<Recommendation> {
       const [recommendation] = await db
         .insert(recommendations)
@@ -93,6 +119,18 @@ export function createRecommendationsRepository(db: LeetgrindDatabase) {
         .returning();
 
       return (recommendation as Recommendation | undefined) ?? null;
+    },
+
+    async accept(id: string) {
+      return this.update(id, {
+        status: "accepted"
+      });
+    },
+
+    async dismiss(id: string) {
+      return this.update(id, {
+        status: "dismissed"
+      });
     }
   };
 }

@@ -43,9 +43,11 @@ export type RecommendationStatus = "pending" | "accepted" | "dismissed" | "compl
 export type ReviewState = "new" | "learning" | "review" | "relearning" | "suspended";
 export type AgentRunKind =
   | "mentor"
+  | "assessment-mentor"
   | "interviewer"
   | "coding-reviewer"
   | "planner"
+  | "lesson-planner"
   | "recommender"
   | "ingestion"
   | "provider-test";
@@ -54,6 +56,12 @@ export type AiProviderKind = "openai-codex" | "openai-api-key" | "openrouter" | 
 export type UserInterfaceLocale = "ru" | "en";
 export type UserLanguagePreference = "ru" | "en" | "mixed";
 export type StudyRhythm = "daily" | "weekdays" | "weekends" | "weekly" | "flexible";
+export type AssessmentQuestionKind =
+  | "multiple-choice"
+  | "short-answer"
+  | "explanation"
+  | "scenario-analysis";
+export type AssessmentSessionStatus = "draft" | "in-progress" | "completed" | "abandoned";
 
 export interface SelfAssessedSkill {
   title: string;
@@ -140,6 +148,109 @@ export interface LearningItem {
   updatedAt: Date;
 }
 
+export interface AssessmentChoice {
+  id: string;
+  label: string;
+}
+
+export interface AssessmentQuestionBase {
+  id: string;
+  skillId: string | null;
+  prompt: string;
+  explanation?: string | null;
+}
+
+export interface MultipleChoiceAssessmentQuestion extends AssessmentQuestionBase {
+  kind: "multiple-choice";
+  choices: AssessmentChoice[];
+  correctChoiceIds: string[];
+  rationale?: string | null;
+}
+
+export interface ShortAnswerAssessmentQuestion extends AssessmentQuestionBase {
+  kind: "short-answer";
+  expectedConcepts: string[];
+  placeholder?: string | null;
+}
+
+export interface ExplanationAssessmentQuestion extends AssessmentQuestionBase {
+  kind: "explanation";
+  rubric: string[];
+}
+
+export interface ScenarioAnalysisAssessmentQuestion extends AssessmentQuestionBase {
+  kind: "scenario-analysis";
+  scenario: string;
+  rubric: string[];
+}
+
+export type AssessmentQuestion =
+  | MultipleChoiceAssessmentQuestion
+  | ShortAnswerAssessmentQuestion
+  | ExplanationAssessmentQuestion
+  | ScenarioAnalysisAssessmentQuestion;
+
+export interface MultipleChoiceAssessmentAnswer {
+  questionId: string;
+  kind: "multiple-choice";
+  selectedChoiceIds: string[];
+}
+
+export interface TextAssessmentAnswer {
+  questionId: string;
+  kind: "short-answer" | "explanation" | "scenario-analysis";
+  responseText: string;
+}
+
+export type AssessmentAnswer = MultipleChoiceAssessmentAnswer | TextAssessmentAnswer;
+
+export interface AssessmentSession {
+  id: string;
+  profileId: string;
+  goalId: string | null;
+  skillId: string | null;
+  attemptId?: string | null;
+  evaluationId?: string | null;
+  status: AssessmentSessionStatus;
+  locale: UserInterfaceLocale;
+  title: string;
+  summary: string | null;
+  difficulty: string | null;
+  focusPrompt: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt: Date | null;
+}
+
+export interface AssessmentAnswerRecord {
+  id: string;
+  sessionId: string;
+  questionId: string;
+  answer: AssessmentAnswer;
+  score: number | null;
+  feedback: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface QuestionEvaluation {
+  questionId: string;
+  score: number;
+  verdict: EvaluationVerdict;
+  feedback: string;
+  strengths: string[];
+  gaps: string[];
+  citedContextIds: string[];
+}
+
+export interface LessonPayload {
+  body: string;
+  takeaways: string[];
+  practicePrompt?: string | null;
+  evidenceIds: string[];
+  contextItemIds: string[];
+}
+
 export interface Attempt {
   id: string;
   profileId: string;
@@ -213,6 +324,11 @@ export interface Recommendation {
   payload: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface RecommendationRefreshResult {
+  created: Recommendation[];
+  reused: Recommendation[];
 }
 
 export interface ReviewSchedule {
@@ -309,6 +425,7 @@ export interface RecommendedAction {
   priority: number;
   skillId: string | null;
   goalId: string | null;
+  recommendationId?: string;
   titleKey: string;
   reasonKey: string;
   createdFrom: "deterministic" | "stored";
@@ -665,6 +782,7 @@ export function buildRecommendedActions(
       priority: 50,
       skillId: recommendation.skillId,
       goalId: recommendation.goalId,
+      recommendationId: recommendation.id,
       titleKey: "storedRecommendation",
       reasonKey: "storedRecommendation",
       createdFrom: "stored",
@@ -777,6 +895,44 @@ export function buildDashboardSummary(input: ProgressReadModelInput & { profile:
     recentActivity: buildActivityEvents(input),
     graph
   };
+}
+
+export function scoreMultipleChoiceAnswer(
+  question: MultipleChoiceAssessmentQuestion,
+  answer: MultipleChoiceAssessmentAnswer
+) {
+  const selected = new Set(answer.selectedChoiceIds);
+  const expected = new Set(question.correctChoiceIds);
+  const correctSelections = question.correctChoiceIds.filter((choiceId) => selected.has(choiceId)).length;
+  const wrongSelections = answer.selectedChoiceIds.filter((choiceId) => !expected.has(choiceId)).length;
+  const rawScore = expected.size === 0 ? 0 : (correctSelections - wrongSelections) / expected.size;
+  const score = Math.max(0, Math.min(1, Number(rawScore.toFixed(2))));
+
+  return {
+    score,
+    isCorrect: score === 1,
+    missedChoiceIds: question.correctChoiceIds.filter((choiceId) => !selected.has(choiceId)),
+    unexpectedChoiceIds: answer.selectedChoiceIds.filter((choiceId) => !expected.has(choiceId))
+  };
+}
+
+export function dedupePendingRecommendations(recommendations: Recommendation[]) {
+  const seen = new Set<string>();
+
+  return recommendations.filter((recommendation) => {
+    if (recommendation.status !== "pending") {
+      return true;
+    }
+
+    const key = `${recommendation.kind}:${recommendation.goalId ?? "none"}:${recommendation.skillId ?? "none"}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 export * from "./skill-templates/index.js";
