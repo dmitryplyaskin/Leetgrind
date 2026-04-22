@@ -35,6 +35,8 @@
       <library name="React Hook Form" role="forms"/>
       <library name="Zod" role="schema validation"/>
       <library name="Mantine v8" role="component system, styling, accessible UI primitives"/>
+      <library name="@fontsource-variable/figtree" role="local UI font assets"/>
+      <library name="@fontsource/jetbrains-mono" role="local monospace font assets for code and technical text"/>
       <library name="i18next and react-i18next" role="Russian and English UI localization"/>
       <library name="CodeMirror 6" role="coding editor"/>
       <library name="Cytoscape.js" role="knowledge graph visualization"/>
@@ -88,6 +90,7 @@
     <rule id="DEP-007">New runtime dependencies require a reason in docs/technology.xml when they become architectural choices.</rule>
     <rule id="DEP-008">Mantine v8 is the UI component source of truth; do not reintroduce Tailwind CSS utility styling without updating this contract.</rule>
     <rule id="DEP-009">Provider secrets must be stored through an OS keychain adapter composed in apps/server; PGLite stores only non-secret provider metadata and default-selection state.</rule>
+    <rule id="DEP-010">Shared app visual styling should go through packages/ui theme primitives and --lg-* design tokens instead of route-local one-off design systems.</rule>
   </dependency-rules>
 
   <coding-standards>
@@ -102,6 +105,7 @@
     <standard id="CODE-009">New user-facing UI text should be defined through the localization layer for both ru and en locales.</standard>
     <standard id="CODE-010">User-facing UI copy must be production-ready: specific, actionable, and meaningful to the learner.</standard>
     <standard id="CODE-011">Provider tests, RAG ingestion, and agent preview workflows should run against mocked providers or fake credential stores in automated tests.</standard>
+    <standard id="CODE-012">Frontend design work must follow docs/frontend-design.md, including app-specific layout hierarchy, typography, card usage, motion, copy, and viewport verification rules.</standard>
   </coding-standards>
 
   <forbidden-patterns>
@@ -113,5 +117,6 @@
     <pattern id="FORBID-006">Architecture changes without updating GRACE artifacts.</pattern>
     <pattern id="FORBID-007">Scattering untranslated user-facing strings across React screens and shared UI components.</pattern>
     <pattern id="FORBID-008">Meta UI copy, implementation labels, architectural reassurances, and placeholder text such as local API status, works offline, AI can be configured later, future phase, or similar non-actionable interface copy.</pattern>
+    <pattern id="FORBID-009">Generic frontend defaults such as Inter/system typography, default purple SaaS styling, nested card layouts, or decorative chrome that does not improve the learner workflow.</pattern>
   </forbidden-patterns>
 </grace-technology>

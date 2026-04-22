@@ -1,14 +1,19 @@
-import { createTheme } from "@mantine/core";
+import { createTheme, defaultCssVariablesResolver } from "@mantine/core";
+import type { CSSVariablesResolver } from "@mantine/core";
+
+const sansFont =
+  "Figtree Variable, Figtree, Avenir Next, Avenir, Segoe UI, sans-serif";
+const monoFont =
+  "JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, monospace";
 
 export const leetgrindTheme = createTheme({
   primaryColor: "teal",
   primaryShade: { light: 7, dark: 4 },
   defaultRadius: "sm",
-  fontFamily:
-    "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+  fontFamily: sansFont,
+  fontFamilyMonospace: monoFont,
   headings: {
-    fontFamily:
-      "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+    fontFamily: sansFont,
     fontWeight: "700",
   },
   colors: {
@@ -29,7 +34,7 @@ export const leetgrindTheme = createTheme({
     Card: {
       defaultProps: {
         radius: "sm",
-        shadow: "xs",
+        shadow: "none",
         withBorder: true,
       },
     },
@@ -55,3 +60,42 @@ export const leetgrindTheme = createTheme({
     },
   },
 });
+
+export const leetgrindCssVariablesResolver: CSSVariablesResolver = (theme) => {
+  const defaultVariables = defaultCssVariablesResolver(theme);
+
+  return {
+    variables: {
+      ...defaultVariables.variables,
+      "--lg-font-sans": sansFont,
+      "--lg-font-mono": monoFont,
+      "--lg-radius-panel": "8px",
+      "--lg-radius-control": "6px",
+      "--lg-space-section": "clamp(3rem, 7vw, 6rem)",
+      "--lg-space-panel": "clamp(1rem, 2vw, 1.5rem)",
+      "--lg-focus-ring": "0 0 0 3px color-mix(in srgb, var(--lg-color-accent) 28%, transparent)",
+    },
+    light: {
+      ...defaultVariables.light,
+      "--lg-color-canvas": "#f7f8f4",
+      "--lg-color-surface": "#ffffff",
+      "--lg-color-surface-subtle": "#eef3ed",
+      "--lg-color-text": "#18211d",
+      "--lg-color-muted": "#5d6a63",
+      "--lg-color-accent": "#24735b",
+      "--lg-color-accent-strong": "#164536",
+      "--lg-color-border": "rgba(24, 33, 29, 0.14)",
+    },
+    dark: {
+      ...defaultVariables.dark,
+      "--lg-color-canvas": "#101512",
+      "--lg-color-surface": "#171e1a",
+      "--lg-color-surface-subtle": "#1d2a24",
+      "--lg-color-text": "#edf4ef",
+      "--lg-color-muted": "#b5c4ba",
+      "--lg-color-accent": "#68bb9d",
+      "--lg-color-accent-strong": "#d9efe6",
+      "--lg-color-border": "rgba(237, 244, 239, 0.16)",
+    },
+  };
+};

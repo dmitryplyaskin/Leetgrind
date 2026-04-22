@@ -52,7 +52,7 @@ function AppShell() {
   const navLinkStyle = {
     alignItems: "center",
     borderRadius: "var(--mantine-radius-sm)",
-    color: "var(--mantine-color-dimmed)",
+    color: "var(--lg-color-muted)",
     display: "inline-flex",
     gap: "var(--mantine-spacing-xs)",
     minHeight: 40,
@@ -61,8 +61,8 @@ function AppShell() {
   };
   const activeNavLinkStyle = {
     ...navLinkStyle,
-    background: "var(--mantine-color-default-hover)",
-    color: "var(--mantine-color-text)",
+    background: "var(--lg-color-surface-subtle)",
+    color: "var(--lg-color-text)",
   };
 
   useEffect(() => {
@@ -83,8 +83,8 @@ function AppShell() {
         style={{
           backdropFilter: "blur(12px)",
           background:
-            "color-mix(in srgb, var(--mantine-color-body) 92%, transparent)",
-          borderBottom: "1px solid var(--mantine-color-default-border)",
+            "color-mix(in srgb, var(--lg-color-canvas) 90%, transparent)",
+          borderBottom: "1px solid var(--lg-color-border)",
           zIndex: 20,
         }}
       >
@@ -93,7 +93,8 @@ function AppShell() {
             <Link
               to="/"
               style={{
-                color: "var(--mantine-color-text)",
+                color: "var(--lg-color-text)",
+                flexShrink: 0,
                 fontSize: "var(--mantine-font-size-lg)",
                 fontWeight: 700,
                 textDecoration: "none",
@@ -101,7 +102,19 @@ function AppShell() {
             >
               Leetgrind
             </Link>
-            <Group component="nav" gap={4} wrap="nowrap">
+            <Group
+              component="nav"
+              gap={4}
+              justify="flex-end"
+              wrap="nowrap"
+              style={{
+                flex: "1 1 auto",
+                minWidth: 0,
+                overflowX: "auto",
+                overscrollBehaviorX: "contain",
+                scrollbarWidth: "none",
+              }}
+            >
               <Link
                 to="/dashboard"
                 style={navLinkStyle}
@@ -201,7 +214,7 @@ function HomeRoute() {
         py={{ base: 48, md: 72 }}
         style={{ alignContent: "center", display: "grid" }}
       >
-        <Stack gap="lg" maw={820}>
+        <Stack gap="lg" maw={820} miw={0} w="100%">
           <Kicker>{t("home.eyebrow")}</Kicker>
           <PageTitle>{t("home.title")}</PageTitle>
           <PageLead>{t("home.copy")}</PageLead>

@@ -343,5 +343,24 @@
         <command>pnpm build</command>
       </verification>
     </packet>
+
+    <packet id="OP-010" status="done" template="TPL-FEATURE">
+      <name>Frontend design system foundation</name>
+      <target-modules>
+        <module>M-WEB</module>
+        <module>M-UI</module>
+        <module>DOC-DESIGN</module>
+      </target-modules>
+      <expected-output>
+        Frontend work has a documented design contract, centralized Mantine theme tokens, local font assets, and desktop/mobile browser verification.
+      </expected-output>
+      <verification>
+        <command>pnpm typecheck</command>
+        <command>pnpm test:e2e</command>
+      </verification>
+      <result>
+        Design contract, theme tokens, local typography assets, AGENTS guidance, and Playwright design quality checks were added.
+      </result>
+    </packet>
   </active-packets>
 </grace-operational-packets>

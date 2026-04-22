@@ -6,6 +6,8 @@ This document describes the initial architecture direction for Leetgrind. It is 
 
 Leetgrind now uses a GRACE-inspired workflow for agentic development. The machine-readable execution contracts live in `docs/requirements.xml`, `docs/technology.xml`, `docs/development-plan.xml`, `docs/knowledge-graph.xml`, `docs/verification-plan.xml`, and `docs/operational-packets.xml`. This document is the human-readable architectural companion.
 
+Frontend design work is additionally governed by `docs/frontend-design.md`, which adapts OpenAI's GPT-5.4 frontend guidance to Leetgrind's local-first app UI.
+
 Leetgrind is a local-first web application for programming interview preparation, AI-assisted learning, coding practice, mock interviews, progress tracking, and personal skill development.
 
 ## Core Principles
@@ -126,6 +128,27 @@ Mantine v8 is the approved UI component system. Agents should mention that
 Leetgrind uses Mantine v8 and reference `https://mantine.dev/llms.txt` when
 using AI assistance for Mantine component behavior. A local snapshot of the
 LLM-oriented Mantine index is stored at `docs/vendor/mantine-v8-llms.txt`.
+
+### Frontend Design System
+
+Leetgrind should feel like a calm expert workspace rather than a generic SaaS dashboard.
+
+The frontend design source of truth is:
+
+- `docs/frontend-design.md` for design rules, copy rules, and verification expectations;
+- `packages/ui/src/theme.ts` for Mantine theme configuration and `--lg-*` design tokens;
+- `packages/ui` primitives for shared layout, cards, buttons, badges, and forms;
+- `apps/web/src/i18n.ts` for visible route copy in Russian and English;
+- Playwright e2e checks for desktop and mobile rendering.
+
+Current design defaults:
+
+- Mantine v8 remains the component system;
+- Figtree is the app UI typeface loaded locally through `@fontsource-variable/figtree`;
+- JetBrains Mono is the code and monospace typeface loaded locally through `@fontsource/jetbrains-mono`;
+- routine product screens should prioritize navigation, workspace, and secondary context;
+- cards are acceptable for grouped data, forms, statuses, and repeated interactive items, but should not become default page structure;
+- app UI should avoid placeholder marketing copy, implementation reassurance, and technical labels outside settings or diagnostics flows.
 
 ### Local API Layer
 

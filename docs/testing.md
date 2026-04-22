@@ -11,6 +11,7 @@ Leetgrind uses testing as part of the GRACE verification gate. Tests should prot
 - `jest-dom`: DOM assertions for component tests.
 - `supertest`: Express API tests without binding a real port.
 - `Playwright`: end-to-end browser smoke tests.
+- Playwright desktop and mobile projects: viewport and app-shell design checks.
 - `@vitest/coverage-v8`: coverage reporting.
 
 ## Commands
@@ -47,6 +48,7 @@ Run `pnpm test:e2e` when changing:
 
 - routing;
 - app shell;
+- design tokens, theme, typography, or shared UI primitives;
 - onboarding;
 - dashboard;
 - coding practice UI;
@@ -147,9 +149,11 @@ e2e/*.spec.ts
 Rules:
 
 - keep e2e tests few and high-value;
+- run key UI checks against desktop and mobile Chromium projects;
 - avoid testing every edge case through the browser;
 - use deterministic seed data when persistence is involved;
 - do not require real AI provider credentials.
+- verify no horizontal overflow, unresolved localization keys, or non-actionable implementation copy on routine product routes when route layout changes.
 
 ## Module Testing Expectations
 

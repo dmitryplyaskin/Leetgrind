@@ -27,6 +27,10 @@ For AI provider work, also read:
 
 - `docs/codex-subscription-auth.md`
 
+For frontend design, app shell, route layout, or UI polish work, also read:
+
+- `docs/frontend-design.md`
+
 For a small targeted edit, reading only the relevant GRACE artifacts and the touched module may be enough, but do not skip contracts when changing package boundaries.
 
 ## GRACE Source Of Truth
@@ -79,6 +83,9 @@ Use the GRACE documents as the public project contract:
 
 12. Keep UI copy production-ready.
     Do not write meta copy, implementation labels, architectural reassurances, or placeholder text in the product interface. Avoid strings like "local API", "works offline", "AI can be configured later", "future phase", and similar internal explanations unless the user is on a diagnostics/settings screen where that information directly supports an action. Every visible string must either help the user decide, act, understand their data, or recover from a real state.
+
+13. Follow the frontend design contract.
+    Frontend work must use `docs/frontend-design.md`, Mantine v8, `packages/ui` primitives, and the `--lg-*` design tokens. When Codex has the `frontend-skill` installed, use it for visually significant UI work. Avoid default Inter/system typography, generic card mosaics, nested cards, and decorative chrome that does not improve the learner workflow.
 
 ## Current Module Map
 

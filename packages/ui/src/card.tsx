@@ -9,10 +9,11 @@ type ParagraphProps = BoxProps & React.ComponentPropsWithoutRef<"p">;
 export function Card(props: MantineCardProps) {
   return (
     <MantineCard
-      bg="var(--mantine-color-body)"
+      bg="var(--lg-color-surface)"
       padding="lg"
-      radius="sm"
-      shadow="xs"
+      radius="var(--lg-radius-panel)"
+      shadow="none"
+      bd="1px solid var(--lg-color-border)"
       withBorder
       {...props}
     />
@@ -42,7 +43,7 @@ export function CardFooter(props: DivProps) {
       gap="sm"
       mt="lg"
       pt="lg"
-      style={{ borderTop: "1px solid var(--mantine-color-default-border)" }}
+      style={{ borderTop: "1px solid var(--lg-color-border)" }}
       {...props}
     />
   );

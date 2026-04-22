@@ -116,6 +116,7 @@
     <requirement id="NFR-007" priority="should">Long-running AI workflows should be resumable or at least traceable through agent run records.</requirement>
     <requirement id="NFR-008" priority="must">Coding execution must have deterministic checks before qualitative AI evaluation.</requirement>
     <requirement id="NFR-009" priority="must">User-facing UI copy must be localization-ready for Russian and English rather than hard-coded across components.</requirement>
+    <requirement id="NFR-010" priority="must">The app UI must follow a documented design system with stable tokens, production-ready copy, clear hierarchy, mobile usability, and browser verification for critical routes.</requirement>
   </non-functional-requirements>
 
   <risks>

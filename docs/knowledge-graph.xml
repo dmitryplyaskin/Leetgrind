@@ -23,6 +23,7 @@
     <node id="DOC-VERIFY" path="docs/verification-plan.xml" kind="artifact" label="Verification Plan"/>
     <node id="DOC-OPS" path="docs/operational-packets.xml" kind="artifact" label="Operational Packets"/>
     <node id="DOC-ARCH" path="docs/architecture.md" kind="artifact" label="Human Architecture Draft"/>
+    <node id="DOC-DESIGN" path="docs/frontend-design.md" kind="artifact" label="Frontend Design Contract"/>
   </nodes>
 
   <edges>
@@ -55,6 +56,9 @@
     <edge from="DOC-PLAN" to="DOC-VERIFY" relation="requires-verification"/>
     <edge from="DOC-PLAN" to="DOC-OPS" relation="generates-execution-packets"/>
     <edge from="DOC-PLAN" to="DOC-ARCH" relation="summarized-by"/>
+    <edge from="DOC-DESIGN" to="M-WEB" relation="constrains"/>
+    <edge from="DOC-DESIGN" to="M-UI" relation="constrains"/>
+    <edge from="DOC-DESIGN" to="DOC-VERIFY" relation="requires-browser-verification"/>
   </edges>
 
   <surfaces>
@@ -75,6 +79,9 @@
     </surface>
     <surface id="SURFACE-I18N" modules="M-WEB M-UI M-SHARED" risk="medium">
       Russian and English UI localization, locale preference contracts, and localized route/component copy.
+    </surface>
+    <surface id="SURFACE-FRONTEND-DESIGN" modules="M-WEB M-UI DOC-DESIGN" risk="medium">
+      App shell, route layout, visual hierarchy, design tokens, typography, and desktop/mobile viewport behavior.
     </surface>
   </surfaces>
 </grace-knowledge-graph>

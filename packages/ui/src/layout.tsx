@@ -22,7 +22,7 @@ type ParagraphProps = BoxProps & React.ComponentPropsWithoutRef<"p">;
 
 export function AppSurface({ children, ...props }: DivProps) {
   return (
-    <MantineAppShell bg="var(--mantine-color-body)" {...props}>
+    <MantineAppShell bg="var(--lg-color-canvas)" {...props}>
       {children}
     </MantineAppShell>
   );
@@ -35,7 +35,14 @@ export function Container(props: ContainerProps) {
 }
 
 export function PageSection(props: SectionProps) {
-  return <Stack component="section" gap="xl" py="xl" {...props} />;
+  return (
+    <Stack
+      component="section"
+      gap="xl"
+      py="var(--lg-space-section)"
+      {...props}
+    />
+  );
 }
 
 export function PageHeader(props: DivProps) {
@@ -45,7 +52,7 @@ export function PageHeader(props: DivProps) {
       justify="space-between"
       gap="lg"
       pb="xl"
-      style={{ borderBottom: "1px solid var(--mantine-color-default-border)" }}
+      style={{ borderBottom: "1px solid var(--lg-color-border)" }}
       {...props}
     />
   );
@@ -57,6 +64,7 @@ export function Kicker(props: ParagraphProps) {
       c="teal.7"
       fw={700}
       size="sm"
+      lts={0}
       tt="uppercase"
       component="p"
       {...props}
@@ -64,14 +72,15 @@ export function Kicker(props: ParagraphProps) {
   );
 }
 
-export function PageTitle(props: HeadingProps) {
+export function PageTitle({ style, ...props }: HeadingProps) {
   return (
     <Title
       order={1}
       maw={900}
-      size="clamp(2.25rem, 6vw, 3.75rem)"
+      size="3rem"
       lh={1.08}
       fw={700}
+      style={{ overflowWrap: "anywhere", ...style }}
       {...props}
     />
   );

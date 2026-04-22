@@ -19,8 +19,8 @@
       <evidence>Exit code 0 and all test files passed.</evidence>
     </verification>
     <verification id="V-CMD-TEST-E2E" command="pnpm test:e2e" cwd="." required="conditional">
-      <purpose>Run Playwright browser smoke and critical flow tests.</purpose>
-      <evidence>Exit code 0 and all browser tests passed.</evidence>
+      <purpose>Run Playwright browser smoke, critical flow, and frontend design quality tests on desktop and mobile Chromium.</purpose>
+      <evidence>Exit code 0 and all browser tests passed without viewport overflow, unresolved localization keys, or routine-route implementation copy.</evidence>
     </verification>
     <verification id="V-CMD-TEST-COVERAGE" command="pnpm test:coverage" cwd="." required="manual">
       <purpose>Generate coverage report for review when module behavior stabilizes.</purpose>
@@ -45,6 +45,7 @@
         <scenario id="SC-WEB-004">Visible app UI can render in Russian and English through the localization layer.</scenario>
         <scenario id="SC-WEB-005">AI settings and provider management screens cover saved-provider state, provider test state, and localized form copy.</scenario>
         <scenario id="SC-WEB-006">Assessment, result, and lesson routes render localized learner-facing copy and actionable provider-setup fallbacks.</scenario>
+        <scenario id="SC-WEB-007">Critical routes follow the frontend design contract with stable design tokens, no horizontal overflow, and usable desktop and mobile first viewports.</scenario>
       </scenarios>
     </module>
 
@@ -159,6 +160,7 @@
         <scenario id="SC-UI-001">Shared UI components are presentation-only.</scenario>
         <scenario id="SC-UI-002">Components remain reusable and accessible.</scenario>
         <scenario id="SC-UI-003">Shared UI primitives do not hard-code product copy that should be localized by app callers.</scenario>
+        <scenario id="SC-UI-004">Theme primitives expose stable --lg-* design tokens and avoid generic frontend defaults.</scenario>
       </scenarios>
     </module>
 
