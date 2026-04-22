@@ -5,9 +5,17 @@ import {
   RouterProvider,
   createRootRoute,
   createRoute,
-  createRouter
+  createRouter,
 } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, ClipboardCheck, Clock3, LayoutDashboard, Settings2 } from "lucide-react";
+import { Tooltip } from "@mantine/core";
+import {
+  ArrowRight,
+  BookOpen,
+  ClipboardCheck,
+  Clock3,
+  LayoutDashboard,
+  Settings2,
+} from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -20,7 +28,7 @@ import {
   PageLead,
   PageTitle,
   Stack,
-  Text
+  Text,
 } from "@leetgrind/ui";
 import { AssessmentResultRoute } from "./assessment-result";
 import { AssessmentSessionRoute } from "./assessment-session";
@@ -49,21 +57,38 @@ function AppShell() {
     staleTime: 30_000,
   });
   const preferredLocale = onboarding.data?.profile.preferences.uiLocale;
-  const navLinkStyle = {
-    alignItems: "center",
-    borderRadius: "var(--mantine-radius-sm)",
-    color: "var(--lg-color-muted)",
-    display: "inline-flex",
-    gap: "var(--mantine-spacing-xs)",
-    minHeight: 40,
-    paddingInline: "var(--mantine-spacing-sm)",
-    textDecoration: "none",
-  };
-  const activeNavLinkStyle = {
-    ...navLinkStyle,
-    background: "var(--lg-color-surface-subtle)",
-    color: "var(--lg-color-text)",
-  };
+  const navigationItems = [
+    {
+      icon: LayoutDashboard,
+      label: t("app.dashboard"),
+      to: "/dashboard",
+    },
+    {
+      icon: ArrowRight,
+      label: t("app.onboarding"),
+      to: "/onboarding",
+    },
+    {
+      icon: BookOpen,
+      label: t("app.lessons"),
+      to: "/lessons",
+    },
+    {
+      icon: ClipboardCheck,
+      label: t("app.assessments"),
+      to: "/assessments/new",
+    },
+    {
+      icon: Settings2,
+      label: t("app.aiSettings"),
+      to: "/settings/ai",
+    },
+    {
+      icon: Clock3,
+      label: t("app.history"),
+      to: "/history",
+    },
+  ] as const;
 
   useEffect(() => {
     if (
@@ -76,129 +101,66 @@ function AppShell() {
 
   return (
     <AppSurface>
-      <Box
-        component="header"
-        pos="sticky"
-        top={0}
-        style={{
-          backdropFilter: "blur(12px)",
-          background:
-            "color-mix(in srgb, var(--lg-color-canvas) 90%, transparent)",
-          borderBottom: "1px solid var(--lg-color-border)",
-          zIndex: 20,
-        }}
-      >
-        <Container py="sm">
-          <Group align="center" justify="space-between" wrap="nowrap">
+      <Box className="app-shell-frame">
+        <Box component="aside" className="app-sidebar">
+          <Tooltip label="Leetgrind" position="right" openDelay={350}>
             <Link
               to="/"
-              style={{
-                color: "var(--lg-color-text)",
-                flexShrink: 0,
-                fontSize: "var(--mantine-font-size-lg)",
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
+              aria-label="Leetgrind"
+              className="app-sidebar__brand"
+              title="Leetgrind"
             >
-              Leetgrind
+              <Box component="span" className="app-sidebar__brand-mark">
+                Lg
+              </Box>
+              <Text component="span" className="app-sidebar__wordmark">
+                Leetgrind
+              </Text>
             </Link>
-            <Group
-              component="nav"
-              gap={4}
-              justify="flex-end"
-              wrap="nowrap"
-              style={{
-                flex: "1 1 auto",
-                minWidth: 0,
-                overflowX: "auto",
-                overscrollBehaviorX: "contain",
-                scrollbarWidth: "none",
+          </Tooltip>
+          <Stack component="nav" gap={6} className="app-sidebar__nav">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <Tooltip
+                  key={item.to}
+                  label={item.label}
+                  position="right"
+                  openDelay={350}
+                >
+                  <Link
+                    to={item.to}
+                    aria-label={item.label}
+                    className="app-sidebar__link"
+                    activeProps={{
+                      className: "app-sidebar__link app-sidebar__link--active",
+                    }}
+                    title={item.label}
+                  >
+                    <Icon size={20} strokeWidth={2} aria-hidden="true" />
+                    <Text component="span" className="app-sidebar__link-label">
+                      {item.label}
+                    </Text>
+                  </Link>
+                </Tooltip>
+              );
+            })}
+          </Stack>
+          <Box className="app-sidebar__footer">
+            <ThemeToggle
+              labels={{
+                dark: t("app.theme.dark"),
+                light: t("app.theme.light"),
+                toggle: t("app.theme.toggle"),
               }}
-            >
-              <Link
-                to="/dashboard"
-                style={navLinkStyle}
-                activeProps={{ style: activeNavLinkStyle }}
-              >
-                <Text component="span" visibleFrom="sm" size="sm">
-                  {t("app.dashboard")}
-                </Text>
-                <Box hiddenFrom="sm">
-                  <LayoutDashboard size={18} />
-                </Box>
-              </Link>
-              <Link
-                to="/onboarding"
-                style={navLinkStyle}
-                activeProps={{ style: activeNavLinkStyle }}
-              >
-                <Text component="span" visibleFrom="sm" size="sm">
-                  {t("app.onboarding")}
-                </Text>
-                <Box hiddenFrom="sm">
-                  <ArrowRight size={18} />
-                </Box>
-              </Link>
-              <Link
-                to="/lessons"
-                style={navLinkStyle}
-                activeProps={{ style: activeNavLinkStyle }}
-              >
-                <Text component="span" visibleFrom="sm" size="sm">
-                  {t("app.lessons")}
-                </Text>
-                <Box hiddenFrom="sm">
-                  <BookOpen size={18} />
-                </Box>
-              </Link>
-              <Link
-                to="/assessments/new"
-                style={navLinkStyle}
-                activeProps={{ style: activeNavLinkStyle }}
-              >
-                <Text component="span" visibleFrom="sm" size="sm">
-                  {t("app.assessments")}
-                </Text>
-                <Box hiddenFrom="sm">
-                  <ClipboardCheck size={18} />
-                </Box>
-              </Link>
-              <Link
-                to="/settings/ai"
-                style={navLinkStyle}
-                activeProps={{ style: activeNavLinkStyle }}
-              >
-                <Text component="span" visibleFrom="sm" size="sm">
-                  {t("app.aiSettings")}
-                </Text>
-                <Box hiddenFrom="sm">
-                  <Settings2 size={18} />
-                </Box>
-              </Link>
-              <Link
-                to="/history"
-                style={navLinkStyle}
-                activeProps={{ style: activeNavLinkStyle }}
-              >
-                <Text component="span" visibleFrom="sm" size="sm">
-                  {t("app.history")}
-                </Text>
-                <Box hiddenFrom="sm">
-                  <Clock3 size={18} />
-                </Box>
-              </Link>
-              <ThemeToggle
-                labels={{
-                  dark: t("app.theme.dark"),
-                  light: t("app.theme.light"),
-                  toggle: t("app.theme.toggle"),
-                }}
-              />
-            </Group>
-          </Group>
-        </Container>
+            />
+          </Box>
+        </Box>
+        <Box component="main" className="app-main">
+          <Outlet />
+        </Box>
       </Box>
-      <Outlet />
     </AppSurface>
   );
 }
@@ -210,7 +172,7 @@ function HomeRoute() {
     <Container>
       <Box
         component="section"
-        mih="calc(100vh - 65px)"
+        mih="100vh"
         py={{ base: 48, md: 72 }}
         style={{ alignContent: "center", display: "grid" }}
       >
