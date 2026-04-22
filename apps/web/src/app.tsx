@@ -5,9 +5,9 @@ import {
   RouterProvider,
   createRootRoute,
   createRoute,
-  createRouter,
+  createRouter
 } from "@tanstack/react-router";
-import { ArrowRight, Clock3, LayoutDashboard, Settings2 } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardCheck, Clock3, LayoutDashboard, Settings2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -20,7 +20,7 @@ import {
   PageLead,
   PageTitle,
   Stack,
-  Text,
+  Text
 } from "@leetgrind/ui";
 import { AssessmentResultRoute } from "./assessment-result";
 import { AssessmentSessionRoute } from "./assessment-session";
@@ -124,6 +124,30 @@ function AppShell() {
                 </Text>
                 <Box hiddenFrom="sm">
                   <ArrowRight size={18} />
+                </Box>
+              </Link>
+              <Link
+                to="/lessons"
+                style={navLinkStyle}
+                activeProps={{ style: activeNavLinkStyle }}
+              >
+                <Text component="span" visibleFrom="sm" size="sm">
+                  {t("app.lessons")}
+                </Text>
+                <Box hiddenFrom="sm">
+                  <BookOpen size={18} />
+                </Box>
+              </Link>
+              <Link
+                to="/assessments/new"
+                style={navLinkStyle}
+                activeProps={{ style: activeNavLinkStyle }}
+              >
+                <Text component="span" visibleFrom="sm" size="sm">
+                  {t("app.assessments")}
+                </Text>
+                <Box hiddenFrom="sm">
+                  <ClipboardCheck size={18} />
                 </Box>
               </Link>
               <Link

@@ -3,8 +3,10 @@ import CytoscapeComponent from "react-cytoscapejs";
 import type { Core, EventObject } from "cytoscape";
 import {
   AlertTriangle,
+  BookOpen,
   CalendarClock,
   CheckCircle2,
+  ClipboardCheck,
   Clock3,
   GitBranch,
   LineChart,
@@ -282,6 +284,11 @@ export function DashboardRoute() {
       await utils.dashboard.getSummary.invalidate();
     },
   });
+  const refreshRecommendations = trpc.recommendations.refresh.useMutation({
+    onSuccess: async () => {
+      await utils.dashboard.getSummary.invalidate();
+    },
+  });
   const summary = trpc.dashboard.getSummary.useQuery(undefined, {
     staleTime: 30_000,
   });
@@ -303,9 +310,23 @@ export function DashboardRoute() {
             <PageTitle>{t("dashboard.title")}</PageTitle>
             <PageLead>{t("dashboard.subtitle")}</PageLead>
           </Stack>
-          <Button color="gray" component={Link} to="/onboarding" variant="default">
-            {t("dashboard.updatePlan")}
-          </Button>
+          <Group gap="xs">
+            <Button component={Link} leftSection={<BookOpen size={16} />} to="/lessons">
+              {t("lessons.create.submit")}
+            </Button>
+            <Button
+              color="gray"
+              component={Link}
+              leftSection={<ClipboardCheck size={16} />}
+              to="/assessments/new"
+              variant="default"
+            >
+              {t("assessments.new.start")}
+            </Button>
+            <Button color="gray" component={Link} to="/onboarding" variant="default">
+              {t("dashboard.updatePlan")}
+            </Button>
+          </Group>
         </PageHeader>
 
         {summary.isLoading ? (
@@ -317,6 +338,17 @@ export function DashboardRoute() {
         {summary.error ? (
           <Alert color="red" radius="sm" variant="light">
             {t("common.loadError")}
+          </Alert>
+        ) : null}
+
+        {refreshRecommendations.error ? (
+          <Alert color="red" radius="sm" variant="light">
+            <Stack gap="xs">
+              <Text>{t("recommendations.refreshError")}</Text>
+              <Button component={Link} to="/settings/ai" size="xs" variant="default">
+                {t("assessments.providerCta")}
+              </Button>
+            </Stack>
           </Alert>
         ) : null}
 
@@ -424,6 +456,22 @@ export function DashboardRoute() {
                   <CardTitle>{t("dashboard.nextActions")}</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <Group justify="flex-end">
+                    <Button
+                      color="gray"
+                      loading={refreshRecommendations.isPending}
+                      onClick={() =>
+                        refreshRecommendations.mutate({
+                          goalId: data.activeGoal?.id,
+                          limit: 4,
+                        })
+                      }
+                      size="xs"
+                      variant="default"
+                    >
+                      {t("recommendations.refresh")}
+                    </Button>
+                  </Group>
                   {data.nextActions.length > 0 ? (
                     data.nextActions.map((action) => {
                       const skill = data.skills.find((item) => item.skill.id === action.skillId);
@@ -507,7 +555,23 @@ export function DashboardRoute() {
                       );
                     })
                   ) : (
-                    <Text c="dimmed">{t("dashboard.noActions")}</Text>
+                    <Stack gap="sm">
+                      <Text c="dimmed">{t("dashboard.noActions")}</Text>
+                      <Group gap="xs">
+                        <Button component={Link} size="xs" to="/lessons">
+                          {t("lessons.create.submit")}
+                        </Button>
+                        <Button
+                          color="gray"
+                          component={Link}
+                          size="xs"
+                          to="/assessments/new"
+                          variant="default"
+                        >
+                          {t("assessments.new.start")}
+                        </Button>
+                      </Group>
+                    </Stack>
                   )}
                 </CardContent>
               </Card>

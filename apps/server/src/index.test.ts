@@ -74,6 +74,7 @@ class FakeOpenRouterProvider implements AiProvider {
           {
             kind: "multiple-choice",
             prompt: "Which hook is used for local component state?",
+            explanation: null,
             choices: [
               { id: "a", label: "useMemo" },
               { id: "b", label: "useState" },
@@ -85,16 +86,20 @@ class FakeOpenRouterProvider implements AiProvider {
           {
             kind: "short-answer",
             prompt: "What does the dependency array control in useEffect?",
-            expectedConcepts: ["effect reruns", "dependency tracking"]
+            explanation: null,
+            expectedConcepts: ["effect reruns", "dependency tracking"],
+            placeholder: null
           },
           {
             kind: "explanation",
             prompt: "Explain reconciliation in React.",
+            explanation: null,
             rubric: ["tree comparison", "minimal DOM work"]
           },
           {
             kind: "scenario-analysis",
             prompt: "How would you reduce re-rendering in a dashboard?",
+            explanation: null,
             scenario: "Typing in one widget causes the whole dashboard to update.",
             rubric: ["state isolation", "measured optimization"]
           }
@@ -140,12 +145,14 @@ class FakeOpenRouterProvider implements AiProvider {
           {
             summary: "Correctly identified local state management in React.",
             polarity: "strength",
-            confidence: 0.82
+            confidence: 0.82,
+            skillId: null
           },
           {
             summary: "Needs clearer explanation of effect dependencies and render isolation.",
             polarity: "gap",
-            confidence: 0.76
+            confidence: 0.76,
+            skillId: null
           }
         ]
       });
@@ -157,6 +164,8 @@ class FakeOpenRouterProvider implements AiProvider {
           {
             title: "Effect dependencies without guesswork",
             summary: "A short lesson on how to reason about effect dependencies.",
+            skillId: null,
+            difficulty: null,
             payload: {
               body: "Start from what the effect reads and then derive the dependency list from those reads.",
               takeaways: ["Model reads before writing dependencies", "Avoid cargo-cult fixes"],
@@ -176,6 +185,8 @@ class FakeOpenRouterProvider implements AiProvider {
             kind: "lesson",
             title: "Review effect dependency reasoning",
             rationale: "Recent evidence shows explanation gaps around effect dependencies.",
+            skillId: null,
+            goalId: null,
             evidenceIds: [],
             payload: {}
           }

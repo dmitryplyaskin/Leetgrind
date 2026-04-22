@@ -72,7 +72,12 @@ test("renders onboarding and dashboard routes", async ({ page }) => {
 
   await expect(
     page.getByRole("heading", {
-      name: /Follow-up lessons|Уроки по итогам/i,
+      name: /^Lessons$|^Уроки$/i,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: /Create a lesson|Создать урок/i,
     }),
   ).toBeVisible();
 
@@ -80,7 +85,7 @@ test("renders onboarding and dashboard routes", async ({ page }) => {
 
   await expect(
     page.getByRole("heading", {
-      name: /Follow-up lessons|Уроки по итогам/i,
+      name: /^Lessons$|^Уроки$/i,
     }),
   ).toBeVisible();
 

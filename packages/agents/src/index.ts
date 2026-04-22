@@ -51,7 +51,7 @@ const assessmentQuestionSeedSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("multiple-choice"),
     prompt: z.string().trim().min(1),
-    explanation: z.string().trim().nullable().optional(),
+    explanation: z.string().trim().nullable(),
     choices: z
       .array(
         z.object({
@@ -62,25 +62,25 @@ const assessmentQuestionSeedSchema = z.discriminatedUnion("kind", [
       .min(2)
       .max(6),
     correctChoiceIds: z.array(z.string().trim().min(1)).min(1).max(4),
-    rationale: z.string().trim().nullable().optional()
+    rationale: z.string().trim().nullable()
   }),
   z.object({
     kind: z.literal("short-answer"),
     prompt: z.string().trim().min(1),
-    explanation: z.string().trim().nullable().optional(),
+    explanation: z.string().trim().nullable(),
     expectedConcepts: z.array(z.string().trim().min(1)).min(1).max(6),
-    placeholder: z.string().trim().nullable().optional()
+    placeholder: z.string().trim().nullable()
   }),
   z.object({
     kind: z.literal("explanation"),
     prompt: z.string().trim().min(1),
-    explanation: z.string().trim().nullable().optional(),
+    explanation: z.string().trim().nullable(),
     rubric: z.array(z.string().trim().min(1)).min(2).max(8)
   }),
   z.object({
     kind: z.literal("scenario-analysis"),
     prompt: z.string().trim().min(1),
-    explanation: z.string().trim().nullable().optional(),
+    explanation: z.string().trim().nullable(),
     scenario: z.string().trim().min(1),
     rubric: z.array(z.string().trim().min(1)).min(2).max(8)
   })
@@ -103,14 +103,14 @@ const assessmentEvaluationSchema = z.object({
 const lessonSeedSchema = z.object({
   title: z.string().trim().min(1),
   summary: z.string().trim().min(1),
-  skillId: z.string().trim().uuid().nullable().optional(),
-  difficulty: z.string().trim().nullable().optional(),
+  skillId: z.string().trim().uuid().nullable(),
+  difficulty: z.string().trim().nullable(),
   payload: z.object({
     body: z.string().trim().min(1),
     takeaways: z.array(z.string().trim().min(1)).min(1).max(8),
-    practicePrompt: z.string().trim().nullable().optional(),
-    evidenceIds: z.array(z.string().trim().uuid()).max(12).default([]),
-    contextItemIds: z.array(z.string().trim().uuid()).max(12).default([])
+    practicePrompt: z.string().trim().nullable(),
+    evidenceIds: z.array(z.string().trim().uuid()).max(12),
+    contextItemIds: z.array(z.string().trim().uuid()).max(12)
   })
 });
 
@@ -122,10 +122,10 @@ const recommendationSeedSchema = z.object({
   kind: z.enum(["lesson", "practice", "review", "assessment", "interview", "adjacent-topic"]),
   title: z.string().trim().min(1),
   rationale: z.string().trim().min(1),
-  skillId: z.string().trim().uuid().nullable().optional(),
-  goalId: z.string().trim().uuid().nullable().optional(),
-  evidenceIds: z.array(z.string().trim().uuid()).max(12).default([]),
-  payload: z.record(z.string(), z.unknown()).default({})
+  skillId: z.string().trim().uuid().nullable(),
+  goalId: z.string().trim().uuid().nullable(),
+  evidenceIds: z.array(z.string().trim().uuid()).max(12),
+  payload: z.record(z.string(), z.unknown())
 });
 
 const recommenderSchema = z.object({
@@ -373,7 +373,7 @@ export class LessonPlannerWorkflow
         `Evidence ids: ${input.evidenceIds.join(", ") || "none"}`,
         "Retrieved context:",
         buildContextBlock(input.contextItems),
-        "Create 1-3 lessons with concrete takeaways and a practice prompt when useful."
+        "Create 1-3 lessons with concrete takeaways. Use null for skillId, difficulty, or practicePrompt when there is no useful value."
       ].join("\n\n"),
       schema: lessonPlanSchema
     });
@@ -440,7 +440,7 @@ export class RecommenderWorkflow
         `Evidence ids: ${input.evidenceIds.join(", ") || "none"}`,
         "Retrieved context:",
         buildContextBlock(input.contextItems),
-        "Return no more than four recommendations and keep rationale specific."
+        "Return no more than four recommendations and keep rationale specific. Use null for goalId or skillId when not scoped."
       ].join("\n\n"),
       schema: recommenderSchema
     });

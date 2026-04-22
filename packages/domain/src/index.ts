@@ -246,7 +246,7 @@ export interface QuestionEvaluation {
 export interface LessonPayload {
   body: string;
   takeaways: string[];
-  practicePrompt?: string | null;
+  practicePrompt: string | null;
   evidenceIds: string[];
   contextItemIds: string[];
 }

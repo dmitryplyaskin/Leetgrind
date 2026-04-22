@@ -409,7 +409,7 @@ export const assessmentEvidenceSeedSchema = z.object({
   summary: nonEmptyStringSchema,
   polarity: z.enum(["strength", "weakness", "gap", "progress", "neutral"]),
   confidence: z.number().min(0).max(1),
-  skillId: uuidSchema.nullable().optional()
+  skillId: uuidSchema.nullable()
 });
 
 export type AssessmentEvidenceSeed = z.infer<typeof assessmentEvidenceSeedSchema>;
@@ -448,7 +448,7 @@ export type AssessmentAnswerRecord = z.infer<typeof assessmentAnswerRecordSchema
 export const lessonPayloadSchema = z.object({
   body: nonEmptyStringSchema,
   takeaways: z.array(nonEmptyStringSchema).min(1).max(8),
-  practicePrompt: z.string().trim().nullable().optional(),
+  practicePrompt: z.string().trim().nullable(),
   evidenceIds: z.array(uuidSchema).max(12).default([]),
   contextItemIds: z.array(uuidSchema).max(12).default([])
 });

@@ -62,25 +62,31 @@ class FakeProvider implements AiProvider {
           {
             kind: "multiple-choice",
             prompt: "Question 1",
+            explanation: null,
             choices: [
               { id: "a", label: "A" },
               { id: "b", label: "B" }
             ],
-            correctChoiceIds: ["b"]
+            correctChoiceIds: ["b"],
+            rationale: null
           },
           {
             kind: "short-answer",
             prompt: "Question 2",
-            expectedConcepts: ["one"]
+            explanation: null,
+            expectedConcepts: ["one"],
+            placeholder: null
           },
           {
             kind: "explanation",
             prompt: "Question 3",
+            explanation: null,
             rubric: ["one", "two"]
           },
           {
             kind: "scenario-analysis",
             prompt: "Question 4",
+            explanation: null,
             scenario: "Scenario",
             rubric: ["one", "two"]
           }
@@ -98,7 +104,8 @@ class FakeProvider implements AiProvider {
           {
             summary: "Shows progress",
             polarity: "progress",
-            confidence: 0.7
+            confidence: 0.7,
+            skillId: null
           }
         ]
       });
@@ -110,6 +117,8 @@ class FakeProvider implements AiProvider {
           {
             title: "Lesson",
             summary: "Lesson summary",
+            skillId: null,
+            difficulty: null,
             payload: {
               body: "Lesson body",
               takeaways: ["One"],
@@ -129,6 +138,8 @@ class FakeProvider implements AiProvider {
             kind: "lesson",
             title: "Recommendation",
             rationale: "Specific rationale",
+            skillId: null,
+            goalId: null,
             evidenceIds: [],
             payload: {}
           }

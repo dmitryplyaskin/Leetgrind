@@ -18,9 +18,11 @@ export const resources = {
     translation: {
       app: {
         aiSettings: "AI settings",
+        assessments: "Assessments",
         dashboard: "Dashboard",
-        onboarding: "Onboarding",
         history: "History",
+        lessons: "Lessons",
+        onboarding: "Setup",
         theme: {
           toggle: "Theme",
           light: "Light theme",
@@ -284,12 +286,28 @@ export const resources = {
       },
       lessons: {
         kicker: "Lessons",
-        title: "Follow-up lessons",
-        subtitle: "Generated lessons tied to current evidence and recent assessments.",
+        title: "Lessons",
+        subtitle: "Create focused lessons from a skill, goal, or custom topic.",
         library: "Lesson library",
         empty: "No lessons are available yet.",
+        emptyHint: "Generate a lesson above, or finish an assessment to create follow-up material.",
+        providerCta: "Open AI settings",
         back: "Back to lessons",
         openForSkill: "Open lessons",
+        fields: {
+          goal: "Goal",
+          skill: "Skill",
+          focus: "Topic"
+        },
+        placeholders: {
+          goal: "Choose a goal",
+          skill: "Choose a skill",
+          focus: "Describe what you want to learn or clarify."
+        },
+        create: {
+          title: "Create a lesson",
+          submit: "Create lesson"
+        },
         detail: {
           title: "Lesson detail",
           content: "Lesson content",
@@ -301,7 +319,9 @@ export const resources = {
         title: "Recommendations",
         empty: "No explainable recommendations are available yet.",
         accept: "Accept",
-        dismiss: "Dismiss"
+        dismiss: "Dismiss",
+        refresh: "Refresh recommendations",
+        refreshError: "Could not refresh recommendations. Check the active AI provider and try again."
       },
       onboarding: {
         title: "Set up your interview plan",
@@ -401,9 +421,11 @@ export const resources = {
     translation: {
       app: {
         aiSettings: "AI настройки",
+        assessments: "Проверки",
         dashboard: "Дашборд",
-        onboarding: "Онбординг",
         history: "История",
+        lessons: "Уроки",
+        onboarding: "Настройка",
         theme: {
           toggle: "Тема",
           light: "Светлая тема",
@@ -667,12 +689,28 @@ export const resources = {
       },
       lessons: {
         kicker: "Уроки",
-        title: "Уроки по итогам",
-        subtitle: "Сгенерированные уроки, привязанные к текущим сигналам и последним assessment-сессиям.",
+        title: "Уроки",
+        subtitle: "Создавай точечные уроки по навыку, цели или свободной теме.",
         library: "Библиотека уроков",
         empty: "Уроки пока не доступны.",
+        emptyHint: "Сгенерируй урок выше или заверши проверку знаний, чтобы получить материалы по итогам.",
+        providerCta: "Открыть AI настройки",
         back: "Назад к урокам",
         openForSkill: "Открыть уроки",
+        fields: {
+          goal: "Цель",
+          skill: "Навык",
+          focus: "Тема"
+        },
+        placeholders: {
+          goal: "Выбери цель",
+          skill: "Выбери навык",
+          focus: "Опиши, что хочешь изучить или прояснить."
+        },
+        create: {
+          title: "Создать урок",
+          submit: "Создать урок"
+        },
         detail: {
           title: "Детали урока",
           content: "Содержимое урока",
@@ -684,7 +722,9 @@ export const resources = {
         title: "Рекомендации",
         empty: "Объяснимые рекомендации пока не доступны.",
         accept: "Принять",
-        dismiss: "Скрыть"
+        dismiss: "Скрыть",
+        refresh: "Обновить рекомендации",
+        refreshError: "Не удалось обновить рекомендации. Проверь активного AI-провайдера и повтори попытку."
       },
       onboarding: {
         title: "Настрой план подготовки",

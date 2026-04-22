@@ -40,11 +40,33 @@ vi.mock("@tanstack/react-router", () => ({
       {children}
     </a>
   ),
+  useNavigate: () => vi.fn(),
   useParams: () => ({ lessonId: "lesson-1" })
 }));
 
 vi.mock("./trpc", () => ({
   trpc: {
+    useUtils: () => ({
+      lessons: {
+        list: {
+          invalidate: vi.fn()
+        }
+      }
+    }),
+    goals: {
+      list: {
+        useQuery: () => ({
+          data: []
+        })
+      }
+    },
+    skills: {
+      list: {
+        useQuery: () => ({
+          data: []
+        })
+      }
+    },
     lessons: {
       list: {
         useQuery: () => ({
@@ -56,6 +78,13 @@ vi.mock("./trpc", () => ({
         useQuery: () => ({
           data: lessonDetailData,
           error: null
+        })
+      },
+      generate: {
+        useMutation: () => ({
+          error: null,
+          isPending: false,
+          mutate: vi.fn()
         })
       }
     }
@@ -78,7 +107,8 @@ describe("lesson routes", () => {
   it("renders the lessons library", () => {
     renderUi(<LessonsRoute />);
 
-    expect(screen.getByRole("heading", { name: /Follow-up lessons/i })).toBeVisible();
+    expect(screen.getByRole("heading", { name: /^Lessons$/i })).toBeVisible();
+    expect(screen.getByRole("heading", { name: /Create a lesson/i })).toBeVisible();
     expect(screen.getByText(/Effect dependencies/i)).toBeVisible();
   });
 
