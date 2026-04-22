@@ -30,6 +30,12 @@ export interface GoalSkillLinkInput {
 
 export function createGoalsRepository(db: LeetgrindDatabase) {
   const repository = {
+    async getById(id: string): Promise<Goal | null> {
+      const [goal] = await db.select().from(goals).where(eq(goals.id, id)).limit(1);
+
+      return (goal as Goal | undefined) ?? null;
+    },
+
     async list(profileId = LOCAL_USER_PROFILE_ID): Promise<Goal[]> {
       const rows = await db
         .select()

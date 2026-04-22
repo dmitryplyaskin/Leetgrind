@@ -38,6 +38,22 @@ test("renders onboarding and dashboard routes", async ({ page }) => {
     page.getByRole("heading", { name: /History|История/i }),
   ).toBeVisible();
 
+  await page.goto("/settings/ai");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /Provider status, content RAG, and preview runs|Статус провайдера, content RAG и preview-запуски/i,
+    }),
+  ).toBeVisible();
+
+  await page.goto("/settings/ai/providers");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /Configure OpenRouter and secure secrets|Настрой OpenRouter и secure storage секретов/i,
+    }),
+  ).toBeVisible();
+
   await page.goto("/skills/00000000-0000-0000-0000-000000000001");
 
   await expect(

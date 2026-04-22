@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-verification-plan project="leetgrind" version="0.1" updated="2026-04-21">
+<grace-verification-plan project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Verification Plan</title>
     <principle>Verification is planned, named, and reused instead of improvised per task.</principle>
@@ -43,6 +43,7 @@
         <scenario id="SC-WEB-002">Routes remain type-safe after navigation changes.</scenario>
         <scenario id="SC-WEB-003">UI state does not store persistent domain data.</scenario>
         <scenario id="SC-WEB-004">Visible app UI can render in Russian and English through the localization layer.</scenario>
+        <scenario id="SC-WEB-005">AI settings and provider management screens cover saved-provider state, provider test state, and localized form copy.</scenario>
       </scenarios>
     </module>
 
@@ -55,6 +56,7 @@
         <scenario id="SC-SERVER-001">GET /health returns ok.</scenario>
         <scenario id="SC-SERVER-002">tRPC procedures validate inputs through Zod or typed schemas.</scenario>
         <scenario id="SC-SERVER-003">Server routes coordinate use cases instead of embedding all business rules.</scenario>
+        <scenario id="SC-SERVER-004">AI provider save/test, document ingest/search, preview run, and recent agent run procedures are covered with fake provider or keychain adapters.</scenario>
       </scenarios>
     </module>
 
@@ -78,6 +80,7 @@
         <scenario id="SC-DB-001">Schema changes preserve evidence-based progress tracking.</scenario>
         <scenario id="SC-DB-002">Vector fields and dimensions are intentional and documented.</scenario>
         <scenario id="SC-DB-003">Repository APIs do not leak raw persistence details unnecessarily.</scenario>
+        <scenario id="SC-DB-004">Provider settings persist only non-secret metadata while agent runs and document chunks remain queryable with source references.</scenario>
       </scenarios>
     </module>
 
@@ -90,6 +93,7 @@
         <scenario id="SC-AI-001">Provider-specific details stay behind AiProvider or documented adapter contracts.</scenario>
         <scenario id="SC-AI-002">Structured outputs are validated before being trusted by product workflows.</scenario>
         <scenario id="SC-AI-003">Codex subscription auth is not treated as a universal API replacement.</scenario>
+        <scenario id="SC-AI-004">Automated provider tests use mocked transports, normalize upstream errors, and never require real credentials.</scenario>
       </scenarios>
     </module>
 
@@ -102,6 +106,7 @@
         <scenario id="SC-AGENTS-001">Agent inputs and outputs are typed and explicit.</scenario>
         <scenario id="SC-AGENTS-002">Agent results can produce traceable evidence or recommendations.</scenario>
         <scenario id="SC-AGENTS-003">Agent workflows use retrieval context with citations when RAG is involved.</scenario>
+        <scenario id="SC-AGENTS-004">Preview workflows record provider, model, status, and referenced context ids in agent run traces.</scenario>
       </scenarios>
     </module>
 
@@ -114,6 +119,7 @@
         <scenario id="SC-RAG-001">Chunking preserves source metadata.</scenario>
         <scenario id="SC-RAG-002">Retrieval distinguishes content memory from user progress memory.</scenario>
         <scenario id="SC-RAG-003">Retrieved context can be traced back to stored sources.</scenario>
+        <scenario id="SC-RAG-004">Document ingest covers save, chunk, embed, persist, and cited retrieval for content documents.</scenario>
       </scenarios>
     </module>
 
@@ -172,5 +178,6 @@
     <rule id="EVID-006">For behavior changes, include tests at the lowest useful level and run pnpm test.</rule>
     <rule id="EVID-007">For critical route or browser workflow changes, run pnpm test:e2e when feasible.</rule>
     <rule id="EVID-008">For user-facing UI copy changes, include Russian and English localization coverage or state why it is not applicable.</rule>
+    <rule id="EVID-009">For AI provider and settings changes, include mocked provider-test coverage and confirm that secrets are stored outside PGLite.</rule>
   </evidence-policy>
 </grace-verification-plan>

@@ -17,6 +17,7 @@ export const resources = {
   en: {
     translation: {
       app: {
+        aiSettings: "AI settings",
         dashboard: "Dashboard",
         onboarding: "Onboarding",
         history: "History",
@@ -31,6 +32,89 @@ export const resources = {
         loadError: "Could not load this view.",
         loading: "Loading...",
         open: "Open",
+      },
+      aiSettings: {
+        kicker: "AI runtime",
+        title: "Provider status, content RAG, and preview runs",
+        subtitle:
+          "Configure the active provider, ingest local documents, inspect retrieval, and verify traced agent runs.",
+        manageProviders: "Manage providers",
+        providerCard: "Default provider",
+        noProvider: "No provider configured",
+        noModel: "No model selected",
+        embeddingsReady: "Embeddings ready",
+        checkConnection: "Check connection",
+        previewCard: "Mentor preview",
+        previewPrompt: "Preview prompt",
+        previewPlaceholder: "Ask for a concise mentor answer grounded in your local documents.",
+        runPreview: "Run preview",
+        ingestCard: "Document ingestion",
+        noteTitle: "Document title",
+        noteSource: "Source label",
+        noteContent: "Document content",
+        ingestDocument: "Ingest document",
+        existingDocuments: "Existing documents",
+        ingestExisting: "Ingest",
+        noDocuments: "No local documents are available yet.",
+        searchCard: "RAG search",
+        searchPrompt: "Search query",
+        searchPlaceholder: "Search local context",
+        search: "Search context",
+        searchHint: "Save and connect a provider with embeddings before searching.",
+        searchMeta: "{{sourceType}} · score {{score}}",
+        noSearchResults: "No matching chunks were retrieved.",
+        runsCard: "Recent agent runs",
+        noRuns: "No agent runs have been recorded yet.",
+        runKinds: {
+          mentor: "Mentor preview",
+          interviewer: "Interview workflow",
+          "coding-reviewer": "Coding review",
+          planner: "Planner workflow",
+          recommender: "Recommendation workflow",
+          ingestion: "Document ingestion",
+          "provider-test": "Provider test"
+        },
+        runStatus: {
+          queued: "Queued",
+          running: "Running",
+          succeeded: "Succeeded",
+          failed: "Failed",
+          canceled: "Canceled"
+        },
+        status: {
+          checking: "Checking connection",
+          connected: "Connected",
+          error: "Connection failed",
+          idle: "Status not checked yet",
+          notConfigured: "No provider configured"
+        }
+      },
+      aiProviders: {
+        kicker: "Provider setup",
+        title: "Configure OpenRouter and secure secrets",
+        subtitle:
+          "Provider metadata stays in the local database, while API secrets are stored in the OS keychain.",
+        backToSettings: "Back to AI settings",
+        openrouterCard: "OpenRouter provider",
+        displayName: "Display name",
+        textModel: "Text model",
+        embeddingModel: "Embedding model",
+        apiKey: "API key",
+        makeDefault: "Use as default provider",
+        save: "Save provider",
+        savedProviders: "Saved providers",
+        noProviders: "No providers have been saved yet.",
+        default: "Default",
+        setDefault: "Set default",
+        test: "Test",
+        remove: "Remove",
+        plannedKinds: "Recognized provider kinds",
+        plannedCopy: "This provider kind is recognized in the product contract but not implemented in phase 04.",
+        kindNames: {
+          "openai-codex": "Codex subscription auth",
+          "openai-api-key": "OpenAI API key",
+          local: "Local provider"
+        }
       },
       home: {
         eyebrow: "Interview preparation workspace",
@@ -251,6 +335,7 @@ export const resources = {
   ru: {
     translation: {
       app: {
+        aiSettings: "AI настройки",
         dashboard: "Дашборд",
         onboarding: "Онбординг",
         history: "История",
@@ -265,6 +350,89 @@ export const resources = {
         loadError: "Не удалось загрузить этот экран.",
         loading: "Загрузка...",
         open: "Открыть",
+      },
+      aiSettings: {
+        kicker: "AI runtime",
+        title: "Статус провайдера, content RAG и preview-запуски",
+        subtitle:
+          "Настраивай активного провайдера, индексируй локальные документы, проверяй retrieval и смотри trace последних agent runs.",
+        manageProviders: "Управлять провайдерами",
+        providerCard: "Провайдер по умолчанию",
+        noProvider: "Провайдер не настроен",
+        noModel: "Модель не выбрана",
+        embeddingsReady: "Эмбеддинги готовы",
+        checkConnection: "Проверить подключение",
+        previewCard: "Mentor preview",
+        previewPrompt: "Промпт для preview",
+        previewPlaceholder: "Попроси короткий ответ ментора с опорой на локальные документы.",
+        runPreview: "Запустить preview",
+        ingestCard: "Индексация документов",
+        noteTitle: "Название документа",
+        noteSource: "Метка источника",
+        noteContent: "Содержимое документа",
+        ingestDocument: "Проиндексировать документ",
+        existingDocuments: "Существующие документы",
+        ingestExisting: "Индексировать",
+        noDocuments: "Локальные документы пока не добавлены.",
+        searchCard: "RAG поиск",
+        searchPrompt: "Поисковый запрос",
+        searchPlaceholder: "Поиск по локальному контексту",
+        search: "Искать контекст",
+        searchHint: "Сначала сохрани и подключи провайдера с поддержкой эмбеддингов.",
+        searchMeta: "{{sourceType}} · score {{score}}",
+        noSearchResults: "Подходящие чанки не найдены.",
+        runsCard: "Последние agent runs",
+        noRuns: "Запуски агентов пока не записаны.",
+        runKinds: {
+          mentor: "Mentor preview",
+          interviewer: "Интервью workflow",
+          "coding-reviewer": "Code review",
+          planner: "Planner workflow",
+          recommender: "Recommendation workflow",
+          ingestion: "Индексация документа",
+          "provider-test": "Проверка провайдера"
+        },
+        runStatus: {
+          queued: "В очереди",
+          running: "В работе",
+          succeeded: "Успешно",
+          failed: "Ошибка",
+          canceled: "Отменено"
+        },
+        status: {
+          checking: "Проверяем подключение",
+          connected: "Подключен",
+          error: "Подключение не прошло",
+          idle: "Статус еще не проверялся",
+          notConfigured: "Провайдер не настроен"
+        }
+      },
+      aiProviders: {
+        kicker: "Настройка провайдера",
+        title: "Настрой OpenRouter и secure storage секретов",
+        subtitle:
+          "Метаданные провайдера живут в локальной БД, а API secrets хранятся в системном keychain.",
+        backToSettings: "Назад к AI настройкам",
+        openrouterCard: "Провайдер OpenRouter",
+        displayName: "Название",
+        textModel: "Текстовая модель",
+        embeddingModel: "Модель эмбеддингов",
+        apiKey: "API ключ",
+        makeDefault: "Сделать провайдером по умолчанию",
+        save: "Сохранить провайдера",
+        savedProviders: "Сохраненные провайдеры",
+        noProviders: "Провайдеры пока не сохранены.",
+        default: "По умолчанию",
+        setDefault: "Сделать основным",
+        test: "Проверить",
+        remove: "Удалить",
+        plannedKinds: "Распознанные виды провайдеров",
+        plannedCopy: "Этот вид провайдера уже учтен в контракте продукта, но не реализован в phase 04.",
+        kindNames: {
+          "openai-codex": "Codex subscription auth",
+          "openai-api-key": "OpenAI API key",
+          local: "Локальный провайдер"
+        }
       },
       home: {
         eyebrow: "Рабочее место подготовки",

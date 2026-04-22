@@ -47,7 +47,8 @@ export type AgentRunKind =
   | "coding-reviewer"
   | "planner"
   | "recommender"
-  | "ingestion";
+  | "ingestion"
+  | "provider-test";
 export type AgentRunStatus = "queued" | "running" | "succeeded" | "failed" | "canceled";
 export type AiProviderKind = "openai-codex" | "openai-api-key" | "openrouter" | "local";
 export type UserInterfaceLocale = "ru" | "en";

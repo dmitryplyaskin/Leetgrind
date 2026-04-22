@@ -150,7 +150,15 @@ export const agentRuns = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     kind: text("kind", {
-      enum: ["mentor", "interviewer", "coding-reviewer", "planner", "recommender", "ingestion"]
+      enum: [
+        "mentor",
+        "interviewer",
+        "coding-reviewer",
+        "planner",
+        "recommender",
+        "ingestion",
+        "provider-test"
+      ]
     }).notNull(),
     status: text("status", {
       enum: ["queued", "running", "succeeded", "failed", "canceled"]

@@ -46,6 +46,7 @@
       <library name="PGLite" role="local PostgreSQL-compatible database"/>
       <library name="Drizzle ORM" role="schema and typed queries"/>
       <library name="pgvector via PGLite vector extension" role="embedding storage"/>
+      <library name="@napi-rs/keyring" role="OS keychain storage for provider secrets"/>
     </backend>
     <ai>
       <library name="AI SDK" role="provider-agnostic text and structured generation"/>
@@ -86,6 +87,7 @@
     <rule id="DEP-006">apps/server coordinates use cases and adapters but should avoid holding core business rules directly.</rule>
     <rule id="DEP-007">New runtime dependencies require a reason in docs/technology.xml when they become architectural choices.</rule>
     <rule id="DEP-008">Mantine v8 is the UI component source of truth; do not reintroduce Tailwind CSS utility styling without updating this contract.</rule>
+    <rule id="DEP-009">Provider secrets must be stored through an OS keychain adapter composed in apps/server; PGLite stores only non-secret provider metadata and default-selection state.</rule>
   </dependency-rules>
 
   <coding-standards>
@@ -99,6 +101,7 @@
     <standard id="CODE-008">Normal tests must not call paid or external AI providers.</standard>
     <standard id="CODE-009">New user-facing UI text should be defined through the localization layer for both ru and en locales.</standard>
     <standard id="CODE-010">User-facing UI copy must be production-ready: specific, actionable, and meaningful to the learner.</standard>
+    <standard id="CODE-011">Provider tests, RAG ingestion, and agent preview workflows should run against mocked providers or fake credential stores in automated tests.</standard>
   </coding-standards>
 
   <forbidden-patterns>

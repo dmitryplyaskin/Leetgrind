@@ -17,6 +17,8 @@
   "dependencies": {
     "@leetgrind/ai": "workspace:*",
     "@leetgrind/domain": "workspace:*",
-    "@openai/agents": "^0.8.5"
+    "@leetgrind/shared": "workspace:*",
+    "@openai/agents": "^0.8.5",
+    "zod": "^4.3.6"
   }
 }

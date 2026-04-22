@@ -6,10 +6,13 @@ import { migrate } from "drizzle-orm/pglite/migrator";
 import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createAttemptsRepository } from "./repositories/attempts-repository.js";
+import { createAgentRunsRepository } from "./repositories/agent-runs-repository.js";
 import { createDashboardRepository } from "./repositories/dashboard-repository.js";
+import { createDocumentChunksRepository } from "./repositories/document-chunks-repository.js";
 import { createDocumentsRepository } from "./repositories/documents-repository.js";
 import { createEvidenceRepository } from "./repositories/evidence-repository.js";
 import { createGoalsRepository } from "./repositories/goals-repository.js";
+import { createProviderSettingsRepository } from "./repositories/provider-settings-repository.js";
 import { createRecommendationsRepository } from "./repositories/recommendations-repository.js";
 import { createReviewSchedulesRepository } from "./repositories/review-schedules-repository.js";
 import { createSkillGraphSeedRepository } from "./repositories/skill-graph-seed-repository.js";
@@ -82,8 +85,11 @@ export function createRepositories(db: LeetgrindDatabase) {
     goals: createGoalsRepository(db),
     skills: createSkillsRepository(db),
     attempts: createAttemptsRepository(db),
+    agentRuns: createAgentRunsRepository(db),
     evidence: createEvidenceRepository(db),
     documents: createDocumentsRepository(db),
+    documentChunks: createDocumentChunksRepository(db),
+    providerSettings: createProviderSettingsRepository(db),
     recommendations: createRecommendationsRepository(db),
     reviewSchedules: createReviewSchedulesRepository(db),
     seed: createSkillGraphSeedRepository(db),

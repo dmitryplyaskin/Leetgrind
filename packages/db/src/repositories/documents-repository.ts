@@ -16,6 +16,12 @@ export interface CreateDocumentInput {
 
 export function createDocumentsRepository(db: LeetgrindDatabase) {
   const repository = {
+    async getById(id: string): Promise<Document | null> {
+      const [document] = await db.select().from(documents).where(eq(documents.id, id)).limit(1);
+
+      return (document as Document | undefined) ?? null;
+    },
+
     async list(profileId = LOCAL_USER_PROFILE_ID): Promise<Document[]> {
       const rows = await db
         .select()

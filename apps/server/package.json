@@ -17,8 +17,13 @@
     "clean": "rimraf dist .turbo"
   },
   "dependencies": {
+    "@leetgrind/agents": "workspace:*",
+    "@leetgrind/ai": "workspace:*",
     "@leetgrind/db": "workspace:*",
+    "@leetgrind/domain": "workspace:*",
+    "@leetgrind/rag": "workspace:*",
     "@leetgrind/shared": "workspace:*",
+    "@napi-rs/keyring": "^1.2.0",
     "@trpc/server": "^11.16.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

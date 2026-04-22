@@ -199,6 +199,11 @@ The rest of the app should not build raw SQL queries unless there is a clear rea
 
 AI access should be hidden behind a provider abstraction in `packages/ai`.
 
+Phase 04 uses an OpenRouter-first implementation. `openrouter` is the only live
+provider adapter in this phase, while `openai-api-key` and `openai-codex`
+remain recognized provider kinds in shared contracts and UI so later phases can
+extend the registry without reshaping product workflows.
+
 Initial provider kinds:
 
 ```ts
@@ -226,6 +231,11 @@ interface AiProvider {
 ```
 
 Provider-specific details must stay inside provider implementations.
+
+Provider secrets must not be stored in `PGLite`. The server runtime should
+compose a credential-store adapter that writes secrets to the OS keychain,
+while database tables persist only non-secret provider metadata such as kind,
+display name, default-selection state, and selected text or embedding models.
 
 Examples:
 
@@ -287,6 +297,7 @@ Each agent workflow should:
 - store traceable results;
 - cite retrieved context when RAG is used;
 - record provider/model metadata;
+- record referenced context ids and execution status in agent run traces;
 - avoid hidden global memory.
 
 ## RAG Architecture
@@ -305,10 +316,13 @@ Suggested tables:
 
 - `documents`;
 - `document_chunks`;
-- `embeddings`;
-- `retrieval_events`;
-- `sources`;
-- `agent_context_items`.
+- `provider_settings`;
+- `agent_runs`.
+
+In Phase 04, embeddings are stored on `document_chunks` and retrieved through
+content-domain search. Memory-domain retrieval remains typed in shared
+contracts, but only content retrieval is fully operational until later phases
+populate richer interview, attempt, and evaluation evidence.
 
 Retrieval should combine:
 
@@ -316,6 +330,14 @@ Retrieval should combine:
 - SQL filters by goal, skill, content type, date, difficulty, source;
 - recency and quality weighting;
 - citation tracking.
+
+The initial end-to-end content flow is:
+
+1. save or select a local document;
+2. chunk content with stable source metadata;
+3. create embeddings through the selected provider;
+4. persist chunk vectors and source references locally;
+5. retrieve ranked context items with citations for agent workflows.
 
 Do not store all AI memory as a single chat history. Store explicit domain events and evidence.
 

@@ -2,6 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { DatabaseContext } from "../pglite.js";
 import { createDatabaseContext } from "../pglite.js";
 
+function vectorWith(index: number) {
+  return Array.from({ length: 1536 }, (_, itemIndex) => (itemIndex === index ? 1 : 0));
+}
+
 describe("local repositories", () => {
   let context: DatabaseContext;
 
@@ -168,5 +172,77 @@ describe("local repositories", () => {
     expect(summary.nextActions.length).toBeGreaterThan(0);
     expect(summary.graph.nodes.length).toBeGreaterThan(0);
     expect(detail?.evidence).toHaveLength(1);
+  });
+
+  it("stores provider settings and keeps only one default provider", async () => {
+    const first = await context.repositories.providerSettings.save({
+      kind: "openrouter",
+      displayName: "OpenRouter A",
+      isDefault: true,
+      config: {
+        textModel: "openai/gpt-4o-mini",
+        embeddingModel: "openai/text-embedding-3-small"
+      }
+    });
+    const second = await context.repositories.providerSettings.save({
+      kind: "openrouter",
+      displayName: "OpenRouter B",
+      isDefault: false,
+      config: {
+        textModel: "openai/gpt-4o-mini",
+        embeddingModel: "openai/text-embedding-3-small"
+      }
+    });
+
+    await context.repositories.providerSettings.setDefault(second.id);
+
+    const listed = await context.repositories.providerSettings.list();
+    const currentDefault = await context.repositories.providerSettings.getDefault();
+
+    expect(listed).toHaveLength(2);
+    expect(currentDefault?.id).toBe(second.id);
+    expect(currentDefault?.displayName).toBe("OpenRouter B");
+    expect(first.id).not.toBe(second.id);
+  });
+
+  it("persists and searches document chunks with source metadata", async () => {
+    await context.repositories.userProfiles.ensureLocalProfile();
+    const document = await context.repositories.documents.create({
+      title: "Resume",
+      sourceType: "resume",
+      source: "manual",
+      contentType: "text/plain",
+      content: "React and TypeScript experience"
+    });
+
+    await context.repositories.documentChunks.replaceForDocument({
+      documentId: document.id,
+      chunks: [
+        {
+          ordinal: 0,
+          content: "React and TypeScript experience",
+          tokenCount: 6,
+          metadata: {
+            domain: "content",
+            ordinal: 0
+          },
+          embedding: vectorWith(0)
+        }
+      ]
+    });
+
+    const listed = await context.repositories.documentChunks.listByDocumentId(document.id);
+    const candidates = await context.repositories.documentChunks.searchCandidates({
+      sourceTypes: ["resume"]
+    });
+
+    expect(listed).toHaveLength(1);
+    expect(candidates).toEqual([
+      expect.objectContaining({
+        documentId: document.id,
+        title: "Resume",
+        sourceType: "resume"
+      })
+    ]);
   });
 });

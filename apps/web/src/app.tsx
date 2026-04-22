@@ -7,7 +7,7 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { ArrowRight, Clock3, LayoutDashboard } from "lucide-react";
+import { ArrowRight, Clock3, LayoutDashboard, Settings2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -27,6 +27,8 @@ import { GoalDetailRoute } from "./goal-detail";
 import { HistoryRoute } from "./history";
 import "./i18n";
 import { OnboardingRoute } from "./onboarding";
+import { AiProvidersRoute } from "./settings-ai-providers";
+import { AiSettingsRoute } from "./settings-ai";
 import { SkillDetailRoute } from "./skill-detail";
 import { ThemeToggle } from "./theme";
 import { createTrpcClient, trpc } from "./trpc";
@@ -116,6 +118,18 @@ function AppShell() {
                 </Text>
                 <Box hiddenFrom="sm">
                   <ArrowRight size={18} />
+                </Box>
+              </Link>
+              <Link
+                to="/settings/ai"
+                style={navLinkStyle}
+                activeProps={{ style: activeNavLinkStyle }}
+              >
+                <Text component="span" visibleFrom="sm" size="sm">
+                  {t("app.aiSettings")}
+                </Text>
+                <Box hiddenFrom="sm">
+                  <Settings2 size={18} />
                 </Box>
               </Link>
               <Link
@@ -225,6 +239,18 @@ const historyRoute = createRoute({
   component: HistoryRoute,
 });
 
+const aiSettingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/settings/ai",
+  component: AiSettingsRoute,
+});
+
+const aiProvidersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/settings/ai/providers",
+  component: AiProvidersRoute,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   onboardingRoute,
@@ -232,6 +258,8 @@ const routeTree = rootRoute.addChildren([
   goalDetailRoute,
   skillDetailRoute,
   historyRoute,
+  aiSettingsRoute,
+  aiProvidersRoute,
 ]);
 
 const router = createRouter({

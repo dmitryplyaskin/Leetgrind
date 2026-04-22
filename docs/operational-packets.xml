@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-operational-packets project="leetgrind" version="0.1" updated="2026-04-21">
+<grace-operational-packets project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Operational Packets</title>
     <purpose>Define governed execution mode for autonomous and multi-agent work.</purpose>
@@ -223,7 +223,7 @@
       </result>
     </packet>
 
-    <packet id="OP-005" status="next" template="TPL-FEATURE">
+    <packet id="OP-005" status="completed" template="TPL-FEATURE">
       <name>AI providers, agents, and RAG</name>
       <target-modules>
         <module>M-AI</module>
@@ -234,13 +234,18 @@
         <module>M-WEB</module>
       </target-modules>
       <expected-output>
-        User can configure one AI provider, run validated provider calls, ingest local documents, retrieve context, and store agent run traces.
+        User can configure providers through settings, keep secrets in the OS keychain, run validated OpenRouter calls, ingest local documents, retrieve cited content context, and store agent run traces.
       </expected-output>
       <roadmap>docs/roadmap/phase-04-ai-providers-agents-rag.md</roadmap>
       <verification>
         <command>pnpm typecheck</command>
         <command>pnpm build</command>
+        <command>pnpm test</command>
+        <command>pnpm test:e2e</command>
       </verification>
+      <result>
+        OpenRouter-first provider registry, keychain-backed credential storage, provider settings UI, provider test flow, document chunk ingestion and retrieval, typed mentor preview runs, localized settings routes, and agent run tracing were implemented.
+      </result>
     </packet>
 
     <packet id="OP-006" status="planned" template="TPL-FEATURE">
