@@ -14,29 +14,33 @@ export function LocalApiStatus({
   stateLabels = {
     online: "online",
     offline: "offline",
-    checking: "checking"
-  }
+    checking: "checking",
+  },
 }: LocalApiStatusProps) {
   const health = trpc.health.get.useQuery(undefined, {
     retry: false,
-    refetchInterval: 15_000
+    refetchInterval: 15_000,
   });
 
-  const state = health.data?.ok ? "online" : health.isError ? "offline" : "checking";
+  const state = health.data?.ok
+    ? "online"
+    : health.isError
+      ? "offline"
+      : "checking";
   const color =
     state === "online"
-      ? "bg-emerald-400"
+      ? "bg-[var(--lg-success-text)]"
       : state === "offline"
-        ? "bg-rose-400"
-        : "bg-zinc-500";
+        ? "bg-[var(--lg-danger-text)]"
+        : "bg-[var(--lg-subtle)]";
 
   return (
     <div
       aria-label={`${label} ${stateLabels[state]}`}
-      className="flex items-center gap-2 rounded border border-zinc-800 px-3 py-2 text-xs text-zinc-300"
+      className="flex h-10 items-center gap-2 rounded-md border border-[var(--lg-border)] px-3 text-xs text-[var(--lg-muted)]"
     >
       <span className={`h-2 w-2 rounded-full ${color}`} />
-      <span>{label}</span>
+      <span className="hidden lg:inline">{label}</span>
     </div>
   );
 }

@@ -2,10 +2,16 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 const savedLocale =
-  typeof window === "undefined" ? null : window.localStorage.getItem("leetgrind.uiLocale");
+  typeof window === "undefined"
+    ? null
+    : window.localStorage.getItem("leetgrind.uiLocale");
 
 const browserLocale =
-  typeof navigator === "undefined" ? "en" : navigator.language.toLocaleLowerCase().startsWith("ru") ? "ru" : "en";
+  typeof navigator === "undefined"
+    ? "en"
+    : navigator.language.toLocaleLowerCase().startsWith("ru")
+      ? "ru"
+      : "en";
 
 export const resources = {
   en: {
@@ -17,19 +23,26 @@ export const resources = {
         apiState: {
           online: "online",
           offline: "offline",
-          checking: "checking"
-        }
+          checking: "checking",
+        },
+        theme: {
+          toggle: "Theme",
+          light: "Light theme",
+          dark: "Dark theme",
+        },
       },
       home: {
         eyebrow: "Local-first interview preparation",
-        title: "AI mentor, coding practice, and skill progress in one local workspace.",
+        title:
+          "AI mentor, coding practice, and skill progress in one local workspace.",
         copy: "Start with a compact onboarding flow so Leetgrind can adapt practice, reviews, and future AI mentoring to your goals.",
         start: "Start setup",
-        dashboard: "Open dashboard"
+        dashboard: "Open dashboard",
       },
       dashboard: {
         title: "Preparation dashboard",
-        subtitle: "Your local workspace for goals, skills, evidence, and review planning.",
+        subtitle:
+          "Your local workspace for goals, skills, evidence, and review planning.",
         incomplete: "Onboarding is not complete yet.",
         continueSetup: "Continue setup",
         profile: "Profile",
@@ -47,14 +60,16 @@ export const resources = {
         actionReview: "Review weak skills",
         actionDashboard: "Open progress graph",
         actionPractice: "Start coding practice",
-        emptyState: "Complete onboarding to unlock personalized progress."
+        emptyState: "Complete onboarding to unlock personalized progress.",
       },
       onboarding: {
         title: "Set up your local mentor context",
-        subtitle: "This data stays in the local database and works without an AI provider.",
+        subtitle:
+          "This data stays in the local database and works without an AI provider.",
         save: "Complete onboarding",
         draft: "Save draft",
         saving: "Saving...",
+        checkRequired: "Check required fields before saving.",
         draftSaved: "Draft saved locally",
         saved: "Onboarding saved locally",
         progress: "Setup progress",
@@ -68,7 +83,7 @@ export const resources = {
           goals: "Goals",
           skills: "Skills",
           resume: "Resume",
-          preferences: "Preferences"
+          preferences: "Preferences",
         },
         fields: {
           displayName: "Display name",
@@ -90,13 +105,14 @@ export const resources = {
           contentLanguage: "Learning content language",
           programmingLanguages: "Programming languages",
           studyRhythm: "Study rhythm",
-          preferredAiProviderKind: "AI provider"
+          preferredAiProviderKind: "AI provider",
         },
         hints: {
           commaSeparated: "Comma-separated",
           aiOptional: "AI can be configured later.",
-          resume: "This is stored as a resume document for future RAG ingestion."
-        }
+          resume:
+            "This is stored as a resume document for future RAG ingestion.",
+        },
       },
       options: {
         empty: "Not specified",
@@ -105,20 +121,20 @@ export const resources = {
           junior: "Junior",
           middle: "Middle",
           senior: "Senior",
-          expert: "Expert"
+          expert: "Expert",
         },
         skillLevels: {
           unknown: "Unknown",
           weak: "Weak",
           developing: "Developing",
-          strong: "Strong"
+          strong: "Strong",
         },
         goalTypes: {
           "job-search": "Job search",
           "company-interview": "Company interview",
           "role-growth": "Role growth",
           "skill-growth": "Skill growth",
-          custom: "Custom"
+          custom: "Custom",
         },
         seniority: {
           intern: "Intern",
@@ -126,29 +142,29 @@ export const resources = {
           middle: "Middle",
           senior: "Senior",
           staff: "Staff",
-          lead: "Lead"
+          lead: "Lead",
         },
         contentLanguage: {
           ru: "Russian",
           en: "English",
-          mixed: "Mixed"
+          mixed: "Mixed",
         },
         studyRhythm: {
           daily: "Daily",
           weekdays: "Weekdays",
           weekends: "Weekends",
           weekly: "Weekly",
-          flexible: "Flexible"
+          flexible: "Flexible",
         },
         providers: {
           "not-configured": "Configure later",
           "openai-codex": "Codex subscription auth",
           "openai-api-key": "OpenAI API key",
           openrouter: "OpenRouter",
-          local: "Local provider"
-        }
-      }
-    }
+          local: "Local provider",
+        },
+      },
+    },
   },
   ru: {
     translation: {
@@ -159,19 +175,26 @@ export const resources = {
         apiState: {
           online: "онлайн",
           offline: "офлайн",
-          checking: "проверка"
-        }
+          checking: "проверка",
+        },
+        theme: {
+          toggle: "Тема",
+          light: "Светлая тема",
+          dark: "Темная тема",
+        },
       },
       home: {
         eyebrow: "Локальная подготовка к собеседованиям",
-        title: "AI-ментор, практика кода и прогресс навыков в одном локальном рабочем месте.",
+        title:
+          "AI-ментор, практика кода и прогресс навыков в одном локальном рабочем месте.",
         copy: "Начни с короткого онбординга, чтобы Leetgrind адаптировал практику, повторение и будущего AI-ментора под твои цели.",
         start: "Начать настройку",
-        dashboard: "Открыть дашборд"
+        dashboard: "Открыть дашборд",
       },
       dashboard: {
         title: "Дашборд подготовки",
-        subtitle: "Локальное рабочее место для целей, навыков, evidence и планирования повторений.",
+        subtitle:
+          "Локальное рабочее место для целей, навыков, evidence и планирования повторений.",
         incomplete: "Онбординг еще не завершен.",
         continueSetup: "Продолжить настройку",
         profile: "Профиль",
@@ -189,14 +212,16 @@ export const resources = {
         actionReview: "Разобрать слабые навыки",
         actionDashboard: "Открыть граф прогресса",
         actionPractice: "Начать практику кода",
-        emptyState: "Заверши онбординг, чтобы открыть персональный прогресс."
+        emptyState: "Заверши онбординг, чтобы открыть персональный прогресс.",
       },
       onboarding: {
         title: "Настрой локальный контекст ментора",
-        subtitle: "Эти данные остаются в локальной базе и работают без AI-провайдера.",
+        subtitle:
+          "Эти данные остаются в локальной базе и работают без AI-провайдера.",
         save: "Завершить онбординг",
         draft: "Сохранить черновик",
         saving: "Сохранение...",
+        checkRequired: "Проверь обязательные поля перед сохранением.",
         draftSaved: "Черновик сохранен локально",
         saved: "Онбординг сохранен локально",
         progress: "Прогресс настройки",
@@ -210,7 +235,7 @@ export const resources = {
           goals: "Цели",
           skills: "Навыки",
           resume: "Резюме",
-          preferences: "Предпочтения"
+          preferences: "Предпочтения",
         },
         fields: {
           displayName: "Имя",
@@ -232,13 +257,13 @@ export const resources = {
           contentLanguage: "Язык учебного контента",
           programmingLanguages: "Языки программирования",
           studyRhythm: "Ритм занятий",
-          preferredAiProviderKind: "AI-провайдер"
+          preferredAiProviderKind: "AI-провайдер",
         },
         hints: {
           commaSeparated: "Через запятую",
           aiOptional: "AI можно настроить позже.",
-          resume: "Сохраняется как документ резюме для будущего RAG."
-        }
+          resume: "Сохраняется как документ резюме для будущего RAG.",
+        },
       },
       options: {
         empty: "Не указано",
@@ -247,20 +272,20 @@ export const resources = {
           junior: "Junior",
           middle: "Middle",
           senior: "Senior",
-          expert: "Expert"
+          expert: "Expert",
         },
         skillLevels: {
           unknown: "Неизвестно",
           weak: "Слабый",
           developing: "Развивается",
-          strong: "Сильный"
+          strong: "Сильный",
         },
         goalTypes: {
           "job-search": "Поиск работы",
           "company-interview": "Собеседование в компанию",
           "role-growth": "Рост в роли",
           "skill-growth": "Рост навыка",
-          custom: "Другое"
+          custom: "Другое",
         },
         seniority: {
           intern: "Intern",
@@ -268,39 +293,40 @@ export const resources = {
           middle: "Middle",
           senior: "Senior",
           staff: "Staff",
-          lead: "Lead"
+          lead: "Lead",
         },
         contentLanguage: {
           ru: "Русский",
           en: "Английский",
-          mixed: "Смешанный"
+          mixed: "Смешанный",
         },
         studyRhythm: {
           daily: "Каждый день",
           weekdays: "По будням",
           weekends: "По выходным",
           weekly: "Раз в неделю",
-          flexible: "Гибко"
+          flexible: "Гибко",
         },
         providers: {
           "not-configured": "Настроить позже",
           "openai-codex": "Codex subscription auth",
           "openai-api-key": "OpenAI API key",
           openrouter: "OpenRouter",
-          local: "Локальный провайдер"
-        }
-      }
-    }
-  }
+          local: "Локальный провайдер",
+        },
+      },
+    },
+  },
 } as const;
 
 void i18n.use(initReactI18next).init({
   resources,
-  lng: savedLocale === "ru" || savedLocale === "en" ? savedLocale : browserLocale,
+  lng:
+    savedLocale === "ru" || savedLocale === "en" ? savedLocale : browserLocale,
   fallbackLng: "en",
   interpolation: {
-    escapeValue: false
-  }
+    escapeValue: false,
+  },
 });
 
 i18n.on("languageChanged", (locale) => {
