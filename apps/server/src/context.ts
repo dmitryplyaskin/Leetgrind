@@ -6,6 +6,7 @@ import {
   type DatabaseContext,
   type DatabaseContextOptions,
   createDatabaseContext,
+  removeStalePglitePostmasterPid,
 } from "@leetgrind/db";
 import { fileURLToPath } from "node:url";
 import { KeyringCredentialStore } from "./ai/keyring-credential-store.js";
@@ -38,6 +39,7 @@ export async function createAppContext(
   let database: DatabaseContext;
 
   try {
+    removeStalePglitePostmasterPid(dataDir);
     database = await createDatabaseContext({
       runMigrations: true,
       ...options.database,

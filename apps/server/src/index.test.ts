@@ -2,7 +2,7 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { AiEmbeddingRequest, AiEmbeddingResult, AiObjectRequest, AiProvider, AiProviderFactory, AiTextRequest, AiTextResult } from "@leetgrind/ai";
 import { AiProviderRegistry } from "@leetgrind/ai";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { InMemoryCredentialStore } from "./ai/credential-store.js";
@@ -301,6 +301,34 @@ describe("server API", () => {
       ).rejects.toThrow(/already using the PGLite data directory/);
     } finally {
       await lock?.release();
+      await rm(dataDir, { force: true, recursive: true });
+    }
+  });
+
+  it("recovers a persistent data directory with a stale PGLite pid file", async () => {
+    const dataDir = await mkdtemp(join(tmpdir(), "leetgrind-pglite-stale-pid-"));
+    const stalePidPath = join(dataDir, "postmaster.pid");
+    let recoveredContext: AppContext | undefined;
+
+    await writeFile(stalePidPath, "-42\n/pglite/data\n0\n5432\n\n0\n", "utf8");
+
+    try {
+      recoveredContext = await createAppContext({
+        aiRegistry: new AiProviderRegistry([fakeOpenRouterFactory]),
+        credentialStore: new InMemoryCredentialStore(),
+        database: {
+          dataDir,
+          runMigrations: true
+        }
+      });
+
+      await expect(
+        recoveredContext.database.db.$client.query("select 1 as ok")
+      ).resolves.toMatchObject({
+        rows: [{ ok: 1 }]
+      });
+    } finally {
+      await recoveredContext?.database.close();
       await rm(dataDir, { force: true, recursive: true });
     }
   });

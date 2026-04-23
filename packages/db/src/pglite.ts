@@ -3,7 +3,8 @@ import { vector } from "@electric-sql/pglite/vector";
 import { drizzle } from "drizzle-orm/pglite";
 import type { PgliteDatabase } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, unlinkSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAttemptsRepository } from "./repositories/attempts-repository.js";
 import { createAgentRunsRepository } from "./repositories/agent-runs-repository.js";
@@ -25,6 +26,7 @@ import { createUserProfileRepository } from "./repositories/user-profile-reposit
 import * as schema from "./schema.js";
 
 export const DEFAULT_DATA_DIR = ".leetgrind/pglite";
+const PGLITE_POSTMASTER_PID_FILE = "postmaster.pid";
 
 export type LeetgrindSchema = typeof schema;
 export type LeetgrindDatabase = PgliteDatabase<LeetgrindSchema> & {
@@ -68,6 +70,21 @@ export function createPgliteClient(dataDir: string | null = DEFAULT_DATA_DIR) {
     ...options,
     dataDir
   });
+}
+
+export function removeStalePglitePostmasterPid(dataDir: string | null | undefined) {
+  if (dataDir === null || typeof dataDir === "undefined") {
+    return false;
+  }
+
+  const postmasterPidPath = join(dataDir, PGLITE_POSTMASTER_PID_FILE);
+
+  if (!existsSync(postmasterPidPath)) {
+    return false;
+  }
+
+  unlinkSync(postmasterPidPath);
+  return true;
 }
 
 export function createDatabase(options: CreateDatabaseOptions = {}): LeetgrindDatabase {
