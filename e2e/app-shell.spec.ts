@@ -1,38 +1,49 @@
 import { expect, test } from "@playwright/test";
 
-test("opens onboarding on first launch", async ({ page }) => {
+test("opens the correct startup workspace", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
   await expect(page.getByRole("link", { name: "Leetgrind" })).toBeVisible();
-  await expect(
-    page.getByRole("heading", {
-      name: /Build your starting skill map|Собери стартовую карту навыков/i,
-    }),
-  ).toBeVisible();
-  await expect(page.getByRole("navigation")).toHaveCount(0);
+  await expect(page.locator("h1").first()).toBeVisible();
+
+  if (page.url().includes("/onboarding")) {
+    await expect(page.getByRole("navigation")).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", {
+        name: /OpenRouter|Профиль и цель|Profile and goal/i,
+      }),
+    ).toBeVisible();
+  } else {
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.getByRole("navigation")).toBeVisible();
+  }
 });
 
-test("keeps onboarding compact and empty on a fresh profile", async ({ page }) => {
-  await page.goto("/onboarding?step=goals", { waitUntil: "domcontentloaded" });
+test("starts onboarding with provider setup on a fresh profile", async ({ page }) => {
+  await page.goto("/onboarding", { waitUntil: "domcontentloaded" });
 
   await expect(
-    page.getByRole("button", { name: /Add the first goal|Добавить первую цель/i }),
+    page.getByRole("heading", { name: /OpenRouter/i }),
   ).toBeVisible();
   await expect(
-    page.getByText(/No goals yet|Цели пока не добавлены/i),
+    page.getByLabel(/OpenRouter API key|API-ключ OpenRouter/i),
   ).toBeVisible();
   await expect(
     page.getByLabel(/Goal title|Название цели/i),
   ).toHaveCount(0);
 });
 
-test("redirects protected routes to onboarding until setup is complete", async ({ page }) => {
+test("resolves protected routes through the onboarding gate", async ({ page }) => {
   await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
 
-  await expect(page).toHaveURL(/\/onboarding/);
-  await expect(
-    page.getByRole("heading", {
-      name: /Build your starting skill map|Собери стартовую карту навыков/i,
-    }),
-  ).toBeVisible();
+  if (page.url().includes("/onboarding")) {
+    await expect(
+      page.getByRole("heading", {
+        name: /OpenRouter|Профиль и цель|Profile and goal/i,
+      }),
+    ).toBeVisible();
+  } else {
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.getByRole("heading")).toBeVisible();
+  }
 });

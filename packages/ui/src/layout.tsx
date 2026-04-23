@@ -76,8 +76,8 @@ export function PageTitle({ style, ...props }: HeadingProps) {
   return (
     <Title
       order={1}
+      fz={{ base: "2.25rem", sm: "2.6rem", md: "3rem" }}
       maw={900}
-      size="3rem"
       lh={1.08}
       fw={700}
       style={{ overflowWrap: "anywhere", ...style }}
@@ -88,7 +88,14 @@ export function PageTitle({ style, ...props }: HeadingProps) {
 
 export function PageLead(props: ParagraphProps) {
   return (
-    <Text c="dimmed" size="lg" lh={1.65} maw={760} component="p" {...props} />
+    <Text
+      c="dimmed"
+      fz={{ base: "md", sm: "lg" }}
+      lh={1.65}
+      maw={760}
+      component="p"
+      {...props}
+    />
   );
 }
 

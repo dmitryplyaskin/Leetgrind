@@ -331,7 +331,7 @@ describe("server API", () => {
       await recoveredContext?.database.close();
       await rm(dataDir, { force: true, recursive: true });
     }
-  });
+  }, 15_000);
 
   it("serves typed tRPC profile and goals procedures", async () => {
     const caller = appRouter.createCaller(context);

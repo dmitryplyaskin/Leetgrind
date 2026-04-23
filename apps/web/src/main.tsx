@@ -6,8 +6,8 @@ import "@fontsource-variable/figtree/index.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/600.css";
 import { leetgrindCssVariablesResolver, leetgrindTheme } from "@leetgrind/ui";
-import { AppRouterProvider } from "./app";
-import "./styles.css";
+import { AppRouterProvider } from "./app/app";
+import "./app/styles.css";
 
 const colorSchemeManager = localStorageColorSchemeManager({
   key: "leetgrind.theme",

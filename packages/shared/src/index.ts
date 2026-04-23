@@ -259,7 +259,7 @@ export const saveAiProviderInputSchema = z.object({
   isDefault: z.boolean().default(false),
   textModel: z.string().trim().min(1),
   embeddingModel: nullableOptionalTextSchema.optional(),
-  apiKey: z.string().trim().min(1),
+  apiKey: z.string().trim().min(1).optional(),
   appName: nullableOptionalTextSchema.optional(),
   appUrl: z.union([
     z.string().trim().url(),
@@ -270,6 +270,36 @@ export const saveAiProviderInputSchema = z.object({
 });
 
 export type SaveAiProviderInput = z.infer<typeof saveAiProviderInputSchema>;
+
+export const aiModelSummarySchema = z.object({
+  id: z.string().trim().min(1),
+  displayName: z.string().trim().min(1),
+  supportsTextGeneration: z.boolean(),
+  supportsStructuredOutput: z.boolean(),
+  supportsEmbeddings: z.boolean()
+});
+
+export type AiModelSummary = z.infer<typeof aiModelSummarySchema>;
+
+export const discoverOpenRouterModelsInputSchema = z.object({
+  apiKey: z.string().trim().min(1).optional(),
+  providerId: uuidSchema.optional()
+});
+
+export type DiscoverOpenRouterModelsInput = z.infer<
+  typeof discoverOpenRouterModelsInputSchema
+>;
+
+export const discoverOpenRouterModelsResultSchema = z.object({
+  textModels: z.array(aiModelSummarySchema),
+  embeddingModels: z.array(aiModelSummarySchema),
+  recommendedTextModel: z.string().trim().min(1),
+  recommendedEmbeddingModel: z.string().trim().min(1).nullable()
+});
+
+export type DiscoverOpenRouterModelsResult = z.infer<
+  typeof discoverOpenRouterModelsResultSchema
+>;
 
 export const testAiProviderInputSchema = z.object({
   providerId: uuidSchema
@@ -641,3 +671,23 @@ export const agentPreviewResultSchema = z.object({
 });
 
 export type AgentPreviewResult = z.infer<typeof agentPreviewResultSchema>;
+
+export const onboardingNarrativeInputSchema = z.object({
+  experienceText: z.string().trim().min(20).max(20_000),
+  goalText: z.string().trim().min(5).max(8_000),
+  resumeText: z.string().trim().max(40_000).optional(),
+  locale: userInterfaceLocaleSchema
+});
+
+export type OnboardingNarrativeInput = z.infer<typeof onboardingNarrativeInputSchema>;
+
+export const onboardingNarrativeExtractionResultSchema = z.object({
+  draft: onboardingCompleteInputSchema,
+  summary: z.string().trim().min(1),
+  assumptions: z.array(z.string().trim().min(1)).max(8),
+  suggestedFirstActions: z.array(z.string().trim().min(1)).max(6)
+});
+
+export type OnboardingNarrativeExtractionResult = z.infer<
+  typeof onboardingNarrativeExtractionResultSchema
+>;

@@ -1,10 +1,15 @@
 import {
   type OnboardingCompleteInput,
   type OnboardingDraftInput,
+  type OnboardingNarrativeInput,
+  type OnboardingNarrativeExtractionResult,
   onboardingCompleteInputSchema,
-  onboardingDraftInputSchema
+  onboardingDraftInputSchema,
+  onboardingNarrativeInputSchema
 } from "@leetgrind/shared";
+import { OnboardingExtractionWorkflow } from "@leetgrind/agents";
 import type { AppContext } from "../context.js";
+import { resolveRuntimeProvider } from "../services/ai-service.js";
 import { publicProcedure, router } from "../trpc.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -204,6 +209,54 @@ async function saveOnboardingInput({
   };
 }
 
+async function extractOnboardingFromNarrative(
+  ctx: AppContext,
+  input: OnboardingNarrativeInput
+): Promise<OnboardingNarrativeExtractionResult> {
+  const { config, provider, setting } = await resolveRuntimeProvider(ctx);
+  const run = await ctx.database.repositories.agentRuns.create({
+    kind: "planner",
+    status: "running",
+    providerId: setting.id,
+    model: config.textModel,
+    input: {
+      locale: input.locale,
+      experienceLength: input.experienceText.length,
+      goalLength: input.goalText.length,
+      hasResume: Boolean(input.resumeText?.trim())
+    },
+    startedAt: new Date()
+  });
+  const workflow = new OnboardingExtractionWorkflow();
+
+  try {
+    const result = await workflow.run({
+      ...input,
+      provider
+    });
+
+    await ctx.database.repositories.agentRuns.update(run.id, {
+      status: "succeeded",
+      output: {
+        goalCount: result.draft.goals.length,
+        skillCount: result.draft.skills.length,
+        suggestedFirstActions: result.suggestedFirstActions
+      },
+      completedAt: new Date()
+    });
+
+    return result;
+  } catch (error) {
+    await ctx.database.repositories.agentRuns.update(run.id, {
+      status: "failed",
+      error: error instanceof Error ? error.message : "Onboarding extraction failed.",
+      completedAt: new Date()
+    });
+
+    throw error;
+  }
+}
+
 export const onboardingRouter = router({
   getState: publicProcedure.query(async ({ ctx }) => {
     const profile = await ctx.database.repositories.userProfiles.ensureLocalProfile();
@@ -241,6 +294,10 @@ export const onboardingRouter = router({
   saveDraft: publicProcedure
     .input(onboardingDraftInputSchema)
     .mutation(({ ctx, input }) => saveOnboardingInput({ ctx, input, completedAt: null })),
+
+  extractFromNarrative: publicProcedure
+    .input(onboardingNarrativeInputSchema)
+    .mutation(({ ctx, input }) => extractOnboardingFromNarrative(ctx, input)),
 
   complete: publicProcedure
     .input(onboardingCompleteInputSchema)

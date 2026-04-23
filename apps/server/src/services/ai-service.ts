@@ -8,8 +8,11 @@ import type {
   AgentRunSummary,
   AiProviderConfig,
   AiProviderHealth,
+  AiModelSummary,
   AiProviderSummary,
   AiSettings,
+  DiscoverOpenRouterModelsInput,
+  DiscoverOpenRouterModelsResult,
   SaveAiProviderInput
 } from "@leetgrind/shared";
 import { aiProviderConfigSchema } from "@leetgrind/shared";
@@ -69,6 +72,121 @@ export async function getAiSettings(ctx: AppContext): Promise<AiSettings> {
   return {
     defaultProviderId: providers.find((provider) => provider.isDefault)?.id ?? null,
     providers
+  };
+}
+
+interface OpenRouterModelRecord {
+  id?: unknown;
+  name?: unknown;
+  architecture?: {
+    output_modalities?: unknown;
+  };
+  supported_parameters?: unknown;
+}
+
+function toOpenRouterModelSummary(model: OpenRouterModelRecord): AiModelSummary | null {
+  if (typeof model.id !== "string" || model.id.trim().length === 0) {
+    return null;
+  }
+
+  const outputModalities = Array.isArray(model.architecture?.output_modalities)
+    ? model.architecture.output_modalities
+    : [];
+  const supportedParameters = Array.isArray(model.supported_parameters)
+    ? model.supported_parameters
+    : [];
+  const supportsEmbeddings = outputModalities.includes("embeddings");
+
+  return {
+    id: model.id,
+    displayName: typeof model.name === "string" && model.name.trim().length > 0 ? model.name : model.id,
+    supportsTextGeneration: !supportsEmbeddings,
+    supportsStructuredOutput:
+      supportedParameters.includes("response_format") ||
+      supportedParameters.includes("structured_outputs") ||
+      !supportsEmbeddings,
+    supportsEmbeddings
+  };
+}
+
+function pickPreferredModel(models: AiModelSummary[], preferredIds: string[]) {
+  for (const preferredId of preferredIds) {
+    const model = models.find((item) => item.id === preferredId);
+
+    if (model) {
+      return model.id;
+    }
+  }
+
+  return models[0]?.id ?? null;
+}
+
+async function fetchOpenRouterModels(apiKey: string, modality: "text" | "embeddings") {
+  const url =
+    modality === "text"
+      ? "https://openrouter.ai/api/v1/models"
+      : "https://openrouter.ai/api/v1/models?output_modalities=embeddings";
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://leetgrind.local",
+      "X-Title": "Leetgrind"
+    }
+  });
+
+  if (!response.ok) {
+    throw new AiProviderError({
+      code: "invalid-configuration",
+      message: `OpenRouter model discovery failed with HTTP ${response.status}.`
+    });
+  }
+
+  const payload = (await response.json()) as { data?: OpenRouterModelRecord[] };
+
+  return (payload.data ?? []).map(toOpenRouterModelSummary).filter((item): item is AiModelSummary => item !== null);
+}
+
+export async function discoverOpenRouterModels(
+  ctx: AppContext,
+  input: DiscoverOpenRouterModelsInput
+): Promise<DiscoverOpenRouterModelsResult> {
+  const apiKey =
+    input.apiKey ??
+    (input.providerId ? await ctx.credentialStore.getSecret(input.providerId) : null);
+
+  if (!apiKey) {
+    throw new AiProviderError({
+      code: "missing-credentials",
+      message: "OpenRouter API key is not configured."
+    });
+  }
+
+  const [textModels, embeddingModels] = await Promise.all([
+    fetchOpenRouterModels(apiKey, "text"),
+    fetchOpenRouterModels(apiKey, "embeddings")
+  ]);
+  const recommendedTextModel = pickPreferredModel(textModels, [
+    DEFAULT_OPENROUTER_TEXT_MODEL,
+    "openai/gpt-4o-mini",
+    "openrouter/auto"
+  ]);
+  const recommendedEmbeddingModel = pickPreferredModel(embeddingModels, [
+    DEFAULT_OPENROUTER_EMBEDDING_MODEL,
+    "openai/text-embedding-3-small"
+  ]);
+
+  if (!recommendedTextModel) {
+    throw new AiProviderError({
+      code: "invalid-configuration",
+      message: "OpenRouter did not return any text-capable models."
+    });
+  }
+
+  return {
+    textModels,
+    embeddingModels,
+    recommendedTextModel,
+    recommendedEmbeddingModel
   };
 }
 
@@ -159,7 +277,15 @@ export async function saveAiProvider(
     config
   });
 
-  await ctx.credentialStore.setSecret(saved.id, input.apiKey);
+  if (input.apiKey) {
+    await ctx.credentialStore.setSecret(saved.id, input.apiKey);
+  } else if (!(await ctx.credentialStore.hasSecret(saved.id))) {
+    throw new AiProviderError({
+      code: "missing-credentials",
+      message: "OpenRouter API key is not configured.",
+      providerId: saved.id
+    });
+  }
 
   const finalSetting =
     input.isDefault || !currentDefault || currentDefault.id === saved.id

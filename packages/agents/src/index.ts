@@ -12,6 +12,8 @@ import type {
   AgentRunSummary,
   AssessmentEvidenceSeed,
   AssessmentQuestionEvaluation,
+  OnboardingNarrativeExtractionResult,
+  OnboardingNarrativeInput,
   RagContextItem,
   RecommendationSummary,
   UserInterfaceLocale
@@ -19,6 +21,7 @@ import type {
 import {
   assessmentEvidenceSeedSchema,
   assessmentQuestionEvaluationSchema,
+  onboardingNarrativeExtractionResultSchema,
   ragContextItemSchema
 } from "@leetgrind/shared";
 import { z } from "zod";
@@ -253,6 +256,66 @@ export class MentorPreviewWorkflow
       response: result.response,
       nextActions: result.nextActions,
       evidence: result.evidence
+    };
+  }
+}
+
+export interface OnboardingExtractionWorkflowInput extends OnboardingNarrativeInput {
+  provider: AiProvider;
+}
+
+function buildOnboardingExtractionPrompt(input: OnboardingNarrativeInput) {
+  return [
+    "Convert the learner's free-form onboarding text into Leetgrind profile data.",
+    "Return only structured data that is supported by the schema.",
+    "Do not invent companies, dates, or exact seniority when the learner did not provide them.",
+    "Use concise skill titles such as React, TypeScript, Algorithms, HTTP, SQL, System design.",
+    "Focus areas should be the skills that directly drive the goal.",
+    "Skill levels are self-assessed estimates: unknown, weak, developing, or strong.",
+    "Set preferredAiProviderKind to openrouter.",
+    `UI locale: ${input.locale}`,
+    "Experience and skills text:",
+    input.experienceText,
+    "Goal text:",
+    input.goalText,
+    "Resume or background text:",
+    input.resumeText?.trim() ? input.resumeText : "Not provided."
+  ].join("\n\n");
+}
+
+export class OnboardingExtractionWorkflow
+  implements AgentWorkflow<OnboardingExtractionWorkflowInput, OnboardingNarrativeExtractionResult>
+{
+  async run(input: OnboardingExtractionWorkflowInput): Promise<OnboardingNarrativeExtractionResult> {
+    const model = await resolveTextModel(input.provider);
+    const result = await input.provider.generateObject({
+      model,
+      system:
+        input.locale === "ru"
+          ? [
+              "Ты превращаешь свободное описание опыта в стартовую карту подготовки к техническим собеседованиям.",
+              "Пиши пользовательские summary, assumptions и suggestedFirstActions на русском.",
+              "JSON должен быть валидным и готовым к сохранению после проверки пользователем."
+            ].join("\n")
+          : [
+              "You turn free-form experience notes into a starting interview-preparation map.",
+              "Write summary, assumptions, and suggestedFirstActions in English.",
+              "The JSON must be valid and ready for user review before persistence."
+            ].join("\n"),
+      prompt: buildOnboardingExtractionPrompt(input),
+      schema: onboardingNarrativeExtractionResultSchema
+    });
+
+    return {
+      ...result,
+      draft: {
+        ...result.draft,
+        preferences: {
+          ...result.draft.preferences,
+          uiLocale: input.locale,
+          preferredAiProviderKind: "openrouter"
+        }
+      }
     };
   }
 }

@@ -1,10 +1,12 @@
 import {
+  discoverOpenRouterModelsInputSchema,
   providerIdInputSchema,
   saveAiProviderInputSchema,
   testAiProviderInputSchema
 } from "@leetgrind/shared";
 import { publicProcedure, router } from "../trpc.js";
 import {
+  discoverOpenRouterModels,
   getAiSettings,
   listAiProviders,
   removeAiProvider,
@@ -19,6 +21,10 @@ export const aiProvidersRouter = router({
   save: publicProcedure
     .input(saveAiProviderInputSchema)
     .mutation(({ ctx, input }) => saveAiProvider(ctx, input)),
+
+  discoverOpenRouterModels: publicProcedure
+    .input(discoverOpenRouterModelsInputSchema)
+    .mutation(({ ctx, input }) => discoverOpenRouterModels(ctx, input)),
 
   remove: publicProcedure
     .input(providerIdInputSchema)
