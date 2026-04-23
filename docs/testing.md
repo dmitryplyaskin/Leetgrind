@@ -2,7 +2,7 @@
 
 Last updated: 2026-04-21
 
-Leetgrind uses testing as part of the GRACE verification gate. Tests should protect domain behavior, local persistence, API contracts, AI workflow structure, code execution safety, and core UI flows.
+Leetgrind uses testing as part of the project verification gate. Tests should protect domain behavior, local persistence, API contracts, AI workflow structure, code execution safety, and core UI flows.
 
 ## Test Stack
 

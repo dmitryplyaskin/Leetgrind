@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-development-plan project="leetgrind" version="0.1" updated="2026-04-22">
+<project-development-plan project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Development Plan</title>
     <status>roadmap-defined</status>
@@ -166,7 +166,7 @@
   <phases>
     <phase id="PH-000" status="done" roadmap="docs/roadmap/phase-00-foundation-and-governance.md">
       <name>Foundation And Governance</name>
-      <goal>Create monorepo, baseline packages, GRACE governance, and successful build/typecheck.</goal>
+      <goal>Create monorepo, baseline packages, project governance, and successful build/typecheck.</goal>
       <module>M-WEB</module>
       <module>M-SERVER-API</module>
       <module>M-DOMAIN</module>
@@ -273,4 +273,4 @@
       <module>M-SHARED</module>
     </phase>
   </phases>
-</grace-development-plan>
+</project-development-plan>

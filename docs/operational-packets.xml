@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-operational-packets project="leetgrind" version="0.1" updated="2026-04-22">
+<project-operational-packets project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Operational Packets</title>
     <purpose>Define governed execution mode for autonomous and multi-agent work.</purpose>
@@ -23,7 +23,7 @@
       <condition id="STOP-003">A package dependency cycle is required to proceed.</condition>
       <condition id="STOP-004">User code execution cannot be sandboxed or bounded.</condition>
       <condition id="STOP-005">Provider credentials, auth flow, or legal boundary is unavailable or unclear.</condition>
-      <condition id="STOP-006">GRACE artifacts disagree on a decision that materially affects implementation.</condition>
+      <condition id="STOP-006">Project contract documents disagree on a decision that materially affects implementation.</condition>
     </stop-conditions>
     <checkpoint-fields>
       <field name="packet-id"/>
@@ -47,7 +47,7 @@
         <input>Verification commands</input>
       </required-inputs>
       <required-steps>
-        <step>Read AGENTS.md and relevant GRACE artifacts.</step>
+        <step>Read AGENTS.md and relevant project contracts.</step>
         <step>Resolve module boundaries from knowledge-graph.xml.</step>
         <step>Update requirements or development-plan if the feature changes scope.</step>
         <step>Implement only within owned files unless a documented dependency requires expansion.</step>
@@ -131,7 +131,7 @@
     </packet>
 
     <packet id="OP-001" status="completed" template="TPL-FEATURE">
-      <name>GRACE methodology bootstrap</name>
+      <name>Project contract bootstrap</name>
       <target-modules>
         <module>DOC-REQ</module>
         <module>DOC-TECH</module>
@@ -363,4 +363,4 @@
       </result>
     </packet>
   </active-packets>
-</grace-operational-packets>
+</project-operational-packets>

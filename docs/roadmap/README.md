@@ -2,7 +2,7 @@
 
 Last updated: 2026-04-22
 
-This roadmap turns the product vision into an implementation sequence. It is intentionally written as a working plan for human and AI agents. The GRACE XML files define the machine-readable contracts; these roadmap files explain what to build, where to build it, and how to verify it.
+This roadmap turns the product vision into an implementation sequence. It is intentionally written as a working plan for human and AI agents. The XML project contracts define the machine-readable contracts; these roadmap files explain what to build, where to build it, and how to verify it.
 
 ## Product North Star
 
@@ -24,7 +24,7 @@ Leetgrind should become a local-first AI mentor for programming interview prepar
 
 | Phase | Status | Main Outcome | Primary Modules |
 | --- | --- | --- | --- |
-| 00 | Done / ongoing | Monorepo, GRACE governance, baseline architecture | all |
+| 00 | Done / ongoing | Monorepo, project governance, baseline architecture | all |
 | 01 | Done | Local persistence, repositories, typed API backbone | `packages/db`, `packages/domain`, `apps/server`, `packages/shared` |
 | 02 | Done | User can define profile, goals, skills, UI language, and resume context | `apps/web`, `apps/server`, `packages/domain`, `packages/db` |
 | 03 | Done | Dashboard shows progress, weak spots, and skill graph | `apps/web`, `packages/ui`, `packages/domain`, `packages/db` |

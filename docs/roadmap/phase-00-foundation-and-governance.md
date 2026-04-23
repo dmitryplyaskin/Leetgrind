@@ -16,7 +16,7 @@ Already completed:
 - Package boundaries for domain, database, AI, agents, RAG, code runner, scheduling, UI, and shared contracts.
 - Baseline dependencies installed.
 - `pnpm build` and `pnpm typecheck` pass.
-- GRACE-inspired documentation started:
+- Project documentation contracts started:
   - `AGENTS.md`;
   - `docs/requirements.xml`;
   - `docs/technology.xml`;
@@ -38,7 +38,7 @@ Keep this as the first file an agent reads. It should describe:
 - multi-agent rules;
 - stop conditions.
 
-### GRACE XML Artifacts
+### XML Project Contracts
 
 Keep XML artifacts valid and aligned:
 
@@ -98,5 +98,5 @@ foreach ($file in $files) {
 - Agents can identify the correct module before editing.
 - Agent instructions are project-specific, not generic.
 - Build and typecheck are reliable.
-- The roadmap and GRACE artifacts agree on the next phase.
+- The roadmap and project contracts agree on the next phase.
 

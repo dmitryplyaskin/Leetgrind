@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-technology project="leetgrind" version="0.1" updated="2026-04-22">
+<project-technology project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Technology Contract</title>
     <runtime>Node.js 22 or newer</runtime>
@@ -114,9 +114,9 @@
     <pattern id="FORBID-003">Direct database access from React components.</pattern>
     <pattern id="FORBID-004">Unsafe eval or unrestricted child process execution for user code.</pattern>
     <pattern id="FORBID-005">Provider-specific assumptions leaking into domain entities.</pattern>
-    <pattern id="FORBID-006">Architecture changes without updating GRACE artifacts.</pattern>
+    <pattern id="FORBID-006">Architecture changes without updating project contracts.</pattern>
     <pattern id="FORBID-007">Scattering untranslated user-facing strings across React screens and shared UI components.</pattern>
     <pattern id="FORBID-008">Meta UI copy, implementation labels, architectural reassurances, and placeholder text such as local API status, works offline, AI can be configured later, future phase, or similar non-actionable interface copy.</pattern>
     <pattern id="FORBID-009">Generic frontend defaults such as Inter/system typography, default purple SaaS styling, nested card layouts, or decorative chrome that does not improve the learner workflow.</pattern>
   </forbidden-patterns>
-</grace-technology>
+</project-technology>

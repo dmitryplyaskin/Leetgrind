@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-knowledge-graph project="leetgrind" version="0.1" updated="2026-04-21">
+<project-knowledge-graph project="leetgrind" version="0.1" updated="2026-04-21">
   <metadata>
     <title>Leetgrind Module Knowledge Graph</title>
     <purpose>Provide stable module navigation and dependency direction for agents.</purpose>
@@ -84,4 +84,4 @@
       App shell, route layout, visual hierarchy, design tokens, typography, and desktop/mobile viewport behavior.
     </surface>
   </surfaces>
-</grace-knowledge-graph>
+</project-knowledge-graph>

@@ -4,7 +4,7 @@ Last updated: 2026-04-22
 
 This document describes the initial architecture direction for Leetgrind. It is based on the current product vision and should be treated as a practical starting point, not as a frozen specification.
 
-Leetgrind now uses a GRACE-inspired workflow for agentic development. The machine-readable execution contracts live in `docs/requirements.xml`, `docs/technology.xml`, `docs/development-plan.xml`, `docs/knowledge-graph.xml`, `docs/verification-plan.xml`, and `docs/operational-packets.xml`. This document is the human-readable architectural companion.
+Leetgrind uses project-specific contracts for agentic development. The machine-readable execution contracts live in `docs/requirements.xml`, `docs/technology.xml`, `docs/development-plan.xml`, `docs/knowledge-graph.xml`, `docs/verification-plan.xml`, and `docs/operational-packets.xml`. This document is the human-readable architectural companion.
 
 Frontend design work is additionally governed by `docs/frontend-design.md`, which adapts OpenAI's GPT-5.4 frontend guidance to Leetgrind's local-first app UI.
 

@@ -160,4 +160,4 @@ Manual:
 - Repositories exist for core entities.
 - tRPC API exposes basic profile/goals/skills/document operations.
 - Typecheck and build pass.
-- Roadmap and GRACE artifacts reflect any schema-level decisions.
+- Roadmap and project contracts reflect any schema-level decisions.

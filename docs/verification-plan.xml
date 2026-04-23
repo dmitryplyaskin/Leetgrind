@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-verification-plan project="leetgrind" version="0.1" updated="2026-04-22">
+<project-verification-plan project="leetgrind" version="0.1" updated="2026-04-22">
   <metadata>
     <title>Leetgrind Verification Plan</title>
     <principle>Verification is planned, named, and reused instead of improvised per task.</principle>
@@ -190,4 +190,4 @@
     <rule id="EVID-008">For user-facing UI copy changes, include Russian and English localization coverage or state why it is not applicable.</rule>
     <rule id="EVID-009">For AI provider and settings changes, include mocked provider-test coverage and confirm that secrets are stored outside PGLite.</rule>
   </evidence-policy>
-</grace-verification-plan>
+</project-verification-plan>

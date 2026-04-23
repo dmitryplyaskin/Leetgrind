@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grace-requirements project="leetgrind" version="0.1" updated="2026-04-21">
+<project-requirements project="leetgrind" version="0.1" updated="2026-04-21">
   <metadata>
     <title>Leetgrind Product Requirements</title>
-    <methodology>GRACE-inspired Graph-RAG Anchored Code Engineering</methodology>
+    <methodology>Project contracts and module-based development</methodology>
     <source-files>
       <file path="../Product Vision.md" role="primary-product-vision"/>
       <file path="architecture.md" role="human-readable-architecture-draft"/>
@@ -133,4 +133,4 @@
       Multi-agent implementation without contracts can create drift between domain, persistence, RAG, and UI.
     </risk>
   </risks>
-</grace-requirements>
+</project-requirements>
