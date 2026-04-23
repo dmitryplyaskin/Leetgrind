@@ -39,5 +39,26 @@ export const skillsRouter = router({
 
   selfAssess: publicProcedure
     .input(z.object({ skills: z.array(skillInputSchema).min(1).max(100) }))
-    .mutation(({ ctx, input }) => ctx.database.repositories.skills.upsertMany(input.skills))
+    .mutation(async ({ ctx, input }) => {
+      const savedSkills = await ctx.database.repositories.skills.upsertMany(input.skills);
+      const savedSkillsByTitle = new Map(
+        savedSkills.map((skill) => [skill.title.trim().toLocaleLowerCase(), skill]),
+      );
+
+      return ctx.database.repositories.profileSkills.upsertMany(
+        input.skills.map((skill) => {
+          const savedSkill = savedSkillsByTitle.get(skill.title.trim().toLocaleLowerCase());
+
+          if (!savedSkill) {
+            throw new Error(`Could not resolve saved skill for ${skill.title}.`);
+          }
+
+          return {
+            skillId: savedSkill.id,
+            level: skill.level ?? "unknown",
+            notes: skill.description ?? null,
+          };
+        }),
+      );
+    })
 });

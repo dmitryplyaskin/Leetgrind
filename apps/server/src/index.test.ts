@@ -334,6 +334,16 @@ describe("server API", () => {
     await expect(caller.goals.create({ title: "" })).rejects.toThrow();
   });
 
+  it("returns an empty onboarding state for a fresh local profile", async () => {
+    const caller = appRouter.createCaller(context);
+    const state = await caller.onboarding.getState();
+
+    expect(state.isComplete).toBe(false);
+    expect(state.goals).toHaveLength(0);
+    expect(state.skills).toHaveLength(0);
+    expect(state.resumeDocument).toBeNull();
+  });
+
   it("completes onboarding with profile, goals, skills, preferences, and resume", async () => {
     const caller = appRouter.createCaller(context);
 
@@ -398,7 +408,7 @@ describe("server API", () => {
       programmingLanguages: ["typescript", "python"]
     });
     expect(state.goals).toHaveLength(2);
-    expect(state.skills).toHaveLength(3);
+    expect(state.skills).toHaveLength(2);
     expect(state.goalSkillLinks).toHaveLength(3);
     expect(state.resumeDocument?.sourceType).toBe("resume");
   });

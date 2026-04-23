@@ -39,6 +39,7 @@ import {
   Stack,
   Text,
   ThemeIcon,
+  Title,
 } from "@leetgrind/ui";
 import { trpc } from "./trpc";
 
@@ -89,6 +90,10 @@ interface DashboardActivity {
 }
 
 interface DashboardData {
+  profile: {
+    displayName: string | null;
+    targetRole: string | null;
+  };
   activeGoal: { id: string; title: string; targetRole: string | null } | null;
   readiness: {
     score: number;
@@ -293,6 +298,9 @@ export function DashboardRoute() {
     staleTime: 30_000,
   });
   const data = summary.data as DashboardData | undefined;
+  const isFirstSession =
+    (data?.recentActivity.length ?? 0) === 0 &&
+    (data?.upcomingReviews.length ?? 0) === 0;
   const goalOptions =
     data?.skills
       .filter((skill) => skill.goalRelevance)
@@ -354,100 +362,163 @@ export function DashboardRoute() {
 
         {data ? (
           <>
-            <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }} spacing="md">
-              <Card>
-                <CardHeader>
-                  <ThemeIcon color={readinessColor(data.readiness.score)} radius="sm" variant="light">
-                    <LineChart size={18} />
-                  </ThemeIcon>
-                  <CardTitle>{t("dashboard.readiness")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RingProgress
-                    label={
-                      <Text fw={700} ta="center">
-                        {data.readiness.score}%
-                      </Text>
-                    }
-                    sections={[
-                      {
-                        value: data.readiness.score,
-                        color: readinessColor(data.readiness.score),
-                      },
-                    ]}
-                    size={112}
-                    thickness={10}
-                  />
-                  <Badge variant={data.readiness.score >= 50 ? "success" : "warning"}>
-                    {t(`dashboard.readinessBands.${data.readiness.band}`)}
-                  </Badge>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <ThemeIcon color="teal" radius="sm" variant="light">
-                    <Target size={18} />
-                  </ThemeIcon>
-                  <CardTitle>{t("dashboard.activeGoal")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Text fw={700} size="lg">
-                    {data.activeGoal?.title ?? t("dashboard.noGoal")}
+            <Paper
+              p={{ base: "lg", md: "xl" }}
+              radius="lg"
+              style={{ border: "1px solid var(--mantine-color-default-border)" }}
+            >
+              <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+                <Stack gap="sm">
+                  <Kicker>
+                    {isFirstSession
+                      ? t("dashboard.firstSessionKicker")
+                      : t("dashboard.kicker")}
+                  </Kicker>
+                  <Title order={2}>
+                    {isFirstSession
+                      ? t("dashboard.firstSessionTitle")
+                      : t("dashboard.title")}
+                  </Title>
+                  <Text c="dimmed" maw={620}>
+                    {isFirstSession
+                      ? t("dashboard.firstSessionSubtitle")
+                      : t("dashboard.subtitle")}
                   </Text>
-                  <Text c="dimmed" size="sm">
-                    {data.activeGoal?.targetRole ?? t("options.empty")}
-                  </Text>
-                  {data.activeGoal ? (
-                    <Button
-                      color="gray"
-                      component="a"
-                      href={`/goals/${data.activeGoal.id}`}
-                      size="xs"
-                      variant="default"
-                    >
-                      {t("dashboard.openGoal")}
+                  <Group gap="sm">
+                    <Button component={Link} leftSection={<ClipboardCheck size={16} />} to="/assessments/new">
+                      {t("assessments.new.start")}
                     </Button>
-                  ) : null}
-                </CardContent>
-              </Card>
+                    <Button component={Link} leftSection={<BookOpen size={16} />} to="/lessons" variant="default">
+                      {t("lessons.create.submit")}
+                    </Button>
+                    <Button color="gray" component={Link} to="/onboarding" variant="default">
+                      {t("dashboard.updatePlan")}
+                    </Button>
+                  </Group>
+                </Stack>
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                  <ReviewItem
+                    label={t("dashboard.activeGoal")}
+                    value={data.activeGoal?.title ?? t("dashboard.noGoal")}
+                    description={data.activeGoal?.targetRole ?? t("options.empty")}
+                  />
+                  <ReviewItem
+                    label={t("dashboard.currentRole")}
+                    value={data.profile.targetRole ?? t("options.empty")}
+                    description={data.profile.displayName ?? t("options.empty")}
+                  />
+                  <ReviewItem
+                    label={t("dashboard.readiness")}
+                    value={`${data.readiness.score}%`}
+                    description={t(`dashboard.readinessBands.${data.readiness.band}`)}
+                  />
+                  <ReviewItem
+                    label={t("dashboard.topSkills")}
+                    value={t("dashboard.ofSkills", { count: data.readiness.totalSkills })}
+                    description={t("dashboard.skillMapReady", {
+                      count: data.skills.length,
+                    })}
+                  />
+                </SimpleGrid>
+              </SimpleGrid>
+            </Paper>
 
-              <Card>
-                <CardHeader>
-                  <ThemeIcon color="green" radius="sm" variant="light">
-                    <CheckCircle2 size={18} />
-                  </ThemeIcon>
-                  <CardTitle>{t("dashboard.strongSkills")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Text fw={700} size="xl">
-                    {data.readiness.strongSkills}
-                  </Text>
-                  <Text c="dimmed" size="sm">
-                    {t("dashboard.ofSkills", { count: data.readiness.totalSkills })}
-                  </Text>
-                </CardContent>
-              </Card>
+            {!isFirstSession ? (
+              <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }} spacing="md">
+                <Card>
+                  <CardHeader>
+                    <ThemeIcon color={readinessColor(data.readiness.score)} radius="sm" variant="light">
+                      <LineChart size={18} />
+                    </ThemeIcon>
+                    <CardTitle>{t("dashboard.readiness")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <RingProgress
+                      label={
+                        <Text fw={700} ta="center">
+                          {data.readiness.score}%
+                        </Text>
+                      }
+                      sections={[
+                        {
+                          value: data.readiness.score,
+                          color: readinessColor(data.readiness.score),
+                        },
+                      ]}
+                      size={112}
+                      thickness={10}
+                    />
+                    <Badge variant={data.readiness.score >= 50 ? "success" : "warning"}>
+                      {t(`dashboard.readinessBands.${data.readiness.band}`)}
+                    </Badge>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardHeader>
-                  <ThemeIcon color="yellow" radius="sm" variant="light">
-                    <AlertTriangle size={18} />
-                  </ThemeIcon>
-                  <CardTitle>{t("dashboard.weakSpots")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Text fw={700} size="xl">
-                    {data.weakSpots.length}
-                  </Text>
-                  <Text c="dimmed" size="sm">
-                    {t("dashboard.dueReviews", { count: data.readiness.dueReviews })}
-                  </Text>
-                </CardContent>
-              </Card>
-            </SimpleGrid>
+                <Card>
+                  <CardHeader>
+                    <ThemeIcon color="teal" radius="sm" variant="light">
+                      <Target size={18} />
+                    </ThemeIcon>
+                    <CardTitle>{t("dashboard.activeGoal")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Text fw={700} size="lg">
+                      {data.activeGoal?.title ?? t("dashboard.noGoal")}
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                      {data.activeGoal?.targetRole ?? t("options.empty")}
+                    </Text>
+                    {data.activeGoal ? (
+                      <Button
+                        color="gray"
+                        component="a"
+                        href={`/goals/${data.activeGoal.id}`}
+                        size="xs"
+                        variant="default"
+                      >
+                        {t("dashboard.openGoal")}
+                      </Button>
+                    ) : null}
+                  </CardContent>
+                </Card>
 
-            <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+                <Card>
+                  <CardHeader>
+                    <ThemeIcon color="green" radius="sm" variant="light">
+                      <CheckCircle2 size={18} />
+                    </ThemeIcon>
+                    <CardTitle>{t("dashboard.strongSkills")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Text fw={700} size="xl">
+                      {data.readiness.strongSkills}
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                      {t("dashboard.ofSkills", { count: data.readiness.totalSkills })}
+                    </Text>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <ThemeIcon color="yellow" radius="sm" variant="light">
+                      <AlertTriangle size={18} />
+                    </ThemeIcon>
+                    <CardTitle>{t("dashboard.weakSpots")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Text fw={700} size="xl">
+                      {data.weakSpots.length}
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                      {t("dashboard.dueReviews", { count: data.readiness.dueReviews })}
+                    </Text>
+                  </CardContent>
+                </Card>
+              </SimpleGrid>
+            ) : null}
+
+            <SimpleGrid cols={{ base: 1, lg: data.upcomingReviews.length > 0 ? 2 : 1 }} spacing="lg">
               <Card>
                 <CardHeader>
                   <ThemeIcon color="teal" radius="sm" variant="light">
@@ -576,16 +647,16 @@ export function DashboardRoute() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <ThemeIcon color="yellow" radius="sm" variant="light">
-                    <CalendarClock size={18} />
-                  </ThemeIcon>
-                  <CardTitle>{t("dashboard.upcomingReviews")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {data.upcomingReviews.length > 0 ? (
-                    data.upcomingReviews.map((review) => {
+              {data.upcomingReviews.length > 0 ? (
+                <Card>
+                  <CardHeader>
+                    <ThemeIcon color="yellow" radius="sm" variant="light">
+                      <CalendarClock size={18} />
+                    </ThemeIcon>
+                    <CardTitle>{t("dashboard.upcomingReviews")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {data.upcomingReviews.map((review) => {
                       const skill = data.skills.find((item) => item.skill.id === review.skillId);
 
                       return (
@@ -606,69 +677,65 @@ export function DashboardRoute() {
                           </Group>
                         </Paper>
                       );
-                    })
-                  ) : (
-                    <Text c="dimmed">{t("dashboard.noReviews")}</Text>
-                  )}
-                </CardContent>
-              </Card>
+                    })}
+                  </CardContent>
+                </Card>
+              ) : null}
             </SimpleGrid>
 
-            <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("dashboard.strongSkills")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {data.strongSkills.length > 0 ? (
-                    data.strongSkills.map((summary) => (
-                      <SkillProgressRow key={summary.skill.id} summary={summary} />
-                    ))
-                  ) : (
-                    <Text c="dimmed">{t("options.empty")}</Text>
-                  )}
-                </CardContent>
-              </Card>
+            {data.strongSkills.length > 0 || data.weakSpots.length > 0 ? (
+              <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+                {data.strongSkills.length > 0 ? (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t("dashboard.strongSkills")}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {data.strongSkills.map((summary) => (
+                        <SkillProgressRow key={summary.skill.id} summary={summary} />
+                      ))}
+                    </CardContent>
+                  </Card>
+                ) : null}
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("dashboard.weakSpots")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {data.weakSpots.length > 0 ? (
-                    data.weakSpots.map((weakSpot) => (
-                      <Paper
-                        key={weakSpot.skillId}
-                        bg="var(--mantine-color-default-hover)"
-                        p="md"
-                        radius="sm"
-                      >
-                        <Group justify="space-between" gap="md">
-                          <Stack gap={4} style={{ flex: 1 }}>
-                            <Text fw={650}>{weakSpot.title}</Text>
-                            <Progress value={weakSpot.score} color={readinessColor(weakSpot.score)} />
-                            <Text c="dimmed" size="sm">
-                              {t(`dashboard.weakSpotReasons.${weakSpot.reason}`)}
-                            </Text>
-                          </Stack>
-                          <Button
-                            color="gray"
-                            component="a"
-                            href={`/skills/${weakSpot.skillId}`}
-                            size="xs"
-                            variant="default"
-                          >
-                            {t("common.open")}
-                          </Button>
-                        </Group>
-                      </Paper>
-                    ))
-                  ) : (
-                    <Text c="dimmed">{t("dashboard.noWeakSpots")}</Text>
-                  )}
-                </CardContent>
-              </Card>
-            </SimpleGrid>
+                {data.weakSpots.length > 0 ? (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t("dashboard.weakSpots")}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {data.weakSpots.map((weakSpot) => (
+                        <Paper
+                          key={weakSpot.skillId}
+                          bg="var(--mantine-color-default-hover)"
+                          p="md"
+                          radius="sm"
+                        >
+                          <Group justify="space-between" gap="md">
+                            <Stack gap={4} style={{ flex: 1 }}>
+                              <Text fw={650}>{weakSpot.title}</Text>
+                              <Progress value={weakSpot.score} color={readinessColor(weakSpot.score)} />
+                              <Text c="dimmed" size="sm">
+                                {t(`dashboard.weakSpotReasons.${weakSpot.reason}`)}
+                              </Text>
+                            </Stack>
+                            <Button
+                              color="gray"
+                              component="a"
+                              href={`/skills/${weakSpot.skillId}`}
+                              size="xs"
+                              variant="default"
+                            >
+                              {t("common.open")}
+                            </Button>
+                          </Group>
+                        </Paper>
+                      ))}
+                    </CardContent>
+                  </Card>
+                ) : null}
+              </SimpleGrid>
+            ) : null}
 
             <Card>
               <CardHeader>
@@ -701,30 +768,57 @@ export function DashboardRoute() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <ThemeIcon color="blue" radius="sm" variant="light">
-                  <Clock3 size={18} />
-                </ThemeIcon>
-                <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {data.recentActivity.length > 0 ? (
-                  data.recentActivity.slice(0, 6).map((event) => (
+            {data.recentActivity.length > 0 ? (
+              <Card>
+                <CardHeader>
+                  <ThemeIcon color="blue" radius="sm" variant="light">
+                    <Clock3 size={18} />
+                  </ThemeIcon>
+                  <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {data.recentActivity.slice(0, 6).map((event) => (
                     <ActivityRow key={event.id} event={event} locale={i18n.language} />
-                  ))
-                ) : (
-                  <Text c="dimmed">{t("dashboard.noActivity")}</Text>
-                )}
-                <Button color="gray" component={Link} to="/history" variant="default">
-                  {t("dashboard.openHistory")}
-                </Button>
-              </CardContent>
-            </Card>
+                  ))}
+                  <Button color="gray" component={Link} to="/history" variant="default">
+                    {t("dashboard.openHistory")}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : null}
           </>
         ) : null}
       </PageSection>
     </Container>
+  );
+}
+
+function ReviewItem({
+  label,
+  value,
+  description,
+}: {
+  label: string;
+  value: string;
+  description: string;
+}) {
+  return (
+    <Paper
+      bg="var(--mantine-color-default-hover)"
+      p="md"
+      radius="md"
+      style={{ border: "1px solid var(--mantine-color-default-border)" }}
+    >
+      <Stack gap={4}>
+        <Text c="dimmed" size="sm">
+          {label}
+        </Text>
+        <Text fw={700}>{value}</Text>
+        <Text c="dimmed" size="sm">
+          {description}
+        </Text>
+      </Stack>
+    </Paper>
   );
 }
 

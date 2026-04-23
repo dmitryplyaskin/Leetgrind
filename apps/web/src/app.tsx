@@ -1,11 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Link,
+  Navigate,
   Outlet,
   RouterProvider,
   createRootRoute,
   createRoute,
   createRouter,
+  useLocation,
 } from "@tanstack/react-router";
 import { ActionIcon, Tooltip } from "@mantine/core";
 import {
@@ -18,7 +20,7 @@ import {
   PanelLeftOpen,
   Settings2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AppSurface,
@@ -52,8 +54,58 @@ import { createTrpcClient, trpc } from "./trpc";
 const queryClient = new QueryClient();
 const trpcClient = createTrpcClient();
 
+function AppBrand() {
+  return (
+    <Tooltip label="Leetgrind" position="right" openDelay={350}>
+      <Link
+        to="/"
+        aria-label="Leetgrind"
+        className="app-sidebar__brand"
+        title="Leetgrind"
+      >
+        <Box component="span" className="app-sidebar__brand-mark">
+          Lg
+        </Box>
+        <Text component="span" className="app-sidebar__wordmark">
+          Leetgrind
+        </Text>
+      </Link>
+    </Tooltip>
+  );
+}
+
+function RouteLoading() {
+  const { t } = useTranslation();
+
+  return (
+    <Container>
+      <Box
+        component="section"
+        mih="70vh"
+        py={{ base: 48, md: 72 }}
+        style={{ alignContent: "center", display: "grid" }}
+      >
+        <Stack gap="sm" maw={560}>
+          <Kicker>Leetgrind</Kicker>
+          <PageTitle>{t("common.loading")}</PageTitle>
+          <PageLead>{t("common.loadingDetail")}</PageLead>
+        </Stack>
+      </Box>
+    </Container>
+  );
+}
+
+function useOnboardingState() {
+  return trpc.onboarding.getState.useQuery(undefined, {
+    retry: false,
+    staleTime: 30_000,
+  });
+}
+
 function AppShell() {
   const { i18n, t } = useTranslation();
+  const location = useLocation();
+  const onboarding = useOnboardingState();
   const [isNavigationHidden, setIsNavigationHidden] = useState(() => {
     if (typeof window === "undefined") {
       return false;
@@ -61,11 +113,9 @@ function AppShell() {
 
     return window.localStorage.getItem("leetgrind.sidebarHidden") === "true";
   });
-  const onboarding = trpc.onboarding.getState.useQuery(undefined, {
-    retry: false,
-    staleTime: 30_000,
-  });
   const preferredLocale = onboarding.data?.profile.preferences.uiLocale;
+  const isOnboardingComplete = onboarding.data?.isComplete ?? false;
+  const isCompactShell = onboarding.isLoading || !isOnboardingComplete;
   const toggleNavigationLabel = isNavigationHidden
     ? t("app.navigation.showMenu")
     : t("app.navigation.hideMenu");
@@ -120,6 +170,37 @@ function AppShell() {
     }
   }, [isNavigationHidden]);
 
+  if (isCompactShell) {
+    return (
+      <AppSurface>
+        <Box className="app-shell-frame app-shell-frame--nav-hidden">
+          <Box
+            component="header"
+            style={{
+              alignItems: "center",
+              borderBottom: "1px solid var(--mantine-color-default-border)",
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "16px 20px",
+            }}
+          >
+            <AppBrand />
+            <ThemeToggle
+              labels={{
+                dark: t("app.theme.dark"),
+                light: t("app.theme.light"),
+                toggle: t("app.theme.toggle"),
+              }}
+            />
+          </Box>
+          <Box component="main" className="app-main">
+            <Outlet />
+          </Box>
+        </Box>
+      </AppSurface>
+    );
+  }
+
   return (
     <AppSurface>
       <Box
@@ -150,21 +231,7 @@ function AppShell() {
         ) : (
           <Box component="aside" className="app-sidebar">
             <Group className="app-sidebar__top" gap={6} wrap="nowrap">
-              <Tooltip label="Leetgrind" position="right" openDelay={350}>
-                <Link
-                  to="/"
-                  aria-label="Leetgrind"
-                  className="app-sidebar__brand"
-                  title="Leetgrind"
-                >
-                  <Box component="span" className="app-sidebar__brand-mark">
-                    Lg
-                  </Box>
-                  <Text component="span" className="app-sidebar__wordmark">
-                    Leetgrind
-                  </Text>
-                </Link>
-              </Tooltip>
+              <AppBrand />
               <Tooltip
                 label={toggleNavigationLabel}
                 position="right"
@@ -235,43 +302,44 @@ function AppShell() {
   );
 }
 
-function HomeRoute() {
-  const { t } = useTranslation();
+function BootstrapRoute() {
+  const onboarding = useOnboardingState();
+
+  if (onboarding.isLoading) {
+    return <RouteLoading />;
+  }
 
   return (
-    <Container>
-      <Box
-        component="section"
-        mih="100vh"
-        py={{ base: 48, md: 72 }}
-        style={{ alignContent: "center", display: "grid" }}
-      >
-        <Stack gap="lg" maw={820} miw={0} w="100%">
-          <Kicker>{t("home.eyebrow")}</Kicker>
-          <PageTitle>{t("home.title")}</PageTitle>
-          <PageLead>{t("home.copy")}</PageLead>
-          <Group gap="sm">
-            <Button
-              component={Link}
-              to="/onboarding"
-              leftSection={<ArrowRight size={16} />}
-            >
-              {t("home.start")}
-            </Button>
-            <Button
-              color="gray"
-              component={Link}
-              to="/dashboard"
-              leftSection={<LayoutDashboard size={16} />}
-              variant="default"
-            >
-              {t("home.dashboard")}
-            </Button>
-          </Group>
-        </Stack>
-      </Box>
-    </Container>
+    <Navigate
+      replace
+      to={onboarding.data?.isComplete ? "/dashboard" : "/onboarding"}
+    />
   );
+}
+
+function OnboardingGate({ children }: { children: ReactNode }) {
+  const onboarding = useOnboardingState();
+  const location = useLocation();
+
+  if (onboarding.isLoading) {
+    return <RouteLoading />;
+  }
+
+  if (!onboarding.data?.isComplete && location.pathname !== "/onboarding") {
+    return <Navigate replace to="/onboarding" />;
+  }
+
+  return <>{children}</>;
+}
+
+function withOnboardingGate(Component: () => ReactNode) {
+  return function ProtectedRoute() {
+    return (
+      <OnboardingGate>
+        <Component />
+      </OnboardingGate>
+    );
+  };
 }
 
 const rootRoute = createRootRoute({
@@ -281,7 +349,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: HomeRoute,
+  component: BootstrapRoute,
 });
 
 const onboardingRoute = createRoute({
@@ -293,73 +361,73 @@ const onboardingRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/dashboard",
-  component: DashboardRoute,
+  component: withOnboardingGate(DashboardRoute),
 });
 
 const assessmentsNewRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/assessments/new",
-  component: AssessmentsNewRoute,
+  component: withOnboardingGate(AssessmentsNewRoute),
 });
 
 const assessmentSessionRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/assessments/$sessionId",
-  component: AssessmentSessionRoute,
+  component: withOnboardingGate(AssessmentSessionRoute),
 });
 
 const assessmentResultRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/assessments/$sessionId/result",
-  component: AssessmentResultRoute,
+  component: withOnboardingGate(AssessmentResultRoute),
 });
 
 const goalDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/goals/$goalId",
-  component: GoalDetailRoute,
+  component: withOnboardingGate(GoalDetailRoute),
 });
 
 const skillDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/skills/$skillId",
-  component: SkillDetailRoute,
+  component: withOnboardingGate(SkillDetailRoute),
 });
 
 const lessonsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/lessons",
-  component: LessonsRoute,
+  component: withOnboardingGate(LessonsRoute),
 });
 
 const lessonDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/lessons/$lessonId",
-  component: LessonDetailRoute,
+  component: withOnboardingGate(LessonDetailRoute),
 });
 
 const skillLessonsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/skills/$skillId/lessons",
-  component: SkillLessonsRoute,
+  component: withOnboardingGate(SkillLessonsRoute),
 });
 
 const historyRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/history",
-  component: HistoryRoute,
+  component: withOnboardingGate(HistoryRoute),
 });
 
 const aiSettingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/settings/ai",
-  component: AiSettingsRoute,
+  component: withOnboardingGate(AiSettingsRoute),
 });
 
 const aiProvidersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/settings/ai/providers",
-  component: AiProvidersRoute,
+  component: withOnboardingGate(AiProvidersRoute),
 });
 
 const routeTree = rootRoute.addChildren([

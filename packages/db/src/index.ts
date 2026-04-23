@@ -10,6 +10,7 @@ export * from "./repositories/evidence-repository.js";
 export * from "./repositories/evaluations-repository.js";
 export * from "./repositories/goals-repository.js";
 export * from "./repositories/learning-items-repository.js";
+export * from "./repositories/profile-skills-repository.js";
 export * from "./repositories/provider-settings-repository.js";
 export * from "./repositories/recommendations-repository.js";
 export * from "./repositories/review-schedules-repository.js";

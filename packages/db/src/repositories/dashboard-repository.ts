@@ -17,6 +17,7 @@ import {
   type GoalSkill,
   type KnowledgeGraphEdge,
   type KnowledgeGraphNode,
+  type ProfileSkill,
   type Recommendation,
   type RecommendedAction,
   type ReviewSchedule,
@@ -32,6 +33,7 @@ import {
   evidence,
   goalSkills,
   goals,
+  profileSkills,
   recommendations,
   reviewSchedules,
   skillEdges,
@@ -39,6 +41,8 @@ import {
   userProfiles
 } from "../schema.js";
 import { createSkillGraphSeedRepository } from "./skill-graph-seed-repository.js";
+import { createProfileSkillsRepository } from "./profile-skills-repository.js";
+import { createUserProfileRepository } from "./user-profile-repository.js";
 
 export interface DashboardQueryInput {
   profileId?: string;
@@ -72,13 +76,13 @@ export interface SkillDetailResult {
 export function createDashboardRepository(db: LeetgrindDatabase) {
   return {
     async getSummary(input: DashboardQueryInput = {}): Promise<DashboardSummary> {
-      const snapshot = await loadProgressSnapshot(db, input);
+      const snapshot = scopeProgressSnapshot(await loadProgressSnapshot(db, input));
 
       return buildDashboardSummary(snapshot);
     },
 
     async getGoalReadiness(input: DashboardQueryInput): Promise<GoalReadinessResult> {
-      const snapshot = await loadProgressSnapshot(db, input);
+      const snapshot = scopeProgressSnapshot(await loadProgressSnapshot(db, input));
       const skills = buildSkillProgressSummaries(snapshot);
 
       return {
@@ -90,7 +94,7 @@ export function createDashboardRepository(db: LeetgrindDatabase) {
     },
 
     async getSkillGraph(input: DashboardQueryInput = {}): Promise<SkillGraphResult> {
-      const snapshot = await loadProgressSnapshot(db, input);
+      const snapshot = scopeProgressSnapshot(await loadProgressSnapshot(db, input));
       const scoped = scopeGraphSnapshot(snapshot);
       const summaries = buildSkillProgressSummaries(scoped);
 
@@ -160,13 +164,16 @@ async function loadProgressSnapshot(
   { profileId = LOCAL_USER_PROFILE_ID, goalId }: DashboardQueryInput
 ) {
   await createSkillGraphSeedRepository(db).ensureCommonTemplates();
+  await createUserProfileRepository(db).ensureLocalProfile();
+  await createProfileSkillsRepository(db).backfillLegacyRecords(profileId);
 
   const [
-    [profile],
-    goalRows,
-    skillRows,
-    goalSkillRows,
-    edgeRows,
+        [profile],
+        goalRows,
+        skillRows,
+        profileSkillRows,
+        goalSkillRows,
+        edgeRows,
     evidenceRows,
     attemptRows,
     recommendationRows,
@@ -175,6 +182,7 @@ async function loadProgressSnapshot(
     db.select().from(userProfiles).where(eq(userProfiles.id, profileId)),
     db.select().from(goals).where(eq(goals.profileId, profileId)),
     db.select().from(skills),
+    db.select().from(profileSkills).where(eq(profileSkills.profileId, profileId)),
     db.select().from(goalSkills),
     db.select().from(skillEdges),
     db.select().from(evidence).where(eq(evidence.profileId, profileId)),
@@ -201,6 +209,7 @@ async function loadProgressSnapshot(
     profile: profile as UserProfile,
     goal: selectedGoal,
     skills: skillRows as Skill[],
+    profileSkills: profileSkillRows as ProfileSkill[],
     goalSkills: selectedGoalSkills,
     skillEdges: edgeRows as SkillEdge[],
     evidence: evidenceRows as Evidence[],
@@ -209,6 +218,71 @@ async function loadProgressSnapshot(
       (recommendation) => !selectedGoal || !recommendation.goalId || recommendation.goalId === selectedGoal.id
     ),
     reviews: reviewRows as ReviewSchedule[]
+  };
+}
+
+function scopeProgressSnapshot(snapshot: Awaited<ReturnType<typeof loadProgressSnapshot>>) {
+  const baseSkillIds = new Set<string>();
+
+  for (const profileSkill of snapshot.profileSkills) {
+    baseSkillIds.add(profileSkill.skillId);
+  }
+
+  for (const goalSkill of snapshot.goalSkills) {
+    baseSkillIds.add(goalSkill.skillId);
+  }
+
+  for (const item of snapshot.evidence) {
+    if (item.skillId) {
+      baseSkillIds.add(item.skillId);
+    }
+  }
+
+  for (const item of snapshot.attempts) {
+    if (item.skillId) {
+      baseSkillIds.add(item.skillId);
+    }
+  }
+
+  for (const item of snapshot.recommendations) {
+    if (item.skillId) {
+      baseSkillIds.add(item.skillId);
+    }
+  }
+
+  for (const item of snapshot.reviews) {
+    if (item.skillId) {
+      baseSkillIds.add(item.skillId);
+    }
+  }
+
+  if (baseSkillIds.size === 0) {
+    return {
+      ...snapshot,
+      skills: [],
+      profileSkills: [],
+      skillEdges: [],
+    };
+  }
+
+  const scopedSkillIds = new Set(baseSkillIds);
+
+  for (const edge of snapshot.skillEdges) {
+    if (baseSkillIds.has(edge.fromSkillId) || baseSkillIds.has(edge.toSkillId)) {
+      scopedSkillIds.add(edge.fromSkillId);
+      scopedSkillIds.add(edge.toSkillId);
+    }
+  }
+
+  return {
+    ...snapshot,
+    skills: snapshot.skills.filter((skill) => scopedSkillIds.has(skill.id)),
+    profileSkills: snapshot.profileSkills.filter((profileSkill) =>
+      scopedSkillIds.has(profileSkill.skillId),
+    ),
+    skillEdges: snapshot.skillEdges.filter(
+      (edge) => scopedSkillIds.has(edge.fromSkillId) && scopedSkillIds.has(edge.toSkillId),
+    ),
   };
 }
 

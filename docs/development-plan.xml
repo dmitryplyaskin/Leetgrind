@@ -16,6 +16,7 @@
         <provides>Typed API calls through client adapters.</provides>
         <provides>UI composition using packages/ui components.</provides>
         <provides>Russian and English localization wiring for user-facing UI.</provides>
+        <provides>Bootstrap routing that sends incomplete profiles to onboarding and completed profiles to the dashboard.</provides>
         <provides>Route layouts that follow docs/frontend-design.md and verify desktop/mobile viewport behavior.</provides>
         <must-not>Directly access PGLite, Drizzle repositories, OpenAI, OpenRouter, or Codex-specific code.</must-not>
       </public-contract>
@@ -62,6 +63,7 @@
       <purpose>Own PGLite client creation, Drizzle schema, migrations, repositories, and vector storage.</purpose>
       <public-contract>
         <provides>Database schema and typed persistence APIs.</provides>
+        <provides>Separate persistence for skill catalog nodes and profile-scoped self-assessed skill state.</provides>
         <provides>Embedding storage through pgvector-compatible vector fields.</provides>
         <provides>Repository functions that map rows to domain-safe shapes.</provides>
         <must-not>Contain UI logic or provider-specific prompt logic.</must-not>
@@ -189,7 +191,7 @@
 
     <phase id="PH-002" status="done" roadmap="docs/roadmap/phase-02-user-profile-goals-onboarding.md">
       <name>User Profile, Goals, And Onboarding</name>
-      <goal>Let the user define profile, goals, initial skills, UI language, programming languages, and resume context.</goal>
+      <goal>Let the user define profile, goals, initial skills, UI language, programming languages, and resume context through a gated onboarding flow before the main workspace opens.</goal>
       <module>M-WEB</module>
       <module>M-SERVER-API</module>
       <module>M-DOMAIN</module>
@@ -199,7 +201,7 @@
 
     <phase id="PH-003" status="done" roadmap="docs/roadmap/phase-03-progress-dashboard-knowledge-graph.md">
       <name>Progress Dashboard And Knowledge Graph</name>
-      <goal>Show goal readiness, skill progress, weak spots, recommendations, recent activity, and skill graph.</goal>
+      <goal>Show goal readiness, profile-scoped skill progress, weak spots, recommendations, recent activity, and a graph built from the shared skill catalog plus user-specific skill state.</goal>
       <module>M-WEB</module>
       <module>M-UI</module>
       <module>M-SERVER-API</module>

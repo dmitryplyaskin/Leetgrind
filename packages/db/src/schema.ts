@@ -99,6 +99,31 @@ export const goalSkills = pgTable(
   })
 );
 
+export const profileSkills = pgTable(
+  "profile_skills",
+  {
+    profileId: uuid("profile_id")
+      .notNull()
+      .default(LOCAL_USER_PROFILE_ID)
+      .references(() => userProfiles.id, { onDelete: "cascade" }),
+    skillId: uuid("skill_id")
+      .notNull()
+      .references(() => skills.id, { onDelete: "cascade" }),
+    level: text("level", {
+      enum: ["unknown", "weak", "developing", "strong"]
+    })
+      .notNull()
+      .default("unknown"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.profileId, table.skillId] }),
+    skillIdx: index("profile_skills_skill_id_idx").on(table.skillId)
+  })
+);
+
 export const skillEdges = pgTable(
   "skill_edges",
   {
@@ -472,6 +497,7 @@ export const providerSettings = pgTable(
 
 export const userProfilesRelations = relations(userProfiles, ({ many }) => ({
   goals: many(goals),
+  profileSkills: many(profileSkills),
   assessmentSessions: many(assessmentSessions),
   attempts: many(attempts),
   evidence: many(evidence),
@@ -494,6 +520,7 @@ export const goalsRelations = relations(goals, ({ one, many }) => ({
 
 export const skillsRelations = relations(skills, ({ many }) => ({
   goalSkills: many(goalSkills),
+  profileSkills: many(profileSkills),
   outgoingEdges: many(skillEdges, { relationName: "fromSkill" }),
   incomingEdges: many(skillEdges, { relationName: "toSkill" }),
   learningItems: many(learningItems),
@@ -512,6 +539,17 @@ export const goalSkillsRelations = relations(goalSkills, ({ one }) => ({
   }),
   skill: one(skills, {
     fields: [goalSkills.skillId],
+    references: [skills.id]
+  })
+}));
+
+export const profileSkillsRelations = relations(profileSkills, ({ one }) => ({
+  profile: one(userProfiles, {
+    fields: [profileSkills.profileId],
+    references: [userProfiles.id]
+  }),
+  skill: one(skills, {
+    fields: [profileSkills.skillId],
     references: [skills.id]
   })
 }));

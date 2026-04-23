@@ -37,6 +37,7 @@ export const resources = {
         backToDashboard: "Back to dashboard",
         loadError: "Could not load this view.",
         loading: "Loading...",
+        loadingDetail: "Preparing your local workspace.",
         open: "Open",
       },
       aiSettings: {
@@ -152,6 +153,11 @@ export const resources = {
         },
         chooseSkill: "Choose a skill",
         dueReviews: "{{count}} due reviews",
+        currentRole: "Current role",
+        firstSessionKicker: "Ready to start",
+        firstSessionTitle: "Your workspace is ready for the first real session.",
+        firstSessionSubtitle:
+          "Start with one focused check or create the first lesson from the goals and skills you just mapped.",
         goalSkillJump: "Open a goal skill",
         graph: "Knowledge graph",
         kicker: "Progress",
@@ -199,6 +205,7 @@ export const resources = {
         noResume: "No resume added",
         primaryGoal: "Primary goal",
         topSkills: "Initial skill map",
+        skillMapReady: "{{count}} mapped skills are ready for practice and graph navigation.",
         focusAreas: "Focus areas",
         weakSkills: "Skills to improve",
         actionReview: "Review weak skills",
@@ -329,26 +336,67 @@ export const resources = {
         refreshError: "Could not refresh recommendations. Check the active AI provider and try again."
       },
       onboarding: {
-        title: "Set up your interview plan",
+        title: "Build your starting skill map",
         subtitle:
-          "Tell Leetgrind what you are preparing for, where you feel confident, and what needs work.",
+          "Answer a few focused questions so Leetgrind starts from your goals, current strengths, and real gaps.",
         save: "Save plan",
+        finish: "Open workspace",
         draft: "Save draft",
+        back: "Back",
+        continue: "Continue",
         saving: "Saving...",
         checkRequired: "Check required fields before saving.",
         draftSaved: "Draft saved",
         saved: "Plan saved",
         progress: "Setup",
-        summary: "Summary",
+        reviewingTitle: "Update your setup",
+        startingTitle: "Start from a blank profile",
+        wizardDescription:
+          "Keep the first pass short. You can refine goals, skills, and preferences later.",
         addGoal: "Add goal",
+        addFirstGoal: "Add the first goal",
         addSkill: "Add skill",
+        addFirstSkill: "Add the first skill",
         remove: "Remove",
+        stepLabel: "Step {{step}}",
+        reviewTitle: "Check the starting picture",
+        reviewDescription:
+          "Review the essentials before Leetgrind unlocks the main workspace.",
+        reviewResumeReady: "Background added",
+        goalSectionTitle: "What are you preparing for?",
+        goalSectionDescription:
+          "Add the concrete interview tracks or growth goals that should shape the workspace.",
+        skillSectionTitle: "What do you already know?",
+        skillSectionDescription:
+          "Capture the skills you want Leetgrind to track from day one.",
+        backgroundSectionTitle: "Background and learning preferences",
+        backgroundSectionDescription:
+          "Add context that helps tailor lessons, checks, and follow-up work.",
+        emptyGoalsTitle: "No goals yet",
+        emptyGoalsDescription:
+          "Add at least one goal so the app can prioritize the right topics and interviews.",
+        emptySkillsTitle: "No skills yet",
+        emptySkillsDescription:
+          "Add at least one self-assessed skill so the first dashboard reflects your current level.",
+        goalCard: "Goal {{index}}",
+        skillCard: "Skill {{index}}",
+        validation: {
+          goalRequired: "Add at least one goal before moving on.",
+          skillRequired: "Add at least one skill before moving on.",
+        },
         steps: {
-          welcome: "Welcome",
+          profile: "Profile",
           goals: "Goals",
           skills: "Skills",
-          resume: "Resume",
-          preferences: "Preferences",
+          background: "Background",
+          review: "Review",
+        },
+        stepDescriptions: {
+          profile: "Set the basic context: name, target role, experience level, and interface language.",
+          goals: "Define the interview tracks or learning outcomes that matter right now.",
+          skills: "List the skills you want tracked from the first session.",
+          background: "Add resume context, content language, and study rhythm.",
+          review: "Confirm the starting picture before entering the main workspace.",
         },
         fields: {
           displayName: "Display name",
@@ -371,10 +419,21 @@ export const resources = {
           programmingLanguages: "Programming languages",
           studyRhythm: "Study rhythm",
         },
+        placeholders: {
+          displayName: "How should Leetgrind address you?",
+          targetRole: "Frontend Engineer, Backend Engineer, Fullstack Engineer...",
+          goalTitle: "Prepare for mid-level frontend interviews",
+          targetCompany: "Optional company name",
+          focusAreas: "React, algorithms, system design",
+          goalDescription: "What should this goal optimize for?",
+          skillTitle: "React, SQL, graphs, HTTP...",
+          skillDescription: "Optional notes about confidence, blind spots, or recent practice",
+          programmingLanguages: "TypeScript, Python, Go",
+          resumeTitle: "Resume or background note",
+        },
         hints: {
-          commaSeparated: "Comma-separated",
           resumePlaceholder:
-            "Paste your resume, background, or current experience summary.",
+            "Paste your resume, current experience summary, or any context that should influence future lessons and checks.",
         },
       },
       options: {
@@ -445,6 +504,7 @@ export const resources = {
         backToDashboard: "Вернуться к дашборду",
         loadError: "Не удалось загрузить этот экран.",
         loading: "Загрузка...",
+        loadingDetail: "Подготавливаем локальное рабочее пространство.",
         open: "Открыть",
       },
       aiSettings: {
@@ -560,6 +620,11 @@ export const resources = {
         },
         chooseSkill: "Выбери навык",
         dueReviews: "{{count}} повторений",
+        currentRole: "Текущая роль",
+        firstSessionKicker: "Можно начинать",
+        firstSessionTitle: "Рабочее место готово к первой нормальной сессии.",
+        firstSessionSubtitle:
+          "Запусти точечную проверку или создай первый урок на основе целей и навыков, которые ты только что зафиксировал.",
         goalSkillJump: "Открыть навык цели",
         graph: "Граф знаний",
         kicker: "Прогресс",
@@ -607,6 +672,7 @@ export const resources = {
         noResume: "Резюме не добавлено",
         primaryGoal: "Главная цель",
         topSkills: "Начальная карта навыков",
+        skillMapReady: "{{count}} навыков уже готовы для практики и навигации по графу.",
         focusAreas: "Фокус",
         weakSkills: "Навыки для прокачки",
         actionReview: "Разобрать слабые навыки",
@@ -737,26 +803,67 @@ export const resources = {
         refreshError: "Не удалось обновить рекомендации. Проверь активного AI-провайдера и повтори попытку."
       },
       onboarding: {
-        title: "Настрой план подготовки",
+        title: "Собери стартовую карту навыков",
         subtitle:
-          "Расскажи, к чему готовишься, где уже уверен и что нужно подтянуть.",
+          "Ответь на несколько коротких вопросов, чтобы Leetgrind начал с твоих целей, сильных сторон и реальных пробелов.",
         save: "Сохранить план",
+        finish: "Открыть рабочее место",
         draft: "Сохранить черновик",
+        back: "Назад",
+        continue: "Дальше",
         saving: "Сохранение...",
         checkRequired: "Проверь обязательные поля перед сохранением.",
         draftSaved: "Черновик сохранен",
         saved: "План сохранен",
         progress: "Настройка",
-        summary: "Сводка",
+        reviewingTitle: "Обновление стартовой настройки",
+        startingTitle: "Старт с пустого профиля",
+        wizardDescription:
+          "Сначала зафиксируй основу. Детали по целям, навыкам и предпочтениям можно уточнить позже.",
         addGoal: "Добавить цель",
+        addFirstGoal: "Добавить первую цель",
         addSkill: "Добавить навык",
+        addFirstSkill: "Добавить первый навык",
         remove: "Удалить",
+        stepLabel: "Шаг {{step}}",
+        reviewTitle: "Проверь стартовую картину",
+        reviewDescription:
+          "Посмотри на основу еще раз, прежде чем Leetgrind откроет основное рабочее пространство.",
+        reviewResumeReady: "Контекст добавлен",
+        goalSectionTitle: "К чему ты готовишься?",
+        goalSectionDescription:
+          "Добавь направления подготовки или цели роста, которые должны управлять рабочим пространством.",
+        skillSectionTitle: "Что ты уже умеешь?",
+        skillSectionDescription:
+          "Зафиксируй навыки, которые Leetgrind должен отслеживать с первого дня.",
+        backgroundSectionTitle: "Контекст и учебные предпочтения",
+        backgroundSectionDescription:
+          "Добавь данные, которые помогут точнее подбирать уроки, проверки и следующие шаги.",
+        emptyGoalsTitle: "Цели пока не добавлены",
+        emptyGoalsDescription:
+          "Добавь хотя бы одну цель, чтобы приложение понимало, какие темы и собеседования приоритизировать.",
+        emptySkillsTitle: "Навыки пока не добавлены",
+        emptySkillsDescription:
+          "Добавь хотя бы один навык с самооценкой, чтобы первый дашборд отражал твой текущий уровень.",
+        goalCard: "Цель {{index}}",
+        skillCard: "Навык {{index}}",
+        validation: {
+          goalRequired: "Добавь хотя бы одну цель, прежде чем идти дальше.",
+          skillRequired: "Добавь хотя бы один навык, прежде чем идти дальше.",
+        },
         steps: {
-          welcome: "Старт",
+          profile: "Профиль",
           goals: "Цели",
           skills: "Навыки",
-          resume: "Резюме",
-          preferences: "Предпочтения",
+          background: "Контекст",
+          review: "Проверка",
+        },
+        stepDescriptions: {
+          profile: "Задай базовый контекст: имя, целевую роль, уровень опыта и язык интерфейса.",
+          goals: "Определи направления подготовки или результаты, которые сейчас реально важны.",
+          skills: "Перечисли навыки, которые нужно отслеживать с первой сессии.",
+          background: "Добавь резюме, язык учебного контента и ритм занятий.",
+          review: "Подтверди стартовую картину перед входом в основное рабочее пространство.",
         },
         fields: {
           displayName: "Имя",
@@ -779,10 +886,21 @@ export const resources = {
           programmingLanguages: "Языки программирования",
           studyRhythm: "Ритм занятий",
         },
+        placeholders: {
+          displayName: "Как к тебе обращаться в приложении?",
+          targetRole: "Frontend Engineer, Backend Engineer, Fullstack Engineer...",
+          goalTitle: "Подготовиться к frontend-собеседованиям на middle",
+          targetCompany: "Необязательное название компании",
+          focusAreas: "React, алгоритмы, system design",
+          goalDescription: "Что именно должно измениться по этой цели?",
+          skillTitle: "React, SQL, графы, HTTP...",
+          skillDescription: "Необязательные заметки про уверенность, пробелы или недавнюю практику",
+          programmingLanguages: "TypeScript, Python, Go",
+          resumeTitle: "Резюме или заметка о бэкграунде",
+        },
         hints: {
-          commaSeparated: "Через запятую",
           resumePlaceholder:
-            "Вставь резюме, описание опыта или краткую профессиональную справку.",
+            "Вставь резюме, описание текущего опыта или любой контекст, который должен влиять на будущие уроки и проверки.",
         },
       },
       options: {

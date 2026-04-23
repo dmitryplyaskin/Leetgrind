@@ -99,7 +99,7 @@ describe("local repositories", () => {
     expect(slugs.size).toBe(3);
   });
 
-  it("seeds the common skill graph without overwriting self-assessed skills", async () => {
+  it("seeds the common skill graph without fabricating profile skill state", async () => {
     await context.repositories.skills.upsertMany([
       {
         slug: "react",
@@ -112,6 +112,7 @@ describe("local repositories", () => {
     const seed = await context.repositories.seed.ensureCommonTemplates();
     const skills = await context.repositories.skills.list();
     const edges = await context.repositories.skills.listEdges();
+    const profileSkills = await context.repositories.profileSkills.list();
     const react = skills.find((skill) => skill.slug === "react");
 
     expect(seed.skillCount).toBeGreaterThan(0);
@@ -119,6 +120,26 @@ describe("local repositories", () => {
     expect(edges.length).toBeGreaterThan(0);
     expect(react?.level).toBe("developing");
     expect(react?.description).toBe("User-assessed React skill.");
+    expect(profileSkills).toHaveLength(0);
+  });
+
+  it("backfills legacy self-assessed skills into profile skills", async () => {
+    await context.repositories.userProfiles.ensureLocalProfile();
+    await context.repositories.skills.upsertMany([
+      {
+        slug: "react",
+        title: "React",
+        level: "developing",
+        description: "User-assessed React skill."
+      }
+    ]);
+
+    const backfilled = await context.repositories.profileSkills.backfillLegacyRecords();
+
+    expect(backfilled).toHaveLength(1);
+    expect(backfilled[0]?.skill.slug).toBe("react");
+    expect(backfilled[0]?.level).toBe("developing");
+    expect(backfilled[0]?.notes).toBe("User-assessed React skill.");
   });
 
   it("builds dashboard summaries from local evidence and goal links", async () => {

@@ -12,7 +12,7 @@ const forbiddenRoutineCopy = [
 
 test.describe("frontend design quality", () => {
   test("loads shared design tokens and local typography", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     const values = await page.evaluate(() => {
       const root = getComputedStyle(document.documentElement);
@@ -45,7 +45,7 @@ test.describe("frontend design quality", () => {
 
   for (const route of routineRoutes) {
     test(`keeps ${route} usable in the first viewport`, async ({ page }) => {
-      await page.goto(route);
+      await page.goto(route, { waitUntil: "domcontentloaded" });
 
       await expect(page.getByRole("link", { name: "Leetgrind" })).toBeVisible();
       await expect(page.locator("h1").first()).toBeVisible();
@@ -62,7 +62,7 @@ test.describe("frontend design quality", () => {
     test(`keeps ${route} free of routine product copy regressions`, async ({
       page,
     }) => {
-      await page.goto(route);
+      await page.goto(route, { waitUntil: "domcontentloaded" });
 
       const bodyText = (await page.locator("body").innerText()).toLowerCase();
 

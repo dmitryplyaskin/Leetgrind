@@ -15,6 +15,7 @@ The user can open the dashboard and understand:
 - what to study or practice next;
 - what needs review;
 - how skills relate to each other.
+- what the first useful next action is immediately after onboarding, even before attempts and scheduled reviews exist.
 
 ## Target Modules
 
@@ -107,7 +108,7 @@ packages/domain/src/skill-templates/
 packages/db/src/seeds/
 ```
 
-The seed graph should be editable later by AI and user actions.
+The seed graph should be editable later by AI and user actions, but it should remain separate from profile-scoped self-assessment data so a fresh learner never sees fake prefilled progress.
 
 ## Recommendation Rules
 
@@ -132,7 +133,7 @@ pnpm build
 
 Manual:
 
-- onboarding data appears on dashboard;
+- onboarding data appears on dashboard without exposing seeded catalog data as fake learner progress;
 - goal switcher changes summary;
 - graph renders with non-overlapping basic layout;
 - skill detail opens from graph;
@@ -146,7 +147,7 @@ Manual:
 
 ## Done Criteria
 
-- Dashboard gives a useful personalized state without AI.
+- Dashboard gives a useful personalized state without AI and has a clean first-session view right after onboarding.
 - Knowledge graph visualizes skill relationships.
 - User can inspect skill detail and recent progress.
 - Recommendations have visible reasons.

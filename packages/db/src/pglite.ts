@@ -15,6 +15,7 @@ import { createEvidenceRepository } from "./repositories/evidence-repository.js"
 import { createEvaluationsRepository } from "./repositories/evaluations-repository.js";
 import { createGoalsRepository } from "./repositories/goals-repository.js";
 import { createLearningItemsRepository } from "./repositories/learning-items-repository.js";
+import { createProfileSkillsRepository } from "./repositories/profile-skills-repository.js";
 import { createProviderSettingsRepository } from "./repositories/provider-settings-repository.js";
 import { createRecommendationsRepository } from "./repositories/recommendations-repository.js";
 import { createReviewSchedulesRepository } from "./repositories/review-schedules-repository.js";
@@ -89,6 +90,7 @@ export function createRepositories(db: LeetgrindDatabase) {
     skills: createSkillsRepository(db),
     assessmentSessions: createAssessmentSessionsRepository(db),
     learningItems: createLearningItemsRepository(db),
+    profileSkills: createProfileSkillsRepository(db),
     attempts: createAttemptsRepository(db),
     evaluations: createEvaluationsRepository(db),
     agentRuns: createAgentRunsRepository(db),

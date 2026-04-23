@@ -16,6 +16,7 @@ The user can:
 - paste resume or background text;
 - choose Russian or English as the application UI language;
 - choose primary programming languages;
+- complete onboarding before the main workspace becomes available.
 - finish onboarding and land on a personalized dashboard shell.
 
 ## Target Modules
@@ -31,7 +32,7 @@ The user can:
 
 Build an onboarding flow with these steps:
 
-1. Welcome and local-first explanation.
+1. Profile and UI language.
 2. Goal setup:
    - target company or role;
    - seniority level;
@@ -44,24 +45,23 @@ Build an onboarding flow with these steps:
    - system design;
    - language-specific skills;
    - custom skills.
-4. Resume/background input:
+4. Resume/background input and preferences:
    - text paste;
-   - future file upload.
-5. Preferences:
-   - application UI language: Russian or English;
+   - future file upload;
    - preferred languages;
    - preferred AI provider placeholder;
    - daily/weekly study rhythm.
-6. Confirmation and dashboard redirect.
+5. Review and confirmation:
+   - concise summary of profile, goals, skills, and background;
+   - explicit finish action into the main workspace.
+
+The implementation may keep these steps inside a single `/onboarding` route by using route search state for the current step, as long as reload and back/forward stay stable.
 
 Suggested routes:
 
 ```txt
+/               bootstrap redirect to onboarding or dashboard
 /onboarding
-/onboarding/goals
-/onboarding/skills
-/onboarding/resume
-/onboarding/preferences
 /dashboard
 ```
 
@@ -107,6 +107,7 @@ Make onboarding idempotent:
 - user can restart and edit;
 - partial progress can be saved;
 - completing onboarding should not destroy existing data.
+- protected product routes should redirect back to onboarding until onboarding is complete.
 
 ## Data Work
 

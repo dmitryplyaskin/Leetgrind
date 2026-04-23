@@ -99,6 +99,7 @@ The UI layer should live mostly in `apps/web`.
 Responsibilities:
 
 - route rendering;
+- bootstrap routing from `/` into onboarding or dashboard based on onboarding completion;
 - screen composition;
 - forms and local interactions;
 - editor views;
@@ -109,6 +110,12 @@ Responsibilities:
 - managing UI locale selection and localized screen copy.
 
 The UI should not directly call AI providers or database repositories.
+
+The startup contract is now:
+
+- `/` is a bootstrap route, not a promotional home page;
+- incomplete local profiles are redirected into onboarding and protected product routes stay gated;
+- the full app shell and navigation appear only after onboarding is complete.
 
 Recommended libraries:
 
@@ -403,6 +410,7 @@ Suggested core tables:
 
 - `goals`;
 - `skills`;
+- `profile_skills`;
 - `skill_edges`;
 - `learning_items`;
 - `attempts`;
@@ -412,6 +420,8 @@ Suggested core tables:
 - `review_schedules`.
 
 This model allows the system to explain why it recommends a lesson, repeat task, or mock interview topic.
+
+`skills` and `skill_edges` form the shared knowledge catalog and graph structure. User-specific self-assessment now lives in `profile_skills`, which stores the local learner's current level and notes for a catalog skill without mutating the catalog node itself. Read models combine catalog skills, profile skill assessments, goal links, evidence, attempts, and reviews into the effective learner-facing skill state.
 
 ## Coding Practice Architecture
 
@@ -515,7 +525,7 @@ Recommended build order:
 2. PGLite and Drizzle schema baseline.
 3. tRPC API and React app shell.
 4. Onboarding: user profile, goals, initial skills, resume import placeholder.
-5. Skill graph and dashboard using seeded/manual data.
+5. Skill graph and dashboard using the shared skill catalog plus profile-scoped self-assessment data.
 6. AI provider abstraction with one simple provider first.
 7. Assessment workflow: questions, answers, AI evaluation, evidence storage.
 8. RAG ingestion and vector search.

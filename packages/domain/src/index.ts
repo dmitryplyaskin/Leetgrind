@@ -127,6 +127,15 @@ export interface Skill {
   updatedAt: Date;
 }
 
+export interface ProfileSkill {
+  profileId: string;
+  skillId: string;
+  level: SkillLevel;
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface SkillEdge {
   id: string;
   fromSkillId: string;
@@ -481,6 +490,7 @@ export interface DashboardSummary {
 export interface ProgressReadModelInput {
   goal: Goal | null;
   skills: Skill[];
+  profileSkills: ProfileSkill[];
   goalSkills: GoalSkill[];
   skillEdges: SkillEdge[];
   evidence: Evidence[];
@@ -521,14 +531,23 @@ function getGoalSkillMap(goalSkills: GoalSkill[]) {
 
 export function buildSkillProgressSummaries(input: ProgressReadModelInput): SkillProgressSummary[] {
   const goalSkillMap = getGoalSkillMap(input.goalSkills);
+  const profileSkillMap = new Map(
+    input.profileSkills.map((profileSkill) => [profileSkill.skillId, profileSkill])
+  );
   const now = input.now ?? new Date();
 
   return input.skills
     .map((skill) => {
+      const profileSkill = profileSkillMap.get(skill.id) ?? null;
       const linkedGoalSkill = goalSkillMap.get(skill.id) ?? null;
       const skillEvidence = input.evidence.filter((item) => item.skillId === skill.id);
       const skillAttempts = input.attempts.filter((attempt) => attempt.skillId === skill.id);
       const skillReviews = input.reviews.filter((review) => review.skillId === skill.id);
+      const effectiveLevel = profileSkill?.level ?? "unknown";
+      const effectiveSkill: Skill = {
+        ...skill,
+        level: effectiveLevel
+      };
       const dueReviewCount = skillReviews.filter((review) => review.dueAt <= now).length;
       const evidenceCounts = {
         strengths: skillEvidence.filter((item) => item.polarity === "strength").length,
@@ -547,17 +566,19 @@ export function buildSkillProgressSummaries(input: ProgressReadModelInput): Skil
       }, 0);
       const attemptSignal = Math.min(8, skillAttempts.length * 2);
       const reviewSignal = dueReviewCount > 0 ? -5 : 0;
-      const score = clampScore(skillLevelScores[skill.level] + evidenceSignal + attemptSignal + reviewSignal);
+      const score = clampScore(
+        skillLevelScores[effectiveLevel] + evidenceSignal + attemptSignal + reviewSignal
+      );
       const lastActivityAt = latestDate([
-        skill.updatedAt,
+        profileSkill?.updatedAt ?? null,
         ...skillEvidence.map((item) => item.createdAt),
         ...skillAttempts.map((attempt) => attempt.submittedAt),
         ...skillReviews.map((review) => review.lastReviewedAt ?? review.createdAt)
       ]);
 
       return {
-        skill,
-        level: skill.level,
+        skill: effectiveSkill,
+        level: effectiveLevel,
         score,
         goalRelevance: linkedGoalSkill?.relevance ?? null,
         priority: linkedGoalSkill?.priority ?? null,

@@ -1,7 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, Plus, Save, Trash2 } from "lucide-react";
-import { useEffect } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  CheckCircle2,
+  ChevronLeft,
+  Circle,
+  CircleDot,
+  Plus,
+  Save,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import type { Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -17,7 +26,6 @@ import {
   Button,
   Card,
   CardContent,
-  Divider,
   Container,
   Group,
   Kicker,
@@ -32,13 +40,13 @@ import {
   Text,
   TextInput,
   Textarea,
-  ThemeIcon,
   Title,
 } from "@leetgrind/ui";
 import { i18n } from "./i18n";
 import { trpc } from "./trpc";
 
 type Locale = "ru" | "en";
+type OnboardingStep = "profile" | "goals" | "skills" | "background" | "review";
 type OnboardingFormInput = Omit<z.input<typeof onboardingDraftInputSchema>, "resume"> & {
   resume: {
     title: string;
@@ -46,41 +54,41 @@ type OnboardingFormInput = Omit<z.input<typeof onboardingDraftInputSchema>, "res
   };
 };
 
-const defaultValues: OnboardingFormInput = {
-  profile: {
-    displayName: null,
-    targetRole: "Frontend Engineer",
-    experienceLevel: "middle",
-  },
-  goals: [
-    {
-      title: "Frontend interview preparation",
-      goalType: "job-search",
-      targetRole: "Frontend Engineer",
-      targetCompany: null,
-      targetSeniority: "middle",
-      interviewDate: null,
-      focusAreas: ["React", "Algorithms"],
-      description: null,
-    },
+const onboardingSteps: OnboardingStep[] = [
+  "profile",
+  "goals",
+  "skills",
+  "background",
+  "review",
+];
+
+const stepFieldNames: Record<Exclude<OnboardingStep, "review">, string[]> = {
+  profile: [
+    "profile.displayName",
+    "profile.targetRole",
+    "profile.experienceLevel",
+    "preferences.uiLocale",
   ],
-  skills: [
-    { title: "React", level: "developing", description: null },
-    { title: "Algorithms", level: "weak", description: null },
-    { title: "TypeScript", level: "developing", description: null },
+  goals: ["goals"],
+  skills: ["skills"],
+  background: [
+    "resume.title",
+    "resume.content",
+    "preferences.contentLanguage",
+    "preferences.programmingLanguages",
+    "preferences.studyRhythm",
   ],
-  resume: {
-    title: "Resume",
-    content: "",
-  },
-  preferences: {
-    uiLocale: i18n.language === "ru" ? "ru" : "en",
-    contentLanguage: "mixed",
-    programmingLanguages: ["typescript"],
-    studyRhythm: "daily",
-    preferredAiProviderKind: "not-configured",
-  },
 };
+
+function isOnboardingStep(value: unknown): value is OnboardingStep {
+  return (
+    value === "profile" ||
+    value === "goals" ||
+    value === "skills" ||
+    value === "background" ||
+    value === "review"
+  );
+}
 
 function toCsv(value: string[]) {
   return value.join(", ");
@@ -107,8 +115,111 @@ function localeOrDefault(value: unknown, fallback: Locale): Locale {
   return value === "ru" || value === "en" ? value : fallback;
 }
 
+function createEmptyValues(locale: Locale): OnboardingFormInput {
+  return {
+    profile: {
+      displayName: null,
+      targetRole: null,
+      experienceLevel: null,
+    },
+    goals: [],
+    skills: [],
+    resume: {
+      title: "",
+      content: "",
+    },
+    preferences: {
+      uiLocale: locale,
+      contentLanguage: "mixed",
+      programmingLanguages: [],
+      studyRhythm: "daily",
+      preferredAiProviderKind: "not-configured",
+    },
+  };
+}
+
+function StepNavigation({
+  currentStep,
+  onSelect,
+  isComplete,
+  t,
+}: {
+  currentStep: OnboardingStep;
+  onSelect: (step: OnboardingStep) => void;
+  isComplete: boolean;
+  t: ReturnType<typeof useTranslation>["t"];
+}) {
+  return (
+    <Paper
+      p="lg"
+      radius="lg"
+      style={{
+        border: "1px solid var(--mantine-color-default-border)",
+        position: "sticky",
+        top: 24,
+      }}
+    >
+      <Stack gap="sm">
+        <Kicker>{t("onboarding.progress")}</Kicker>
+        <Title order={2} size="h4">
+          {isComplete
+            ? t("onboarding.reviewingTitle")
+            : t("onboarding.startingTitle")}
+        </Title>
+        <Text c="dimmed" size="sm">
+          {t("onboarding.wizardDescription")}
+        </Text>
+      </Stack>
+      <Stack gap="xs" mt="lg">
+        {onboardingSteps.map((step, index) => {
+          const isActive = step === currentStep;
+          const Icon = isActive ? CircleDot : Circle;
+
+          return (
+            <Button
+              key={step}
+              color={isActive ? "dark" : "gray"}
+              justify="flex-start"
+              leftSection={<Icon size={16} />}
+              variant={isActive ? "light" : "subtle"}
+              onClick={() => onSelect(step)}
+            >
+              {index + 1}. {t(`onboarding.steps.${step}`)}
+            </Button>
+          );
+        })}
+      </Stack>
+    </Paper>
+  );
+}
+
+function ReviewItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <Paper
+      bg="var(--mantine-color-default-hover)"
+      p="md"
+      radius="md"
+      style={{ border: "1px solid var(--mantine-color-default-border)" }}
+    >
+      <Stack gap={4}>
+        <Text c="dimmed" size="sm">
+          {label}
+        </Text>
+        <Text fw={650}>{value}</Text>
+      </Stack>
+    </Paper>
+  );
+}
+
 export function OnboardingRoute() {
   const { t } = useTranslation();
+  const location = useLocation();
   const navigate = useNavigate({ from: "/onboarding" });
   const utils = trpc.useUtils();
   const onboarding = trpc.onboarding.getState.useQuery();
@@ -123,6 +234,12 @@ export function OnboardingRoute() {
       await navigate({ to: "/dashboard" });
     },
   });
+  const fallbackLocale = i18n.language === "ru" ? "ru" : "en";
+  const [stepAlert, setStepAlert] = useState<string | null>(null);
+  const currentSearch = location.search as { step?: string } | undefined;
+  const currentStep = isOnboardingStep(currentSearch?.step)
+    ? currentSearch.step
+    : "profile";
 
   const form = useForm<OnboardingFormInput, unknown, OnboardingCompleteInput>({
     resolver: zodResolver(onboardingCompleteInputSchema) as Resolver<
@@ -130,16 +247,45 @@ export function OnboardingRoute() {
       unknown,
       OnboardingCompleteInput
     >,
-    defaultValues,
+    defaultValues: createEmptyValues(fallbackLocale),
   });
-  const { control, formState, getValues, handleSubmit, register, reset, trigger, watch } = form;
+  const { control, formState, getValues, handleSubmit, register, reset, trigger, watch } =
+    form;
   const goalFields = useFieldArray({ control, name: "goals" });
   const skillFields = useFieldArray({ control, name: "skills" });
   const watchedLocale = watch("preferences.uiLocale");
+  const activeGoals = watch("goals");
+  const activeSkills = watch("skills");
+  const programmingLanguages = watch("preferences.programmingLanguages");
+  const watchedProfile = watch("profile");
+  const watchedResume = watch("resume");
+  const isSaving = complete.isPending || saveDraft.isPending;
+  const isComplete = onboarding.data?.isComplete ?? false;
+  const stepIndex = onboardingSteps.indexOf(currentStep);
+
+  const stepMeta = useMemo(
+    () =>
+      onboardingSteps.map((step) => ({
+        id: step,
+        title: t(`onboarding.steps.${step}`),
+        description: t(`onboarding.stepDescriptions.${step}`),
+      })),
+    [t],
+  );
 
   useEffect(() => {
     void i18n.changeLanguage(watchedLocale);
   }, [watchedLocale]);
+
+  useEffect(() => {
+    if (!isOnboardingStep(currentSearch?.step)) {
+      void navigate({
+        replace: true,
+        to: "/onboarding",
+        search: { step: "profile" } as never,
+      });
+    }
+  }, [currentSearch?.step, navigate]);
 
   useEffect(() => {
     if (!onboarding.data) {
@@ -147,7 +293,7 @@ export function OnboardingRoute() {
     }
 
     const preferences = onboarding.data.profile.preferences;
-    const uiLocale = localeOrDefault(preferences.uiLocale, watchedLocale);
+    const uiLocale = localeOrDefault(preferences.uiLocale, fallbackLocale);
 
     reset({
       profile: {
@@ -155,50 +301,41 @@ export function OnboardingRoute() {
         targetRole: onboarding.data.profile.targetRole,
         experienceLevel: onboarding.data.profile.experienceLevel,
       },
-      goals:
-        onboarding.data.goals.length > 0
-          ? onboarding.data.goals.map((goal) => {
-              const metadata = goal.metadata ?? {};
-              return {
-                title: goal.title,
-                goalType:
-                  metadata.goalType === "company-interview" ||
-                  metadata.goalType === "role-growth" ||
-                  metadata.goalType === "skill-growth" ||
-                  metadata.goalType === "custom"
-                    ? metadata.goalType
-                    : "job-search",
-                targetRole: goal.targetRole,
-                targetCompany: stringOrNull(metadata.targetCompany),
-                targetSeniority:
-                  metadata.targetSeniority === "intern" ||
-                  metadata.targetSeniority === "junior" ||
-                  metadata.targetSeniority === "middle" ||
-                  metadata.targetSeniority === "senior" ||
-                  metadata.targetSeniority === "staff" ||
-                  metadata.targetSeniority === "lead"
-                    ? metadata.targetSeniority
-                    : null,
-                interviewDate: stringOrNull(metadata.interviewDate),
-                focusAreas: stringArray(metadata.focusAreas),
-                description: goal.description,
-              };
-            })
-          : defaultValues.goals,
-      skills:
-        onboarding.data.skills.length > 0
-          ? onboarding.data.skills.map((skill) => ({
-              title: skill.title,
-              level: skill.level,
-              description: skill.description,
-            }))
-          : defaultValues.skills,
+      goals: onboarding.data.goals.map((goal) => {
+        const metadata = goal.metadata ?? {};
+        return {
+          title: goal.title,
+          goalType:
+            metadata.goalType === "company-interview" ||
+            metadata.goalType === "role-growth" ||
+            metadata.goalType === "skill-growth" ||
+            metadata.goalType === "custom"
+              ? metadata.goalType
+              : "job-search",
+          targetRole: goal.targetRole,
+          targetCompany: stringOrNull(metadata.targetCompany),
+          targetSeniority:
+            metadata.targetSeniority === "intern" ||
+            metadata.targetSeniority === "junior" ||
+            metadata.targetSeniority === "middle" ||
+            metadata.targetSeniority === "senior" ||
+            metadata.targetSeniority === "staff" ||
+            metadata.targetSeniority === "lead"
+              ? metadata.targetSeniority
+              : null,
+          interviewDate: stringOrNull(metadata.interviewDate),
+          focusAreas: stringArray(metadata.focusAreas),
+          description: goal.description,
+        };
+      }),
+      skills: onboarding.data.skills.map((skill) => ({
+        title: skill.title,
+        level: skill.level,
+        description: skill.description,
+      })),
       resume: {
-        title: onboarding.data.resumeDocument?.title ?? "Resume",
-        content:
-          onboarding.data.resumeDocument?.content ??
-          defaultValues.resume?.content ??
-          "",
+        title: onboarding.data.resumeDocument?.title ?? "",
+        content: onboarding.data.resumeDocument?.content ?? "",
       },
       preferences: {
         uiLocale,
@@ -208,10 +345,7 @@ export function OnboardingRoute() {
           preferences.contentLanguage === "mixed"
             ? preferences.contentLanguage
             : "mixed",
-        programmingLanguages:
-          stringArray(preferences.programmingLanguages).length > 0
-            ? stringArray(preferences.programmingLanguages)
-            : defaultValues.preferences.programmingLanguages,
+        programmingLanguages: stringArray(preferences.programmingLanguages),
         studyRhythm:
           preferences.studyRhythm === "weekdays" ||
           preferences.studyRhythm === "weekends" ||
@@ -228,503 +362,654 @@ export function OnboardingRoute() {
             : "not-configured",
       },
     });
-  }, [onboarding.data, reset, watchedLocale]);
+  }, [fallbackLocale, onboarding.data, reset]);
 
-  const activeGoals = watch("goals").filter(
-    (goal) => goal.title.trim().length > 0,
-  );
-  const activeSkills = watch("skills").filter(
-    (skill) => skill.title.trim().length > 0,
-  );
-  const programmingLanguages = watch("preferences.programmingLanguages");
-  const isSaving = complete.isPending || saveDraft.isPending;
+  useEffect(() => {
+    setStepAlert(null);
+  }, [currentStep]);
+
+  const goToStep = (step: OnboardingStep) =>
+    navigate({
+      to: "/onboarding",
+      search: { step } as never,
+    });
+
+  const validateCurrentStep = async () => {
+    if (currentStep === "goals" && goalFields.fields.length === 0) {
+      setStepAlert(t("onboarding.validation.goalRequired"));
+      return false;
+    }
+
+    if (currentStep === "skills" && skillFields.fields.length === 0) {
+      setStepAlert(t("onboarding.validation.skillRequired"));
+      return false;
+    }
+
+    if (currentStep === "review") {
+      return true;
+    }
+
+    return trigger(stepFieldNames[currentStep as Exclude<OnboardingStep, "review">] as never);
+  };
+
+  const handleNext = async () => {
+    const isStepValid = await validateCurrentStep();
+
+    if (!isStepValid) {
+      return;
+    }
+
+    const nextStep = onboardingSteps[stepIndex + 1];
+
+    if (nextStep) {
+      await goToStep(nextStep);
+    }
+  };
+
+  const activeGoalCount = activeGoals.filter((goal) => goal.title.trim().length > 0).length;
+  const activeSkillCount = activeSkills.filter((skill) => skill.title.trim().length > 0).length;
 
   return (
-    <Container>
+    <Container size="xl">
       <PageSection>
         <PageHeader>
-          <Stack gap="xs" maw={760}>
+          <Stack gap="xs" maw={720}>
             <Kicker>{t("app.onboarding")}</Kicker>
             <PageTitle>{t("onboarding.title")}</PageTitle>
             <PageLead>{t("onboarding.subtitle")}</PageLead>
           </Stack>
         </PageHeader>
 
-        <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
-          <Card style={{ alignSelf: "start" }}>
-            <CardContent>
-              <Kicker c="dimmed">{t("onboarding.progress")}</Kicker>
-              <Stack gap="sm">
-                {[
-                  ["1", t("onboarding.steps.welcome")],
-                  ["2", t("onboarding.steps.goals")],
-                  ["3", t("onboarding.steps.skills")],
-                  ["4", t("onboarding.steps.resume")],
-                  ["5", t("onboarding.steps.preferences")],
-                ].map(([number, label]) => (
-                  <Group key={number} gap="sm" wrap="nowrap">
-                    <ThemeIcon
-                      color="teal"
-                      radius="sm"
-                      size="md"
-                      variant="light"
-                    >
-                      {number}
-                    </ThemeIcon>
-                    <Text size="sm">{label}</Text>
-                  </Group>
-                ))}
-              </Stack>
-              <Divider />
-              <Kicker c="dimmed">{t("onboarding.summary")}</Kicker>
-              <dl
-                style={{
-                  display: "grid",
-                  gap: "var(--mantine-spacing-sm)",
-                  margin: 0,
-                }}
-              >
-                {[
-                  [t("dashboard.goals"), activeGoals.length],
-                  [t("dashboard.skills"), activeSkills.length],
-                  [
-                    t("onboarding.fields.programmingLanguages"),
-                    programmingLanguages.join(", "),
-                  ],
-                ].map(([label, value]) => (
-                  <Group
-                    component="div"
-                    key={label}
-                    justify="space-between"
-                    gap="md"
-                  >
-                    <Text c="dimmed" component="dt" size="sm">
-                      {label}
-                    </Text>
-                    <Text component="dd" fw={700} lineClamp={1} m={0} size="sm">
-                      {value}
-                    </Text>
-                  </Group>
-                ))}
-              </dl>
-            </CardContent>
-          </Card>
+        <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg">
+          <StepNavigation
+            currentStep={currentStep}
+            isComplete={isComplete}
+            onSelect={goToStep}
+            t={t}
+          />
 
-          <form
-            style={{ display: "grid", gap: "var(--mantine-spacing-lg)" }}
+          <Box
+            component="form"
+            style={{ gridColumn: "span 2" }}
             onSubmit={handleSubmit((values) => complete.mutate(values))}
           >
-            <Card>
-              <CardContent>
-                <Title order={2} size="h3">
-                  {t("onboarding.steps.welcome")}
-                </Title>
-                <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
-                  <TextInput
-                    label={t("onboarding.fields.displayName")}
-                    {...register("profile.displayName")}
-                  />
-                  <TextInput
-                    label={t("onboarding.fields.targetRole")}
-                    {...register("profile.targetRole")}
-                  />
-                  <Select
-                    label={t("onboarding.fields.experienceLevel")}
-                    data={[
-                      {
-                        value: "beginner",
-                        label: t("options.levels.beginner"),
-                      },
-                      { value: "junior", label: t("options.levels.junior") },
-                      { value: "middle", label: t("options.levels.middle") },
-                      { value: "senior", label: t("options.levels.senior") },
-                      { value: "expert", label: t("options.levels.expert") },
-                    ]}
-                    {...register("profile.experienceLevel")}
-                  />
-                </SimpleGrid>
-              </CardContent>
-            </Card>
+            <Stack gap="lg">
+              <Card>
+                <CardContent>
+                  <Stack gap="xs">
+                    <Kicker>{t("onboarding.stepLabel", { step: stepIndex + 1 })}</Kicker>
+                    <Title order={2} size="h3">
+                      {stepMeta[stepIndex]?.title}
+                    </Title>
+                    <Text c="dimmed" maw={640}>
+                      {stepMeta[stepIndex]?.description}
+                    </Text>
+                  </Stack>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardContent>
-                <Group align="center" justify="space-between" gap="md">
-                  <Title order={2} size="h3">
-                    {t("onboarding.steps.goals")}
-                  </Title>
-                  <Button
-                    color="gray"
-                    leftSection={<Plus size={16} />}
-                    type="button"
-                    variant="default"
-                    onClick={() =>
-                      goalFields.append({
-                        title: "",
-                        goalType: "custom",
-                        targetRole: null,
-                        targetCompany: null,
-                        targetSeniority: null,
-                        interviewDate: null,
-                        focusAreas: [],
-                        description: null,
-                      })
-                    }
-                  >
-                    {t("onboarding.addGoal")}
-                  </Button>
-                </Group>
-                <Stack gap="xl">
-                  {goalFields.fields.map((field, index) => (
-                    <Box key={field.id}>
-                      {index > 0 ? <Divider mb="lg" /> : null}
-                      <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
-                        <TextInput
-                          label={t("onboarding.fields.goalTitle")}
-                          {...register(`goals.${index}.title`)}
-                        />
+              {currentStep === "profile" ? (
+                <Card>
+                  <CardContent>
+                    <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+                      <TextInput
+                        label={t("onboarding.fields.displayName")}
+                        placeholder={t("onboarding.placeholders.displayName")}
+                        {...register("profile.displayName")}
+                      />
+                      <TextInput
+                        label={t("onboarding.fields.targetRole")}
+                        placeholder={t("onboarding.placeholders.targetRole")}
+                        {...register("profile.targetRole")}
+                      />
+                      <Select
+                        label={t("onboarding.fields.experienceLevel")}
+                        data={[
+                          { value: "", label: t("options.empty") },
+                          { value: "beginner", label: t("options.levels.beginner") },
+                          { value: "junior", label: t("options.levels.junior") },
+                          { value: "middle", label: t("options.levels.middle") },
+                          { value: "senior", label: t("options.levels.senior") },
+                          { value: "expert", label: t("options.levels.expert") },
+                        ]}
+                        {...register("profile.experienceLevel")}
+                      />
+                      <Select
+                        label={t("onboarding.fields.uiLocale")}
+                        data={[
+                          { value: "en", label: "English" },
+                          { value: "ru", label: "Русский" },
+                        ]}
+                        {...register("preferences.uiLocale")}
+                      />
+                    </SimpleGrid>
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {currentStep === "goals" ? (
+                <Card>
+                  <CardContent>
+                    <Group align="center" justify="space-between" gap="md" mb="md">
+                      <Stack gap={4}>
+                        <Title order={3} size="h4">
+                          {t("onboarding.goalSectionTitle")}
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                          {t("onboarding.goalSectionDescription")}
+                        </Text>
+                      </Stack>
+                      <Button
+                        leftSection={<Plus size={16} />}
+                        type="button"
+                        variant="default"
+                        onClick={() =>
+                          goalFields.append({
+                            title: "",
+                            goalType: "job-search",
+                            targetRole: null,
+                            targetCompany: null,
+                            targetSeniority: null,
+                            interviewDate: null,
+                            focusAreas: [],
+                            description: null,
+                          })
+                        }
+                      >
+                        {goalFields.fields.length === 0
+                          ? t("onboarding.addFirstGoal")
+                          : t("onboarding.addGoal")}
+                      </Button>
+                    </Group>
+
+                    {goalFields.fields.length === 0 ? (
+                      <Paper
+                        bg="var(--mantine-color-default-hover)"
+                        p="lg"
+                        radius="md"
+                        style={{ border: "1px dashed var(--mantine-color-default-border)" }}
+                      >
+                        <Stack gap="xs">
+                          <Title order={4} size="h5">
+                            {t("onboarding.emptyGoalsTitle")}
+                          </Title>
+                          <Text c="dimmed" size="sm">
+                            {t("onboarding.emptyGoalsDescription")}
+                          </Text>
+                        </Stack>
+                      </Paper>
+                    ) : (
+                      <Stack gap="lg">
+                        {goalFields.fields.map((field, index) => (
+                          <Paper
+                            key={field.id}
+                            p="lg"
+                            radius="md"
+                            style={{ border: "1px solid var(--mantine-color-default-border)" }}
+                          >
+                            <Stack gap="md">
+                              <Group justify="space-between" gap="md">
+                                <Title order={4} size="h5">
+                                  {t("onboarding.goalCard", { index: index + 1 })}
+                                </Title>
+                                <Button
+                                  color="red"
+                                  leftSection={<Trash2 size={16} />}
+                                  type="button"
+                                  variant="subtle"
+                                  onClick={() => goalFields.remove(index)}
+                                >
+                                  {t("onboarding.remove")}
+                                </Button>
+                              </Group>
+                              <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+                                <TextInput
+                                  label={t("onboarding.fields.goalTitle")}
+                                  placeholder={t("onboarding.placeholders.goalTitle")}
+                                  {...register(`goals.${index}.title`)}
+                                />
+                                <Select
+                                  label={t("onboarding.fields.goalType")}
+                                  data={[
+                                    {
+                                      value: "job-search",
+                                      label: t("options.goalTypes.job-search"),
+                                    },
+                                    {
+                                      value: "company-interview",
+                                      label: t("options.goalTypes.company-interview"),
+                                    },
+                                    {
+                                      value: "role-growth",
+                                      label: t("options.goalTypes.role-growth"),
+                                    },
+                                    {
+                                      value: "skill-growth",
+                                      label: t("options.goalTypes.skill-growth"),
+                                    },
+                                    { value: "custom", label: t("options.goalTypes.custom") },
+                                  ]}
+                                  {...register(`goals.${index}.goalType`)}
+                                />
+                                <TextInput
+                                  label={t("onboarding.fields.targetRole")}
+                                  placeholder={t("onboarding.placeholders.targetRole")}
+                                  {...register(`goals.${index}.targetRole`)}
+                                />
+                                <TextInput
+                                  label={t("onboarding.fields.targetCompany")}
+                                  placeholder={t("onboarding.placeholders.targetCompany")}
+                                  {...register(`goals.${index}.targetCompany`)}
+                                />
+                                <Select
+                                  label={t("onboarding.fields.targetSeniority")}
+                                  data={[
+                                    { value: "", label: t("options.empty") },
+                                    { value: "intern", label: t("options.seniority.intern") },
+                                    { value: "junior", label: t("options.seniority.junior") },
+                                    { value: "middle", label: t("options.seniority.middle") },
+                                    { value: "senior", label: t("options.seniority.senior") },
+                                    { value: "staff", label: t("options.seniority.staff") },
+                                    { value: "lead", label: t("options.seniority.lead") },
+                                  ]}
+                                  {...register(`goals.${index}.targetSeniority`)}
+                                />
+                                <TextInput
+                                  label={t("onboarding.fields.interviewDate")}
+                                  type="date"
+                                  {...register(`goals.${index}.interviewDate`)}
+                                />
+                                <Controller
+                                  control={control}
+                                  name={`goals.${index}.focusAreas`}
+                                  render={({ field: controllerField }) => (
+                                    <TextInput
+                                      label={t("onboarding.fields.focusAreas")}
+                                      value={toCsv(controllerField.value)}
+                                      onChange={(event) =>
+                                        controllerField.onChange(
+                                          fromCsv(event.target.value),
+                                        )
+                                      }
+                                      placeholder={t("onboarding.placeholders.focusAreas")}
+                                    />
+                                  )}
+                                />
+                              </SimpleGrid>
+                              <Textarea
+                                autosize
+                                label={t("onboarding.fields.goalDescription")}
+                                minRows={2}
+                                placeholder={t("onboarding.placeholders.goalDescription")}
+                                {...register(`goals.${index}.description`)}
+                              />
+                            </Stack>
+                          </Paper>
+                        ))}
+                      </Stack>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {currentStep === "skills" ? (
+                <Card>
+                  <CardContent>
+                    <Group align="center" justify="space-between" gap="md" mb="md">
+                      <Stack gap={4}>
+                        <Title order={3} size="h4">
+                          {t("onboarding.skillSectionTitle")}
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                          {t("onboarding.skillSectionDescription")}
+                        </Text>
+                      </Stack>
+                      <Button
+                        leftSection={<Plus size={16} />}
+                        type="button"
+                        variant="default"
+                        onClick={() =>
+                          skillFields.append({
+                            title: "",
+                            level: "unknown",
+                            description: null,
+                          })
+                        }
+                      >
+                        {skillFields.fields.length === 0
+                          ? t("onboarding.addFirstSkill")
+                          : t("onboarding.addSkill")}
+                      </Button>
+                    </Group>
+
+                    {skillFields.fields.length === 0 ? (
+                      <Paper
+                        bg="var(--mantine-color-default-hover)"
+                        p="lg"
+                        radius="md"
+                        style={{ border: "1px dashed var(--mantine-color-default-border)" }}
+                      >
+                        <Stack gap="xs">
+                          <Title order={4} size="h5">
+                            {t("onboarding.emptySkillsTitle")}
+                          </Title>
+                          <Text c="dimmed" size="sm">
+                            {t("onboarding.emptySkillsDescription")}
+                          </Text>
+                        </Stack>
+                      </Paper>
+                    ) : (
+                      <Stack gap="lg">
+                        {skillFields.fields.map((field, index) => (
+                          <Paper
+                            key={field.id}
+                            p="lg"
+                            radius="md"
+                            style={{ border: "1px solid var(--mantine-color-default-border)" }}
+                          >
+                            <Stack gap="md">
+                              <Group justify="space-between" gap="md">
+                                <Title order={4} size="h5">
+                                  {t("onboarding.skillCard", { index: index + 1 })}
+                                </Title>
+                                <Button
+                                  color="red"
+                                  leftSection={<Trash2 size={16} />}
+                                  type="button"
+                                  variant="subtle"
+                                  onClick={() => skillFields.remove(index)}
+                                >
+                                  {t("onboarding.remove")}
+                                </Button>
+                              </Group>
+                              <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+                                <TextInput
+                                  label={t("onboarding.fields.skillTitle")}
+                                  placeholder={t("onboarding.placeholders.skillTitle")}
+                                  {...register(`skills.${index}.title`)}
+                                />
+                                <Select
+                                  label={t("onboarding.fields.skillLevel")}
+                                  data={[
+                                    {
+                                      value: "unknown",
+                                      label: t("options.skillLevels.unknown"),
+                                    },
+                                    { value: "weak", label: t("options.skillLevels.weak") },
+                                    {
+                                      value: "developing",
+                                      label: t("options.skillLevels.developing"),
+                                    },
+                                    {
+                                      value: "strong",
+                                      label: t("options.skillLevels.strong"),
+                                    },
+                                  ]}
+                                  {...register(`skills.${index}.level`)}
+                                />
+                              </SimpleGrid>
+                              <Textarea
+                                autosize
+                                label={t("onboarding.fields.skillDescription")}
+                                minRows={2}
+                                placeholder={t("onboarding.placeholders.skillDescription")}
+                                {...register(`skills.${index}.description`)}
+                              />
+                            </Stack>
+                          </Paper>
+                        ))}
+                      </Stack>
+                    )}
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {currentStep === "background" ? (
+                <Card>
+                  <CardContent>
+                    <Stack gap="lg">
+                      <Stack gap={4}>
+                        <Title order={3} size="h4">
+                          {t("onboarding.backgroundSectionTitle")}
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                          {t("onboarding.backgroundSectionDescription")}
+                        </Text>
+                      </Stack>
+                      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
                         <Select
-                          label={t("onboarding.fields.goalType")}
+                          label={t("onboarding.fields.contentLanguage")}
                           data={[
                             {
-                              value: "job-search",
-                              label: t("options.goalTypes.job-search"),
+                              value: "mixed",
+                              label: t("options.contentLanguage.mixed"),
                             },
-                            {
-                              value: "company-interview",
-                              label: t("options.goalTypes.company-interview"),
-                            },
-                            {
-                              value: "role-growth",
-                              label: t("options.goalTypes.role-growth"),
-                            },
-                            {
-                              value: "skill-growth",
-                              label: t("options.goalTypes.skill-growth"),
-                            },
-                            {
-                              value: "custom",
-                              label: t("options.goalTypes.custom"),
-                            },
+                            { value: "en", label: t("options.contentLanguage.en") },
+                            { value: "ru", label: t("options.contentLanguage.ru") },
                           ]}
-                          {...register(`goals.${index}.goalType`)}
-                        />
-                        <TextInput
-                          label={t("onboarding.fields.targetCompany")}
-                          {...register(`goals.${index}.targetCompany`)}
-                        />
-                        <TextInput
-                          label={t("onboarding.fields.targetRole")}
-                          {...register(`goals.${index}.targetRole`)}
+                          {...register("preferences.contentLanguage")}
                         />
                         <Select
-                          label={t("onboarding.fields.targetSeniority")}
+                          label={t("onboarding.fields.studyRhythm")}
                           data={[
-                            { value: "", label: t("options.empty") },
+                            { value: "daily", label: t("options.studyRhythm.daily") },
                             {
-                              value: "intern",
-                              label: t("options.seniority.intern"),
+                              value: "weekdays",
+                              label: t("options.studyRhythm.weekdays"),
                             },
                             {
-                              value: "junior",
-                              label: t("options.seniority.junior"),
+                              value: "weekends",
+                              label: t("options.studyRhythm.weekends"),
                             },
                             {
-                              value: "middle",
-                              label: t("options.seniority.middle"),
+                              value: "weekly",
+                              label: t("options.studyRhythm.weekly"),
                             },
                             {
-                              value: "senior",
-                              label: t("options.seniority.senior"),
-                            },
-                            {
-                              value: "staff",
-                              label: t("options.seniority.staff"),
-                            },
-                            {
-                              value: "lead",
-                              label: t("options.seniority.lead"),
+                              value: "flexible",
+                              label: t("options.studyRhythm.flexible"),
                             },
                           ]}
-                          {...register(`goals.${index}.targetSeniority`)}
-                        />
-                        <TextInput
-                          label={t("onboarding.fields.interviewDate")}
-                          type="date"
-                          {...register(`goals.${index}.interviewDate`)}
+                          {...register("preferences.studyRhythm")}
                         />
                         <Controller
                           control={control}
-                          name={`goals.${index}.focusAreas`}
-                          render={({ field: controllerField }) => (
+                          name="preferences.programmingLanguages"
+                          render={({ field }) => (
                             <TextInput
-                              label={t("onboarding.fields.focusAreas")}
-                              value={toCsv(controllerField.value)}
+                              label={t("onboarding.fields.programmingLanguages")}
+                              value={toCsv(field.value)}
                               onChange={(event) =>
-                                controllerField.onChange(
-                                  fromCsv(event.target.value),
-                                )
+                                field.onChange(fromCsv(event.target.value))
                               }
-                              placeholder={t("onboarding.hints.commaSeparated")}
+                              placeholder={t("onboarding.placeholders.programmingLanguages")}
                             />
                           )}
                         />
                         <TextInput
-                          label={t("onboarding.fields.goalDescription")}
-                          {...register(`goals.${index}.description`)}
+                          label={t("onboarding.fields.resumeTitle")}
+                          placeholder={t("onboarding.placeholders.resumeTitle")}
+                          {...register("resume.title")}
                         />
                       </SimpleGrid>
-                      {goalFields.fields.length > 1 ? (
-                        <Button
-                          color="red"
-                          leftSection={<Trash2 size={16} />}
-                          mt="md"
-                          type="button"
-                          variant="subtle"
-                          onClick={() => goalFields.remove(index)}
-                        >
-                          {t("onboarding.remove")}
-                        </Button>
-                      ) : null}
-                    </Box>
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
+                      <Textarea
+                        autosize
+                        label={t("onboarding.fields.resumeContent")}
+                        minRows={8}
+                        placeholder={t("onboarding.hints.resumePlaceholder")}
+                        {...register("resume.content")}
+                      />
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ) : null}
 
-            <Card>
-              <CardContent>
-                <Group align="center" justify="space-between" gap="md">
-                  <Title order={2} size="h3">
-                    {t("onboarding.steps.skills")}
-                  </Title>
+              {currentStep === "review" ? (
+                <Card>
+                  <CardContent>
+                    <Stack gap="lg">
+                      <Stack gap={4}>
+                        <Title order={3} size="h4">
+                          {t("onboarding.reviewTitle")}
+                        </Title>
+                        <Text c="dimmed" size="sm">
+                          {t("onboarding.reviewDescription")}
+                        </Text>
+                      </Stack>
+                      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+                        <ReviewItem
+                          label={t("dashboard.profile")}
+                          value={
+                            watchedProfile.displayName ??
+                            watchedProfile.targetRole ??
+                            t("options.empty")
+                          }
+                        />
+                        <ReviewItem
+                          label={t("dashboard.primaryGoal")}
+                          value={
+                            activeGoals[0]?.title?.trim().length
+                              ? activeGoals[0].title
+                              : t("options.empty")
+                          }
+                        />
+                        <ReviewItem
+                          label={t("dashboard.goals")}
+                          value={String(activeGoalCount)}
+                        />
+                        <ReviewItem
+                          label={t("dashboard.skills")}
+                          value={String(activeSkillCount)}
+                        />
+                        <ReviewItem
+                          label={t("onboarding.fields.programmingLanguages")}
+                          value={
+                            programmingLanguages.length > 0
+                              ? programmingLanguages.join(", ")
+                              : t("options.empty")
+                          }
+                        />
+                        <ReviewItem
+                          label={t("dashboard.resume")}
+                          value={
+                            watchedResume.content.trim().length > 0
+                              ? t("onboarding.reviewResumeReady")
+                              : t("dashboard.noResume")
+                          }
+                        />
+                      </SimpleGrid>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {stepAlert ? (
+                <Alert color="red" radius="sm" variant="light">
+                  {stepAlert}
+                </Alert>
+              ) : null}
+
+              {Object.keys(formState.errors).length > 0 && currentStep === "review" ? (
+                <Alert color="red" radius="sm" variant="light">
+                  {complete.error?.message ?? t("onboarding.checkRequired")}
+                </Alert>
+              ) : null}
+
+              {complete.error || saveDraft.error ? (
+                <Alert color="red" radius="sm" variant="light">
+                  {complete.error?.message ?? saveDraft.error?.message}
+                </Alert>
+              ) : null}
+
+              {complete.isSuccess || saveDraft.isSuccess ? (
+                <Alert
+                  color="green"
+                  icon={<CheckCircle2 size={16} />}
+                  radius="sm"
+                  variant="light"
+                >
+                  {complete.isSuccess
+                    ? t("onboarding.saved")
+                    : t("onboarding.draftSaved")}
+                </Alert>
+              ) : null}
+
+              <Paper
+                bg="color-mix(in srgb, var(--mantine-color-body) 95%, transparent)"
+                bottom={0}
+                p="md"
+                pos="sticky"
+                radius={0}
+                style={{
+                  backdropFilter: "blur(12px)",
+                  borderTop: "1px solid var(--mantine-color-default-border)",
+                  zIndex: 10,
+                }}
+              >
+                <Group justify="space-between" gap="sm">
                   <Button
-                    color="gray"
-                    leftSection={<Plus size={16} />}
+                    disabled={stepIndex === 0 || isSaving}
+                    leftSection={<ChevronLeft size={16} />}
                     type="button"
                     variant="default"
-                    onClick={() =>
-                      skillFields.append({
-                        title: "",
-                        level: "unknown",
-                        description: null,
-                      })
-                    }
+                    onClick={() => {
+                      const previousStep = onboardingSteps[stepIndex - 1];
+
+                      if (previousStep) {
+                        void goToStep(previousStep);
+                      }
+                    }}
                   >
-                    {t("onboarding.addSkill")}
+                    {t("onboarding.back")}
                   </Button>
-                </Group>
-                <Stack gap="lg">
-                  {skillFields.fields.map((field, index) => (
-                    <Box key={field.id}>
-                      {index > 0 ? <Divider mb="lg" /> : null}
-                      <SimpleGrid cols={{ base: 1, md: 4 }} spacing="md">
-                        <TextInput
-                          label={t("onboarding.fields.skillTitle")}
-                          {...register(`skills.${index}.title`)}
-                        />
-                        <Select
-                          label={t("onboarding.fields.skillLevel")}
-                          data={[
-                            {
-                              value: "unknown",
-                              label: t("options.skillLevels.unknown"),
-                            },
-                            {
-                              value: "weak",
-                              label: t("options.skillLevels.weak"),
-                            },
-                            {
-                              value: "developing",
-                              label: t("options.skillLevels.developing"),
-                            },
-                            {
-                              value: "strong",
-                              label: t("options.skillLevels.strong"),
-                            },
-                          ]}
-                          {...register(`skills.${index}.level`)}
-                        />
-                        <TextInput
-                          label={t("onboarding.fields.skillDescription")}
-                          {...register(`skills.${index}.description`)}
-                        />
-                      </SimpleGrid>
-                      {skillFields.fields.length > 1 ? (
-                        <Button
-                          color="red"
-                          leftSection={<Trash2 size={16} />}
-                          mt="md"
-                          type="button"
-                          variant="subtle"
-                          onClick={() => skillFields.remove(index)}
-                        >
-                          {t("onboarding.remove")}
-                        </Button>
-                      ) : null}
-                    </Box>
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
+                  <Group gap="sm">
+                    <Button
+                      color="gray"
+                      disabled={isSaving}
+                      leftSection={<Save size={16} />}
+                      loading={saveDraft.isPending}
+                      type="button"
+                      variant="default"
+                      onClick={() => {
+                        const draft = onboardingDraftInputSchema.safeParse(getValues());
 
-            <Card>
-              <CardContent>
-                <Title order={2} size="h3">
-                  {t("onboarding.steps.resume")}
-                </Title>
-                <Stack gap="md">
-                  <TextInput
-                    label={t("onboarding.fields.resumeTitle")}
-                    {...register("resume.title")}
-                  />
-                  <Textarea
-                    autosize
-                    label={t("onboarding.fields.resumeContent")}
-                    minRows={6}
-                    placeholder={t("onboarding.hints.resumePlaceholder")}
-                    {...register("resume.content")}
-                  />
-                </Stack>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent>
-                <Title order={2} size="h3">
-                  {t("onboarding.steps.preferences")}
-                </Title>
-                <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
-                  <Select
-                    label={t("onboarding.fields.uiLocale")}
-                    data={[
-                      { value: "en", label: "English" },
-                      { value: "ru", label: "Русский" },
-                    ]}
-                    {...register("preferences.uiLocale")}
-                  />
-                  <Select
-                    label={t("onboarding.fields.contentLanguage")}
-                    data={[
-                      {
-                        value: "mixed",
-                        label: t("options.contentLanguage.mixed"),
-                      },
-                      { value: "en", label: t("options.contentLanguage.en") },
-                      { value: "ru", label: t("options.contentLanguage.ru") },
-                    ]}
-                    {...register("preferences.contentLanguage")}
-                  />
-                  <Controller
-                    control={control}
-                    name="preferences.programmingLanguages"
-                    render={({ field }) => (
-                      <TextInput
-                        label={t("onboarding.fields.programmingLanguages")}
-                        value={toCsv(field.value)}
-                        onChange={(event) =>
-                          field.onChange(fromCsv(event.target.value))
+                        if (draft.success) {
+                          saveDraft.mutate(draft.data);
                         }
-                        placeholder={t("onboarding.hints.commaSeparated")}
-                      />
+                      }}
+                    >
+                      {saveDraft.isPending
+                        ? t("onboarding.saving")
+                        : t("onboarding.draft")}
+                    </Button>
+                    {currentStep === "review" ? (
+                      <Button
+                        disabled={isSaving}
+                        leftSection={<CheckCircle2 size={16} />}
+                        loading={complete.isPending}
+                        type="submit"
+                      >
+                        {complete.isPending
+                          ? t("onboarding.saving")
+                          : t("onboarding.finish")}
+                      </Button>
+                    ) : (
+                      <Button
+                        disabled={isSaving}
+                        leftSection={<ArrowRight size={16} />}
+                        type="button"
+                        onClick={() => {
+                          void handleNext();
+                        }}
+                      >
+                        {t("onboarding.continue")}
+                      </Button>
                     )}
-                  />
-                  <Select
-                    label={t("onboarding.fields.studyRhythm")}
-                    data={[
-                      { value: "daily", label: t("options.studyRhythm.daily") },
-                      {
-                        value: "weekdays",
-                        label: t("options.studyRhythm.weekdays"),
-                      },
-                      {
-                        value: "weekends",
-                        label: t("options.studyRhythm.weekends"),
-                      },
-                      {
-                        value: "weekly",
-                        label: t("options.studyRhythm.weekly"),
-                      },
-                      {
-                        value: "flexible",
-                        label: t("options.studyRhythm.flexible"),
-                      },
-                    ]}
-                    {...register("preferences.studyRhythm")}
-                  />
-                </SimpleGrid>
-              </CardContent>
-            </Card>
-
-            {Object.keys(formState.errors).length > 0 ? (
-              <Alert color="red" radius="sm" variant="light">
-                {complete.error?.message ?? t("onboarding.checkRequired")}
-              </Alert>
-            ) : null}
-            {complete.error || saveDraft.error ? (
-              <Alert color="red" radius="sm" variant="light">
-                {complete.error?.message ?? saveDraft.error?.message}
-              </Alert>
-            ) : null}
-            {complete.isSuccess || saveDraft.isSuccess ? (
-              <Alert
-                color="green"
-                icon={<CheckCircle2 size={16} />}
-                radius="sm"
-                variant="light"
-              >
-                {complete.isSuccess
-                  ? t("onboarding.saved")
-                  : t("onboarding.draftSaved")}
-              </Alert>
-            ) : null}
-
-            <Paper
-              bg="color-mix(in srgb, var(--mantine-color-body) 95%, transparent)"
-              bottom={0}
-              p="md"
-              pos="sticky"
-              radius={0}
-              style={{
-                backdropFilter: "blur(12px)",
-                borderTop: "1px solid var(--mantine-color-default-border)",
-                zIndex: 10,
-              }}
-            >
-              <Group justify="flex-end" gap="sm">
-                <Button
-                  color="gray"
-                  disabled={isSaving}
-                  leftSection={<Save size={16} />}
-                  loading={saveDraft.isPending}
-                  type="button"
-                  variant="default"
-                  onClick={() => {
-                    const draft = onboardingDraftInputSchema.safeParse(getValues());
-
-                    if (draft.success) {
-                      saveDraft.mutate(draft.data);
-                    } else {
-                      void trigger();
-                    }
-                  }}
-                >
-                  {isSaving && saveDraft.isPending
-                    ? t("onboarding.saving")
-                    : t("onboarding.draft")}
-                </Button>
-                <Button
-                  disabled={isSaving}
-                  leftSection={<Save size={16} />}
-                  loading={complete.isPending}
-                  type="submit"
-                >
-                  {complete.isPending
-                    ? t("onboarding.saving")
-                    : t("onboarding.save")}
-                </Button>
-              </Group>
-            </Paper>
-          </form>
+                  </Group>
+                </Group>
+              </Paper>
+            </Stack>
+          </Box>
         </SimpleGrid>
       </PageSection>
     </Container>

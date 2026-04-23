@@ -129,8 +129,30 @@ async function saveOnboardingInput({
     }
   }
 
-  const skills = await ctx.database.repositories.skills.upsertMany([...skillInputsByTitle.values()]);
+  const skills = await ctx.database.repositories.skills.upsertMany(
+    [...skillInputsByTitle.values()].map((skill) => ({
+      title: skill.title
+    }))
+  );
   const skillsByTitle = new Map(skills.map((skill) => [normalizeTitle(skill.title), skill]));
+  const savedProfileSkills = await ctx.database.repositories.profileSkills.replaceMany(
+    input.skills
+      .filter((skill) => skill.title.trim().length > 0)
+      .map((skill) => {
+        const savedSkill = skillsByTitle.get(normalizeTitle(skill.title));
+
+        if (!savedSkill) {
+          throw new Error(`Could not resolve saved skill for ${skill.title}.`);
+        }
+
+        return {
+          skillId: savedSkill.id,
+          level: skill.level,
+          notes: skill.description
+        };
+      }),
+    profile.id
+  );
 
   const goalSkillLinks = [];
 
@@ -172,7 +194,11 @@ async function saveOnboardingInput({
     profile,
     goals: savedGoals.map(({ goal }) => goal),
     goalSkillLinks,
-    skills,
+    skills: savedProfileSkills.map((profileSkill) => ({
+      ...profileSkill.skill,
+      level: profileSkill.level,
+      description: profileSkill.notes
+    })),
     resumeDocument,
     isComplete: typeof (completedAt ?? existingOnboarding.completedAt) === "string"
   };
@@ -181,8 +207,9 @@ async function saveOnboardingInput({
 export const onboardingRouter = router({
   getState: publicProcedure.query(async ({ ctx }) => {
     const profile = await ctx.database.repositories.userProfiles.ensureLocalProfile();
+    await ctx.database.repositories.profileSkills.backfillLegacyRecords(profile.id);
     const goals = await ctx.database.repositories.goals.list(profile.id);
-    const skills = await ctx.database.repositories.skills.list();
+    const skills = await ctx.database.repositories.profileSkills.list(profile.id);
     const [resumeDocument] = await ctx.database.repositories.documents.listBySourceType(
       "resume",
       profile.id
@@ -200,7 +227,11 @@ export const onboardingRouter = router({
           goals.map((goal) => ctx.database.repositories.goals.listSkillLinks(goal.id))
         )
       ).flat(),
-      skills,
+      skills: skills.map((profileSkill) => ({
+        ...profileSkill.skill,
+        level: profileSkill.level,
+        description: profileSkill.notes
+      })),
       resumeDocument: resumeDocument ?? null,
       isComplete: typeof onboarding.completedAt === "string",
       preferences: profile.preferences
